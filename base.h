@@ -18,9 +18,10 @@
 #include <stdint.h>
 
 /// The bare fucking minimum
-#define MAX(A, B)  ((A) > (B) ? (A) : (B))
-#define MIN(A, B)  ((A) < (B) ? (A) : (B))
-#define ARRSIZE(A) (sizeof(A) / sizeof((A)[0]))
+#define MAX(A, B)      ((A) > (B) ? (A) : (B))
+#define MIN(A, B)      ((A) < (B) ? (A) : (B))
+#define ARRSIZE(A)     (sizeof(A) / sizeof((A)[0]))
+#define NTH_BYTE(X, N) (((X) >> (8 * N)) & ((1 << 8) - 1))
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -79,5 +80,41 @@ u64 djb2(sv_t string);
 void sym_table_init(sym_table_t *table);
 char *sym_table_find(sym_table_t *table, sv_t sv);
 void sym_table_cleanup(sym_table_t *table);
+
+/// Pointer tagging scheme for lisps
+#define NIL 0
+typedef struct Obj lisp_t;
+
+typedef enum Tag
+{
+  TAG_NIL  = 0b00000000,
+  TAG_INT  = 0b00000001, // special so we can encode 63 bit integers
+  TAG_SYM  = 0b00000100,
+  NUM_TAGS = 3,
+} tag_t;
+
+enum Shift
+{
+  SHIFT_INT = 1,
+  SHIFT_SYM = 8,
+};
+
+enum Mask
+{
+  MASK_INT = 0b00000001,
+  MASK_SYM = 0b11111111,
+};
+
+#define TAG(PTR, TYPE)    ((lisp_t *)(((PTR) << SHIFT_##TYPE) | TAG_##TYPE))
+#define IS_TAG(PTR, TYPE) (((u64)(PTR) & MASK_##TYPE) == TAG_##TYPE)
+#define UNTAG(PTR, TYPE)  (((u64)PTR) >> SHIFT_##TYPE)
+
+#define INT_MAX ((1L << 62) - 1)
+#define INT_MIN (-(1L << 62))
+
+lisp_t *tag_int(i64 i);
+lisp_t *tag_sym(char *str);
+i64 as_int(lisp_t *);
+char *as_sym(lisp_t *);
 
 #endif
