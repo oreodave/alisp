@@ -27,33 +27,16 @@ sv_t sv_copy(sv_t old)
 
 int main(void)
 {
-  sym_table_t table = {0};
-  sym_table_init(&table);
-  // Let's hash the words of lorem ipsum
-  const char *words[] = {
-      "aliquam",      "erat",      "volutpat",  "nunc",      "eleifend",
-      "leo",          "vitae",     "magna",     "in",        "id",
-      "erat",         "non",       "orci",      "commodo",   "lobortis",
-      "proin",        "neque",     "massa",     "cursus",    "ut",
-      "gravida",      "ut",        "lobortis",  "eget",      "lacus",
-      "sed",          "diam",      "praesent",  "fermentum", "tempor",
-      "tellus",       "nullam",    "tempus",    "mauris",    "ac",
-      "felis",        "vel",       "velit",     "tristique", "imperdiet",
-      "donec",        "at",        "pede",      "etiam",     "vel",
-      "neque",        "nec",       "dui",       "dignissim", "bibendum",
-      "vivamus",      "id",        "enim",      "phasellus", "neque",
-      "orci",         "porta",     "a",         "aliquet",   "quis",
-      "semper",       "a",         "massa",     "phasellus", "purus",
-      "pellentesque", "tristique", "imperdiet", "tortor",    "nam",
-      "euismod",      "tellus",    "id",        "erat",
+  i64 numbers[] = {
+      1, 1024, -200, 1LU << 32, INT_MAX, INT_MIN,
   };
 
-  for (u64 i = 0; i < ARRSIZE(words); ++i)
+  for (u64 i = 0; i < ARRSIZE(numbers); ++i)
   {
-    char *ptr = sym_table_find(&table, SV(words[i], strlen(words[i])));
-    printf("%s => %p\n", words[i], ptr);
+    i64 num      = numbers[i];
+    lisp_t *lisp = tag_int(num);
+    i64 ret      = as_int(lisp);
+    printf("%#16lx => %#16lx => %#16lx\n", num, lisp, ret);
   }
-
-  sym_table_cleanup(&table);
   return 0;
 }
