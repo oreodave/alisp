@@ -32,7 +32,7 @@ void sym_table_init(sym_table_t *table)
   vec_make((void **)&table->entries, table->capacity * sizeof(*table->entries));
 }
 
-sv_t sym_table_find(sym_table_t *table, sv_t sv)
+char *sym_table_find(sym_table_t *table, sv_t sv)
 {
   // TODO: Deal with resizing this when table->count > table->size / 2
   u64 index = djb2(sv) & (table->capacity - 1);
@@ -41,21 +41,26 @@ sv_t sym_table_find(sym_table_t *table, sv_t sv)
             index = index & (table->capacity - 1), comp = table->entries[index])
     // Is it present in the table?
     if (sv.size == comp.size && strncmp(sv.data, comp.data, sv.size) == 0)
-      return comp;
+      break;
 
-  // Otherwise we need to duplicate and make it permanently interned
-  sv_t newsv            = sv_copy(sv);
-  table->entries[index] = newsv;
-  ++table->count;
+  // we couldn't find it in our linear search (worst case scenario)
+  if (!table->entries[index].data)
+  {
+    sv_t newsv            = sv_copy(sv);
+    table->entries[index] = newsv;
+    ++table->count;
+  }
 
-  return newsv;
+  return table->entries[index].data;
 }
 
 void sym_table_cleanup(sym_table_t *table)
 {
+  // kill the data
   for (u64 i = 0; i < table->capacity; ++i)
     if (table->entries[i].data)
       free(table->entries[i].data);
+  // kill the container
   vec_free((void **)&table->entries);
   memset(table, 0, sizeof(*table));
 }

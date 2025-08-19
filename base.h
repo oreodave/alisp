@@ -77,7 +77,7 @@ typedef struct
 
 u64 djb2(sv_t string);
 void sym_table_init(sym_table_t *table);
-sv_t sym_table_find(sym_table_t *table, sv_t sv);
+char *sym_table_find(sym_table_t *table, sv_t sv);
 void sym_table_cleanup(sym_table_t *table);
 
 #endif

@@ -50,8 +50,8 @@ int main(void)
 
   for (u64 i = 0; i < ARRSIZE(words); ++i)
   {
-    sv_t sv = sym_table_find(&table, SV(words[i], strlen(words[i])));
-    printf("%s => %p\n", words[i], sv.data);
+    char *ptr = sym_table_find(&table, SV(words[i], strlen(words[i])));
+    printf("%s => %p\n", words[i], ptr);
   }
 
   sym_table_cleanup(&table);
