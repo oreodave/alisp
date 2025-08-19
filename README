@@ -1,0 +1,19 @@
+┌───────────────────────────────┐
+│           _      _            │
+│     /\   | |    (_)           │
+│    /  \  | |     _ ___ _ __   │
+│   / /\ \ | |    | / __| '_ \  │
+│  / ____ \| |____| \__ \ |_) | │
+│ /_/    \_\______|_|___/ .__/  │
+│                       | |     │
+│                       |_|     │
+└───────────────────────────────┘
+
+Arya's Lisp!  Or... Another Lisp.  However full you see the glass.
+
+Goals:
+- Working Lisp interpreter (designed as I go, not sticking to Common Lisp or
+  Scheme).
+- Bespoke compilation method by transpiling to C, with ability to compile
+  expressions and functions at runtime.
+- Self Hosted interpreter + compiler, with a small bootstrap runtime in C.
