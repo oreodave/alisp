@@ -1,46 +1,22 @@
 /* Copyright (C) 2025 Aryadev Chavali
 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Unlicense
- * for details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the Unlicense for details.
 
- * You may distribute and modify this code under the terms of the
- * Unlicense, which you should have received a copy of along with this
- * program.  If not, please go to <https://unlicense.org/>.
+ * You may distribute and modify this code under the terms of the Unlicense,
+ * which you should have received a copy of along with this program.  If not,
+ * please go to <https://unlicense.org/>.
 
  * Created: 2025-08-19
  * Description: Entrypoint
  */
 
 #include <malloc.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#define MAX(A, B) ((A) > (B) ? (A) : (B))
-#define MIN(A, B) ((A) < (B) ? (A) : (B))
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
-typedef int8_t i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
-
-typedef struct
-{
-  u64 size, capacity;
-  u8 bytes[];
-} vec_t;
-
-#define VEC_GET(P)  (((vec_t *)(P)) - 1)
-#define VEC_SIZE(P) (VEC_GET(P)->size)
-#define VEC_CAP(P)  (VEC_GET(P)->capacity)
-#define VEC_MULT    2
+#include "./base.h"
 
 void vec_make(void **ptr, u64 size)
 {
@@ -100,29 +76,12 @@ void vec_clone(void **dest, void **src)
   VEC_SIZE(*dest) = VEC_SIZE(*src);
 }
 
-typedef struct
-{
-  u64 size;
-  char *data;
-} sv_t;
-
-#define SV(DATA, SIZE) ((sv_t){.data = (DATA), .size = (SIZE)})
-#define SV_FMT(SV)     (int)(SV).size, (SV).data
-#define PR_SV          "%.*s"
-
 sv_t sv_copy(sv_t old)
 {
   char *newstr = calloc(1, old.size * sizeof(*newstr));
   memcpy(newstr, old.data, old.size);
   return SV(newstr, old.size);
 }
-
-typedef struct
-{
-  u64 count;     // How many strings?
-  u64 capacity;  // How many entry buckets?
-  sv_t *entries; // this is actually a vector on the inside lol
-} sym_table_t;
 
 u64 djb2(sv_t string)
 {
@@ -131,8 +90,6 @@ u64 djb2(sv_t string)
     hash = string.data[i] + (hash + (hash << 5));
   return hash;
 }
-
-#define SYM_TABLE_INIT_SIZE 1024
 
 void sym_table_init(sym_table_t *table)
 {
@@ -192,7 +149,7 @@ int main(void)
       "euismod",      "tellus",    "id",        "erat",
   };
 
-  for (u64 i = 0; i < sizeof(words) / sizeof(words[0]); ++i)
+  for (u64 i = 0; i < ARRSIZE(words); ++i)
   {
     sv_t sv = sym_table_find(&table, SV(words[i], strlen(words[i])));
     printf("%s => %p\n", words[i], sv.data);
