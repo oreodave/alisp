@@ -97,6 +97,27 @@ typedef struct
   void *data;
 } lvec_t;
 
+/// System context - essentially something to help with system management
+typedef struct
+{
+  lisp_t *memory;
+  sym_table_t symtable;
+} context_t;
+
+void context_init(context_t *);
+void context_cleanup(context_t *);
+
+/// Constructors and destructors
+lisp_t *make_int(i64 i);
+lisp_t *intern(context_t *context, char *str);
+lisp_t *cons(context_t *context, lisp_t *car, lisp_t *cdr);
+lisp_t *make_vec(context_t *context, u64 capacity);
+
+i64 as_int(lisp_t *);
+char *as_sym(lisp_t *);
+cons_t *as_cons(lisp_t *);
+void *as_vec(lisp_t *);
+
 /// Pointer tagging scheme for lisps
 
 typedef enum Tag
@@ -136,10 +157,5 @@ lisp_t *tag_int(i64 i);
 lisp_t *tag_sym(char *str);
 lisp_t *tag_cons(cons_t *cons);
 lisp_t *tag_vec(lvec_t *lvec);
-
-i64 as_int(lisp_t *);
-char *as_sym(lisp_t *);
-cons_t *as_cons(lisp_t *);
-void *as_vec(lisp_t *);
 
 #endif
