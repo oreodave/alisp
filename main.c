@@ -53,5 +53,7 @@ int main(void)
     sv_t sv = sym_table_find(&table, SV(words[i], strlen(words[i])));
     printf("%s => %p\n", words[i], sv.data);
   }
+
+  sym_table_cleanup(&table);
   return 0;
 }

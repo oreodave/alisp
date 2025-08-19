@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-CFLAGS="-Wall -Wextra -std=c11 -ggdb"
+CFLAGS="-Wall -Wextra -std=c11 -ggdb -fsanitize=address -fsanitize=undefined"
 SRC="vec.c symtable.c main.c"
 OUT="alisp.out"
 
