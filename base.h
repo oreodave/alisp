@@ -33,7 +33,6 @@ typedef int32_t i32;
 typedef int64_t i64;
 
 /// String Views for my String Needs
-
 typedef struct
 {
   u64 size;

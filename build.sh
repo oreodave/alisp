@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 
 CFLAGS="-Wall -Wextra -std=c11 -ggdb"
-SRC="main.c"
-OUT="main.out"
+SRC="vec.c symtable.c main.c"
+OUT="alisp.out"
 
 set -xe
 
