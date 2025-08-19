@@ -81,28 +81,48 @@ void sym_table_init(sym_table_t *table);
 char *sym_table_find(sym_table_t *table, sv_t sv);
 void sym_table_cleanup(sym_table_t *table);
 
-/// Pointer tagging scheme for lisps
+/// Basic defintions for a Lisp
 #define NIL 0
+
 typedef struct Obj lisp_t;
+
+typedef struct
+{
+  lisp_t *car, *cdr;
+} cons_t;
+
+typedef struct
+{
+  // 2 levels of indirection... disgusting
+  void *data;
+} lvec_t;
+
+/// Pointer tagging scheme for lisps
 
 typedef enum Tag
 {
-  TAG_NIL  = 0b00000000,
+  TAG_NIL  = 0b00000000, // Start of atomic types
   TAG_INT  = 0b00000001, // special so we can encode 63 bit integers
   TAG_SYM  = 0b00000100,
-  NUM_TAGS = 3,
+  TAG_CONS = 0b00000010, // Start of container types
+  TAG_VEC  = 0b00000110,
+  NUM_TAGS = 5,
 } tag_t;
 
 enum Shift
 {
-  SHIFT_INT = 1,
-  SHIFT_SYM = 8,
+  SHIFT_INT  = 1,
+  SHIFT_SYM  = 8,
+  SHIFT_CONS = 8,
+  SHIFT_VEC  = 8,
 };
 
 enum Mask
 {
-  MASK_INT = 0b00000001,
-  MASK_SYM = 0b11111111,
+  MASK_INT  = 0b00000001,
+  MASK_SYM  = 0b11111111,
+  MASK_CONS = 0b11111111,
+  MASK_VEC  = 0b11111111,
 };
 
 #define TAG(PTR, TYPE)    ((lisp_t *)(((PTR) << SHIFT_##TYPE) | TAG_##TYPE))
@@ -114,7 +134,12 @@ enum Mask
 
 lisp_t *tag_int(i64 i);
 lisp_t *tag_sym(char *str);
+lisp_t *tag_cons(cons_t *cons);
+lisp_t *tag_vec(lvec_t *lvec);
+
 i64 as_int(lisp_t *);
 char *as_sym(lisp_t *);
+cons_t *as_cons(lisp_t *);
+void *as_vec(lisp_t *);
 
 #endif

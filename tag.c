@@ -13,6 +13,7 @@
  */
 
 #include <assert.h>
+#include <stdlib.h>
 
 #include "./base.h"
 
@@ -24,6 +25,11 @@ lisp_t *tag_int(i64 i)
 lisp_t *tag_sym(char *str)
 {
   return TAG((u64)str, SYM);
+}
+
+lisp_t *tag_cons(cons_t *cons)
+{
+  return TAG((u64)cons, CONS);
 }
 
 i64 as_int(lisp_t *obj)
@@ -39,4 +45,20 @@ char *as_sym(lisp_t *obj)
 {
   assert(IS_TAG(obj, SYM));
   return (char *)UNTAG(obj, SYM);
+}
+
+cons_t *as_cons(lisp_t *obj)
+{
+  assert(IS_TAG(obj, CONS));
+  return (cons_t *)UNTAG(obj, CONS);
+}
+
+void *as_vec(lisp_t *obj)
+{
+  assert(IS_TAG(obj, VEC));
+  lvec_t *vec = (lvec_t *)UNTAG(obj, VEC);
+  if (vec)
+    return vec->data;
+  else
+    return NULL;
 }
