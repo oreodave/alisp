@@ -5,6 +5,38 @@
 
 * Notes
 ** Overview
+~alisp.h~ is a single header for the entire runtime. We'll also have a
+compiled shared library ~alisp.so~ which one may link against to get
+implementation.  That's all that's necessary for one to write C code
+that targets our Lisp machine.
+
+We'll have a separate header + library for the compiler since that's
+not strictly necessary for transpiled C code to consume.  This will
+transpile Lisp code into C, which uses the aforementioned ~alisp~
+header and library to compile into a native executable.
+
+** WIP How does transpiled code operate?
+My current idea is: we're transpiling into C for the actual Lisp code.
+User made functions can be transpiled into C functions, which we can
+mangle names for.  Macros... I don't know, maybe we could have two
+function pointer tables so we know how to execute them?
+
+Then, we'll have an associated "descriptor" file which describes the
+functions we've transpiled.  Bare minimum, this file has to have a
+"symbol name" to C mangled function name dictionary.  We can also add
+other metadata as we need.
+
+*** TODO Deliberate on whether we compile into a shared library or not
+If we compile these C code objects into shared libraries, the
+descriptor needs to concern itself with code locations.  This might be
+easier in a sense, since the code will already be compiled.
+** WIP How do we call native code?
+When we're calling a natively compiled function, we can use this
+metadata mapping to call the C function.  This native code will use
+our Lisp runtime, same as any other code, so it should be pretty
+seamless in that regard.  But we'll need to set a calling convention
+in order to make calling into this seamless from a runtime
+perspective.
 * Tasks
 ** TODO Potentially optimise symbol table ingress :optimisation:design:
 Should we capitalise symbols?  This way, we limit the symbol table's
