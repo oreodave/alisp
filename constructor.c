@@ -35,7 +35,7 @@ lisp_t *cons(sys_t *sys, lisp_t *car, lisp_t *cdr)
 lisp_t *make_vec(sys_t *sys, u64 capacity)
 {
   vec_t *vec = calloc(1, sizeof(*vec));
-  vec_ensure_free(vec, MAX(capacity, VEC_DEFAULT_CAPACITY));
+  vec_init(vec, capacity);
   lisp_t *ptr = tag_vec(vec);
   sys_register(sys, ptr);
   return ptr;
@@ -43,6 +43,6 @@ lisp_t *make_vec(sys_t *sys, u64 capacity)
 
 lisp_t *intern(sys_t *sys, sv_t sv)
 {
-  sv_t *str = sym_table_find(&sys->symtable, sv);
+  char *str = sym_table_find(&sys->symtable, sv);
   return tag_sym(str);
 }

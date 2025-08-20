@@ -15,6 +15,9 @@
 #ifndef ALISP_H
 #define ALISP_H
 
+#include <assert.h>
+#include <stdalign.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /// The bare fucking minimum
@@ -46,53 +49,46 @@ typedef struct
 
 sv_t sv_copy(sv_t);
 
-/// Good ol' Dynamic Arrays
+/// Dynamic arrays
+
+#define VEC_INLINE_CAPACITY 32
+#define VEC_MULT            2
+
 typedef struct Vector
 {
   u64 size, capacity;
-  void *data;
+  u8 is_inlined;
+  union
+  {
+    void *ptr;
+    alignas(max_align_t) u8 inlined[VEC_INLINE_CAPACITY];
+  };
 } vec_t;
 
-#define VEC_MULT             2
-#define VEC_DEFAULT_CAPACITY 8
+static_assert(sizeof(vec_t) == 64, "vec_t has to be 64 bytes");
 
+#define VEC_GET(V, T) ((T *)vec_data(V))
+
+void vec_init(vec_t *, u64);
 void vec_free(vec_t *);
+void *vec_data(vec_t *);
 void vec_ensure_free(vec_t *, u64);
 void vec_append(vec_t *, void *, u64);
 void vec_clone(vec_t *, vec_t *);
 
-/// Inlined Dynamic arrays
-typedef struct InlineVector
-{
-  u64 size, capacity;
-  u8 bytes[];
-} ivec_t;
-
-#define IVEC_GET(P)  (((ivec_t *)(P)) - 1)
-#define IVEC_SIZE(P) (IVEC_GET(P)->size)
-#define IVEC_CAP(P)  (IVEC_GET(P)->capacity)
-#define IVEC_MULT    2
-
-void ivec_make(void **, u64);
-void ivec_free(void **);
-void ivec_ensure_free(void **, u64);
-void ivec_append_byte(void **, u8);
-void ivec_append(void **, void *, u64);
-void ivec_clone(void **, void **);
-
 /// Symbol table
 typedef struct
 {
-  u64 count;     // How many strings?
-  u64 capacity;  // How many entry buckets?
-  sv_t *entries; // this is actually a vector on the inside lol
+  u64 count;    // How many strings?
+  u64 capacity; // How many entry buckets?
+  vec_t entries;
 } sym_table_t;
 
-#define SYM_TABLE_INIT_SIZE 1024
+#define SYM_TABLE_INIT_SIZE (1 << 10)
 
 u64 djb2(sv_t string);
 void sym_table_init(sym_table_t *);
-sv_t *sym_table_find(sym_table_t *, sv_t);
+char *sym_table_find(sym_table_t *, sv_t);
 void sym_table_cleanup(sym_table_t *);
 
 /// Basic defintions for a Lisp
@@ -123,7 +119,7 @@ lisp_t *intern(sys_t *, sv_t);
 lisp_t *cons(sys_t *, lisp_t *, lisp_t *);
 
 i64 as_int(lisp_t *);
-sv_t *as_sym(lisp_t *);
+char *as_sym(lisp_t *);
 cons_t *as_cons(lisp_t *);
 vec_t *as_vec(lisp_t *);
 
@@ -168,7 +164,7 @@ enum Mask
 tag_t get_tag(lisp_t *);
 
 lisp_t *tag_int(i64);
-lisp_t *tag_sym(sv_t *);
+lisp_t *tag_sym(char *);
 lisp_t *tag_cons(cons_t *);
 lisp_t *tag_vec(vec_t *);
 

@@ -29,39 +29,43 @@ void sym_table_init(sym_table_t *table)
 {
   table->capacity = MAX(table->capacity, SYM_TABLE_INIT_SIZE);
   table->count    = 0;
-  ivec_make((void **)&table->entries,
-            table->capacity * sizeof(*table->entries));
+  vec_init(&table->entries, table->capacity * sizeof(sv_t));
 }
 
-sv_t *sym_table_find(sym_table_t *table, sv_t sv)
+char *sym_table_find(sym_table_t *table, sv_t sv)
 {
   // WIP: Deal with resizing this when table->count > table->size / 2
   u64 index = djb2(sv) & (table->capacity - 1);
 
-  for (sv_t comp  = table->entries[index]; comp.data; index += 1,
-            index = index & (table->capacity - 1), comp = table->entries[index])
+  for (sv_t comp = VEC_GET(&table->entries, sv_t)[index]; comp.data; index += 1,
+            index = index & (table->capacity - 1),
+            comp  = VEC_GET(&table->entries, sv_t)[index])
     // Is it present in the table?
     if (sv.size == comp.size && strncmp(sv.data, comp.data, sv.size) == 0)
       break;
 
   // we couldn't find it in our linear search (worst case scenario)
-  if (!table->entries[index].data)
+  if (!VEC_GET(&table->entries, sv_t)[index].data)
   {
-    sv_t newsv            = sv_copy(sv);
-    table->entries[index] = newsv;
+    sv_t newsv                            = sv_copy(sv);
+    VEC_GET(&table->entries, sv_t)[index] = newsv;
     ++table->count;
   }
 
-  return table->entries + index;
+  return VEC_GET(&table->entries, sv_t)[index].data;
 }
 
 void sym_table_cleanup(sym_table_t *table)
 {
   // kill the data
+  sv_t current = {0};
   for (u64 i = 0; i < table->capacity; ++i)
-    if (table->entries[i].data)
-      free(table->entries[i].data);
+  {
+    current = VEC_GET(&table->entries, sv_t)[i];
+    if (current.data)
+      free(current.data);
+  }
   // kill the container
-  ivec_free((void **)&table->entries);
+  vec_free(&table->entries);
   memset(table, 0, sizeof(*table));
 }

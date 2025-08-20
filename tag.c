@@ -22,7 +22,7 @@ lisp_t *tag_int(i64 i)
   return TAG((u64)i, INT);
 }
 
-lisp_t *tag_sym(sv_t *str)
+lisp_t *tag_sym(char *str)
 {
   return TAG((u64)str, SYM);
 }
@@ -57,10 +57,10 @@ i64 as_int(lisp_t *obj)
       ;
 }
 
-sv_t *as_sym(lisp_t *obj)
+char *as_sym(lisp_t *obj)
 {
   assert(IS_TAG(obj, SYM));
-  return (sv_t *)UNTAG(obj, SYM);
+  return (char *)UNTAG(obj, SYM);
 }
 
 cons_t *as_cons(lisp_t *obj)
