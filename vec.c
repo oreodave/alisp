@@ -76,7 +76,7 @@ void vec_ensure_free(vec_t *vec, u64 size)
   }
 }
 
-void vec_append(vec_t *vec, void *ptr, u64 size)
+void vec_append(vec_t *vec, const void *const ptr, u64 size)
 {
   if (!vec)
     return;
