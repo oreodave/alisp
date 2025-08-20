@@ -27,8 +27,49 @@ sv_t sv_copy(sv_t old)
 
 int main(void)
 {
-  sys_t sys;
-  sys_init(&sys);
-  sys_cleanup(&sys);
+  const char *words[] = {
+      "aliquam",      "erat",      "volutpat",  "nunc",      "eleifend",
+      "leo",          "vitae",     "magna",     "in",        "id",
+      "erat",         "non",       "orci",      "commodo",   "lobortis",
+      "proin",        "neque",     "massa",     "cursus",    "ut",
+      "gravida",      "ut",        "lobortis",  "eget",      "lacus",
+      "sed",          "diam",      "praesent",  "fermentum", "tempor",
+      "tellus",       "nullam",    "tempus",    "mauris",    "ac",
+      "felis",        "vel",       "velit",     "tristique", "imperdiet",
+      "donec",        "at",        "pede",      "etiam",     "vel",
+      "neque",        "nec",       "dui",       "dignissim", "bibendum",
+      "vivamus",      "id",        "enim",      "phasellus", "neque",
+      "orci",         "porta",     "a",         "aliquet",   "quis",
+      "semper",       "a",         "massa",     "phasellus", "purus",
+      "pellentesque", "tristique", "imperdiet", "tortor",    "nam",
+      "euismod",      "tellus",    "id",        "erat",
+  };
+
+  vec_t vec = {0};
+  vec_init(&vec, 0);
+
+  for (u64 i = 0; i < ARRSIZE(words); ++i)
+  {
+    vec_append(&vec, words[i], strlen(words[i]));
+    vec_append(&vec, "\n", 1);
+    printf("%lu/%lu, inlined?: %s\n", vec.size, vec.capacity,
+           vec.is_inlined ? "yes" : "no");
+  }
+
+  printf("%lu/%lu: %.*s\n", vec.size, vec.capacity, (int)vec.size,
+         vec_data(&vec));
+
+  vec_free(&vec);
+
+  // sym_table_t table = {0};
+  // sym_table_init(&table);
+  // // Let's hash the words of lorem ipsum
+  // for (u64 i = 0; i < ARRSIZE(words); ++i)
+  // {
+  //   char *ptr = sym_table_find(&table, SV(words[i], strlen(words[i])));
+  //   printf("%s => %p\n", words[i], ptr);
+  // }
+
+  // sym_table_cleanup(&table);
   return 0;
 }
