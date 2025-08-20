@@ -29,7 +29,8 @@ void sym_table_init(sym_table_t *table)
 {
   table->capacity = MAX(table->capacity, SYM_TABLE_INIT_SIZE);
   table->count    = 0;
-  vec_make((void **)&table->entries, table->capacity * sizeof(*table->entries));
+  ivec_make((void **)&table->entries,
+            table->capacity * sizeof(*table->entries));
 }
 
 sv_t *sym_table_find(sym_table_t *table, sv_t sv)
@@ -61,6 +62,6 @@ void sym_table_cleanup(sym_table_t *table)
     if (table->entries[i].data)
       free(table->entries[i].data);
   // kill the container
-  vec_free((void **)&table->entries);
+  ivec_free((void **)&table->entries);
   memset(table, 0, sizeof(*table));
 }

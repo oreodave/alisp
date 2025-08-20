@@ -46,25 +46,25 @@ typedef struct
 
 sv_t sv_copy(sv_t old);
 
-/// Dynamic arrays
+/// Inlined Dynamic arrays
 
-typedef struct
+typedef struct InlineVector
 {
   u64 size, capacity;
   u8 bytes[];
-} vec_t;
+} ivec_t;
 
-#define VEC_GET(P)  (((vec_t *)(P)) - 1)
-#define VEC_SIZE(P) (VEC_GET(P)->size)
-#define VEC_CAP(P)  (VEC_GET(P)->capacity)
-#define VEC_MULT    2
+#define IVEC_GET(P)  (((ivec_t *)(P)) - 1)
+#define IVEC_SIZE(P) (IVEC_GET(P)->size)
+#define IVEC_CAP(P)  (IVEC_GET(P)->capacity)
+#define IVEC_MULT    2
 
-void vec_make(void **ptr, u64 size);
-void vec_free(void **data);
-void vec_ensure_remaining(void **ptr, u64 space);
-void vec_append_byte(void **ptr, u8 byte);
-void vec_append(void **ptr, void *data, u64 size);
-void vec_clone(void **dest, void **src);
+void ivec_make(void **ptr, u64 size);
+void ivec_free(void **data);
+void ivec_ensure_remaining(void **ptr, u64 space);
+void ivec_append_byte(void **ptr, u8 byte);
+void ivec_append(void **ptr, void *data, u64 size);
+void ivec_clone(void **dest, void **src);
 
 /// Symbol table
 typedef struct
