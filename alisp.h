@@ -44,10 +44,10 @@ typedef struct
 #define SV_FMT(SV)     (int)(SV).size, (SV).data
 #define PR_SV          "%.*s"
 
-sv_t sv_copy(sv_t old);
+sv_t sv_copy(sv_t);
+
 
 /// Inlined Dynamic arrays
-
 typedef struct InlineVector
 {
   u64 size, capacity;
@@ -77,9 +77,9 @@ typedef struct
 #define SYM_TABLE_INIT_SIZE 1024
 
 u64 djb2(sv_t string);
-void sym_table_init(sym_table_t *table);
-sv_t *sym_table_find(sym_table_t *table, sv_t sv);
-void sym_table_cleanup(sym_table_t *table);
+void sym_table_init(sym_table_t *);
+sv_t *sym_table_find(sym_table_t *, sv_t);
+void sym_table_cleanup(sym_table_t *);
 
 /// Basic defintions for a Lisp
 #define NIL 0
@@ -105,14 +105,14 @@ typedef struct
 } sys_t;
 
 void sys_init(sys_t *);
-void sys_register(sys_t *sys, lisp_t *ptr);
+void sys_register(sys_t *, lisp_t *);
 void sys_cleanup(sys_t *);
 
 /// Constructors and destructors
-lisp_t *make_int(i64 i);
-lisp_t *make_vec(sys_t *sys, u64 capacity);
-lisp_t *intern(sys_t *sys, sv_t sv);
-lisp_t *cons(sys_t *sys, lisp_t *car, lisp_t *cdr);
+lisp_t *make_int(i64);
+lisp_t *make_vec(sys_t *, u64);
+lisp_t *intern(sys_t *, sv_t);
+lisp_t *cons(sys_t *, lisp_t *, lisp_t *);
 
 i64 as_int(lisp_t *);
 sv_t *as_sym(lisp_t *);
@@ -157,11 +157,11 @@ enum Mask
 #define INT_MAX ((1L << 62) - 1)
 #define INT_MIN (-(1L << 62))
 
-tag_t get_tag(lisp_t *lisp);
+tag_t get_tag(lisp_t *);
 
-lisp_t *tag_int(i64 i);
-lisp_t *tag_sym(sv_t *sv);
-lisp_t *tag_cons(cons_t *cons);
-lisp_t *tag_vec(lvec_t *lvec);
+lisp_t *tag_int(i64);
+lisp_t *tag_sym(sv_t *);
+lisp_t *tag_cons(cons_t *);
+lisp_t *tag_vec(lvec_t *);
 
 #endif
