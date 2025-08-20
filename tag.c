@@ -27,9 +27,25 @@ lisp_t *tag_sym(char *str)
   return TAG((u64)str, SYM);
 }
 
+lisp_t *tag_vec(lvec_t *lvec)
+{
+  return TAG((u64)lvec, VEC);
+}
+
 lisp_t *tag_cons(cons_t *cons)
 {
   return TAG((u64)cons, CONS);
+}
+
+tag_t get_tag(lisp_t *lisp)
+{
+  static_assert(NUM_TAGS == 5);
+  if (!lisp)
+    return TAG_NIL;
+  else if (IS_TAG(lisp, INT))
+    return TAG_INT;
+
+  return (u64)lisp & 0xFF;
 }
 
 i64 as_int(lisp_t *obj)

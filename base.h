@@ -102,21 +102,25 @@ typedef struct
 {
   lisp_t *memory;
   sym_table_t symtable;
-} context_t;
+} sys_t;
 
-void context_init(context_t *);
-void context_cleanup(context_t *);
+void sys_init(sys_t *);
+void sys_register(sys_t *sys, lisp_t *ptr);
+void sys_cleanup(sys_t *);
 
 /// Constructors and destructors
 lisp_t *make_int(i64 i);
-lisp_t *intern(context_t *context, char *str);
-lisp_t *cons(context_t *context, lisp_t *car, lisp_t *cdr);
-lisp_t *make_vec(context_t *context, u64 capacity);
+lisp_t *make_vec(sys_t *sys, u64 capacity);
+lisp_t *intern(sys_t *sys, sv_t sv);
+lisp_t *cons(sys_t *sys, lisp_t *car, lisp_t *cdr);
 
 i64 as_int(lisp_t *);
 char *as_sym(lisp_t *);
 cons_t *as_cons(lisp_t *);
 void *as_vec(lisp_t *);
+
+#define CAR(L) (as_cons(L)->car)
+#define CDR(L) (as_cons(L)->cdr)
 
 /// Pointer tagging scheme for lisps
 
@@ -152,6 +156,8 @@ enum Mask
 
 #define INT_MAX ((1L << 62) - 1)
 #define INT_MIN (-(1L << 62))
+
+tag_t get_tag(lisp_t *lisp);
 
 lisp_t *tag_int(i64 i);
 lisp_t *tag_sym(char *str);

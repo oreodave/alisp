@@ -27,16 +27,8 @@ sv_t sv_copy(sv_t old)
 
 int main(void)
 {
-  i64 numbers[] = {
-      1, 1024, -200, 1LU << 32, INT_MAX, INT_MIN,
-  };
-
-  for (u64 i = 0; i < ARRSIZE(numbers); ++i)
-  {
-    i64 num      = numbers[i];
-    lisp_t *lisp = tag_int(num);
-    i64 ret      = as_int(lisp);
-    printf("%#16lx => %#16lx => %#16lx\n", num, lisp, ret);
-  }
+  sys_t sys;
+  sys_init(&sys);
+  sys_cleanup(&sys);
   return 0;
 }
