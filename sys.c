@@ -57,9 +57,9 @@ void sys_cleanup(sys_t *sys)
       break;
     case TAG_VEC:
     {
-      lvec_t *lvec = as_vec(allocated);
-      ivec_free(&lvec->data);
-      free(lvec);
+      vec_t *vec = as_vec(allocated);
+      vec_free(vec);
+      free(vec);
       break;
     }
     case TAG_NIL:

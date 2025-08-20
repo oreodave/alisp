@@ -53,7 +53,9 @@ typedef struct Vector
   void *data;
 } vec_t;
 
-#define VEC_MULT 2
+#define VEC_MULT             2
+#define VEC_DEFAULT_CAPACITY 8
+
 void vec_free(vec_t *);
 void vec_ensure_free(vec_t *, u64);
 void vec_append(vec_t *, void *, u64);
@@ -103,12 +105,6 @@ typedef struct
   lisp_t *car, *cdr;
 } cons_t;
 
-typedef struct
-{
-  // 2 levels of indirection... disgusting
-  void *data;
-} lvec_t;
-
 /// System context - essentially something to help with system management
 typedef struct
 {
@@ -129,7 +125,7 @@ lisp_t *cons(sys_t *, lisp_t *, lisp_t *);
 i64 as_int(lisp_t *);
 sv_t *as_sym(lisp_t *);
 cons_t *as_cons(lisp_t *);
-void *as_vec(lisp_t *);
+vec_t *as_vec(lisp_t *);
 
 #define CAR(L) (as_cons(L)->car)
 #define CDR(L) (as_cons(L)->cdr)
@@ -174,6 +170,6 @@ tag_t get_tag(lisp_t *);
 lisp_t *tag_int(i64);
 lisp_t *tag_sym(sv_t *);
 lisp_t *tag_cons(cons_t *);
-lisp_t *tag_vec(lvec_t *);
+lisp_t *tag_vec(vec_t *);
 
 #endif

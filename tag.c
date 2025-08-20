@@ -27,9 +27,9 @@ lisp_t *tag_sym(sv_t *str)
   return TAG((u64)str, SYM);
 }
 
-lisp_t *tag_vec(lvec_t *lvec)
+lisp_t *tag_vec(vec_t *vec)
 {
-  return TAG((u64)lvec, VEC);
+  return TAG((u64)vec, VEC);
 }
 
 lisp_t *tag_cons(cons_t *cons)
@@ -69,12 +69,8 @@ cons_t *as_cons(lisp_t *obj)
   return (cons_t *)UNTAG(obj, CONS);
 }
 
-void *as_vec(lisp_t *obj)
+vec_t *as_vec(lisp_t *obj)
 {
   assert(IS_TAG(obj, VEC));
-  lvec_t *vec = (lvec_t *)UNTAG(obj, VEC);
-  if (vec)
-    return vec->data;
-  else
-    return NULL;
+  return (vec_t *)UNTAG(obj, VEC);
 }

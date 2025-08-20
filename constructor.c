@@ -34,9 +34,9 @@ lisp_t *cons(sys_t *sys, lisp_t *car, lisp_t *cdr)
 
 lisp_t *make_vec(sys_t *sys, u64 capacity)
 {
-  lvec_t *lvec = calloc(1, sizeof(*lvec));
-  ivec_make(&lvec->data, capacity);
-  lisp_t *ptr = tag_vec(lvec);
+  vec_t *vec = calloc(1, sizeof(*vec));
+  vec_ensure_free(vec, MAX(capacity, VEC_DEFAULT_CAPACITY));
+  lisp_t *ptr = tag_vec(vec);
   sys_register(sys, ptr);
   return ptr;
 }
