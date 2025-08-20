@@ -43,6 +43,6 @@ lisp_t *make_vec(sys_t *sys, u64 capacity)
 
 lisp_t *intern(sys_t *sys, sv_t sv)
 {
-  char *s = sym_table_find(&sys->symtable, sv);
-  return tag_sym(s);
+  sv_t *str = sym_table_find(&sys->symtable, sv);
+  return tag_sym(str);
 }

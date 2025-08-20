@@ -32,9 +32,9 @@ void sym_table_init(sym_table_t *table)
   vec_make((void **)&table->entries, table->capacity * sizeof(*table->entries));
 }
 
-char *sym_table_find(sym_table_t *table, sv_t sv)
+sv_t *sym_table_find(sym_table_t *table, sv_t sv)
 {
-  // TODO: Deal with resizing this when table->count > table->size / 2
+  // WIP: Deal with resizing this when table->count > table->size / 2
   u64 index = djb2(sv) & (table->capacity - 1);
 
   for (sv_t comp  = table->entries[index]; comp.data; index += 1,
@@ -51,7 +51,7 @@ char *sym_table_find(sym_table_t *table, sv_t sv)
     ++table->count;
   }
 
-  return table->entries[index].data;
+  return table->entries + index;
 }
 
 void sym_table_cleanup(sym_table_t *table)

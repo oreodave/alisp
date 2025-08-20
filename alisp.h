@@ -78,7 +78,7 @@ typedef struct
 
 u64 djb2(sv_t string);
 void sym_table_init(sym_table_t *table);
-char *sym_table_find(sym_table_t *table, sv_t sv);
+sv_t *sym_table_find(sym_table_t *table, sv_t sv);
 void sym_table_cleanup(sym_table_t *table);
 
 /// Basic defintions for a Lisp
@@ -115,7 +115,7 @@ lisp_t *intern(sys_t *sys, sv_t sv);
 lisp_t *cons(sys_t *sys, lisp_t *car, lisp_t *cdr);
 
 i64 as_int(lisp_t *);
-char *as_sym(lisp_t *);
+sv_t *as_sym(lisp_t *);
 cons_t *as_cons(lisp_t *);
 void *as_vec(lisp_t *);
 
@@ -160,7 +160,7 @@ enum Mask
 tag_t get_tag(lisp_t *lisp);
 
 lisp_t *tag_int(i64 i);
-lisp_t *tag_sym(char *str);
+lisp_t *tag_sym(sv_t *sv);
 lisp_t *tag_cons(cons_t *cons);
 lisp_t *tag_vec(lvec_t *lvec);
 
