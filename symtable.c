@@ -12,7 +12,7 @@
  * Description: Symbol Table implementation
  */
 
-#include "./base.h"
+#include "./alisp.h"
 
 #include <malloc.h>
 #include <string.h>

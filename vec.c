@@ -15,7 +15,7 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "./base.h"
+#include "./alisp.h"
 
 void vec_make(void **ptr, u64 size)
 {

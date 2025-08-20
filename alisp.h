@@ -12,8 +12,8 @@
  * Description: All the definitions required for the lisp system
  */
 
-#ifndef BASE_H
-#define BASE_H
+#ifndef ALISP_H
+#define ALISP_H
 
 #include <stdint.h>
 

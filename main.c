@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "./base.h"
+#include "./alisp.h"
 
 sv_t sv_copy(sv_t old)
 {

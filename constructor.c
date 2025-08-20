@@ -14,7 +14,7 @@
 
 #include <malloc.h>
 
-#include "./base.h"
+#include "./alisp.h"
 
 lisp_t *make_int(i64 i)
 {

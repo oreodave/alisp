@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "./base.h"
+#include "./alisp.h"
 
 lisp_t *tag_int(i64 i)
 {
