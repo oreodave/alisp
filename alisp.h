@@ -46,6 +46,18 @@ typedef struct
 
 sv_t sv_copy(sv_t);
 
+/// Good ol' Dynamic Arrays
+typedef struct Vector
+{
+  u64 size, capacity;
+  void *data;
+} vec_t;
+
+#define VEC_MULT 2
+void vec_free(vec_t *);
+void vec_ensure_free(vec_t *, u64);
+void vec_append(vec_t *, void *, u64);
+void vec_clone(vec_t *, vec_t *);
 
 /// Inlined Dynamic arrays
 typedef struct InlineVector
