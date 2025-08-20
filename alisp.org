@@ -1,0 +1,80 @@
+#+title: Alisp
+#+author: Aryadev Chavali
+#+date: 2025-08-20
+#+filetags: :alisp:
+
+* Notes
+** Overview
+* Tasks
+** TODO Potentially optimise symbol table ingress :optimisation:design:
+Should we capitalise symbols?  This way, we limit the symbol table's
+possible options a bit (potentially we could design a better hashing
+algorithm?) and it would be kinda like an actual Lisp.
+** TODO Test value constructors and destructors :test:
+Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
+Latter will require a symbol table.
+** TODO Test containers constructors and destructors :test:
+Test if ~make_vec~ works with ~as_vec~, ~cons~ with ~as_cons~ AND
+~CAR~, ~CDR~.
+
+We may need to think of effective ways to deal with NILs.  Maybe make
+functions as well as the macros so I can choose between them?
+** TODO Test system registration of allocated units :test:
+In particular, does clean up work as we expect?  Do we have situations
+where we may double free or not clean up something we should've?
+** TODO Design garbage collection scheme :design:gc:
+Really, regardless of what I do, we need to have some kind of garbage
+collection header on whatever we allocate e.g. references if we
+reference count for GC.
+*** TODO Mark stage
+When some item is being used by another, we need a way to adjust the
+metadata such that the system is aware of it being used.
+
+For example, say I have X, Y as random allocated objects.  Then I
+construct CONS(X, Y).  Then, ref(X) and ref(Y) need to be incremented
+to say I'm using them.
+*** TODO Sweep
+Say I have an object that I construct, C.  If ref(C) = 0, then C is no
+longer needed, and is free.
+
+There are two components to this:
+- we need a way of decrementing references if an object is no longer needed.
+- we need a way of running through everything we've allocated so far
+  to figure out what's free to take away.
+
+Once we've filtered out what we don't need anymore, what should we do
+with them?  Naive approach would be to just actually ~free~ the cells
+in question.  But I think the next item may be a better idea.
+*** TODO Use previous allocations if they're free to use
+If we have no references to a cell, this cell is free to use.  In
+other words, if I later allocate something of the same type, instead
+of allocating a new object, why not just use the one I've already got?
+
+This way, instead of deleting the memory or forgetting about it, we
+can reuse it.  We need to be really careful to make sure our ref(X) is
+actually precise, we don't want to trample on the user's hard work.
+
+If we implement our "free cells" as a linked list, we'll essentially
+need to take items out of it when we decide to set it back up in the
+system.  Similarly, if we classify something as unused during the
+sweep, we can add it to the free linked list.
+
+Question: should this be separate linked lists for each container type
+(i.e. one for conses, one for vectors) or just one big one?  The main
+task for these free lists is just "can I get a cell or nah?".  We'll
+analyse the time complexity of this task
+
+Former approach time complexity:
+- O(1) time to get a free cell since we just need to check the first
+  item of the relevant free list (or if it's NIL, we know already)
+- O(1) worst case time if there isn't a free cell
+
+Latter approach time complexity:
+- Since we have ~get_tag~ it's O(1) time to check the type of the
+  container.
+- Therefore, it would be worst case O(n) if the cell type we need is
+  only at the end of the list, or if there isn't any cell of the type
+  we need.
+
+Former approach is better time complexity wise, but latter is way
+better in terms of simplicity of code.  Must deliberate.
