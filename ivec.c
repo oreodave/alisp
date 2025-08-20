@@ -35,7 +35,7 @@ void ivec_free(void **data)
   *data = NULL;
 }
 
-void ivec_ensure_remaining(void **ptr, u64 space)
+void ivec_ensure_free(void **ptr, u64 space)
 {
   if (!ptr || !*ptr)
     return;
@@ -53,14 +53,14 @@ void ivec_ensure_remaining(void **ptr, u64 space)
 
 void ivec_append_byte(void **ptr, u8 byte)
 {
-  ivec_ensure_remaining(ptr, 1);
+  ivec_ensure_free(ptr, 1);
   ivec_t *ivec              = IVEC_GET(*ptr);
   ivec->bytes[ivec->size++] = byte;
 }
 
 void ivec_append(void **ptr, void *data, u64 size)
 {
-  ivec_ensure_remaining(ptr, size);
+  ivec_ensure_free(ptr, size);
   ivec_t *ivec = IVEC_GET(*ptr);
   memcpy(*ptr + ivec->size, data, size);
   ivec->size += size;

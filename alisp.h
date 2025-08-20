@@ -59,12 +59,12 @@ typedef struct InlineVector
 #define IVEC_CAP(P)  (IVEC_GET(P)->capacity)
 #define IVEC_MULT    2
 
-void ivec_make(void **ptr, u64 size);
-void ivec_free(void **data);
-void ivec_ensure_remaining(void **ptr, u64 space);
-void ivec_append_byte(void **ptr, u8 byte);
-void ivec_append(void **ptr, void *data, u64 size);
-void ivec_clone(void **dest, void **src);
+void ivec_make(void **, u64);
+void ivec_free(void **);
+void ivec_ensure_free(void **, u64);
+void ivec_append_byte(void **, u8);
+void ivec_append(void **, void *, u64);
+void ivec_clone(void **, void **);
 
 /// Symbol table
 typedef struct
