@@ -26,7 +26,7 @@ sv_t sv_copy(sv_t old)
   return SV(newstr, old.size);
 }
 
-const char *words[] = {
+char *words[] = {
     "aliquam",      "erat",      "volutpat",  "nunc",      "eleifend",
     "leo",          "vitae",     "magna",     "in",        "id",
     "erat",         "non",       "orci",      "commodo",   "lobortis",
@@ -80,10 +80,45 @@ void symtable_test(void)
   sym_table_cleanup(&table);
 }
 
+void make_int_test(void)
+{
+  i64 ints[] = {
+      1,       -1,      (1 << 10) - 1, (-1) * ((1 << 10) - 1),
+      INT_MIN, INT_MAX, INT64_MAX,     INT64_MIN,
+  };
+
+  for (u64 i = 0; i < ARRSIZE(ints); ++i)
+  {
+    i64 in       = ints[i];
+    lisp_t *lisp = make_int(in);
+    i64 out      = as_int(lisp);
+
+    printf("[make_int_test]: %#16lx => %#16lx => %#16lx\n", in, (u64)lisp, out);
+  }
+}
+
+void intern_test(void)
+{
+  sys_t system = {0};
+  sys_init(&system);
+  for (u64 i = 0; i < ARRSIZE(words); ++i)
+  {
+    char *in     = words[i];
+    lisp_t *lisp = intern(&system, SV(in, strlen(in)));
+    char *out    = as_sym(lisp);
+    printf("[intern test]: `%s` -> %p -> `%s`\n", in, lisp, out);
+  }
+  sys_cleanup(&system);
+}
+
 int main(void)
 {
   vec_test();
   printf("\n");
   symtable_test();
+  printf("\n");
+  make_int_test();
+  printf("\n");
+  intern_test();
   return 0;
 }

@@ -42,7 +42,7 @@ perspective.
 Should we capitalise symbols?  This way, we limit the symbol table's
 possible options a bit (potentially we could design a better hashing
 algorithm?) and it would be kinda like an actual Lisp.
-** TODO Test value constructors and destructors :test:
+** DONE Test value constructors and destructors :test:
 Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
 Latter will require a symbol table.
 ** TODO Test containers constructors and destructors :test:
