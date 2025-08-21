@@ -57,25 +57,6 @@ char text[] =
     "Nulla facilisis, risus a rhoncus fermentum, tellus tellus lacinia purus, "
     "et dictum nunc justo sit amet elit.";
 
-void vec_test(void)
-{
-  vec_t vec = {0};
-  vec_init(&vec, 0);
-
-  for (u64 i = 0; i < ARRSIZE(words); ++i)
-  {
-    vec_append(&vec, words[i], strlen(words[i]));
-    vec_append(&vec, " ", 1);
-    printf("[vec_test]: %lu/%lu, inlined?: %s\n", vec.size, vec.capacity,
-           vec.is_inlined ? "yes" : "no");
-  }
-
-  printf("[vec_test]: Final: %lu/%lu: %.*s\n", vec.size, vec.capacity,
-         (int)vec.size, (char *)vec_data(&vec));
-
-  vec_free(&vec);
-}
-
 void symtable_test(void)
 {
   sym_table_t table = {0};
@@ -126,9 +107,21 @@ void intern_test(void)
 
 void make_vec_test(void)
 {
-
   sys_t system = {0};
   sys_init(&system);
+
+  // Generating a vector word by word
+  lisp_t *vec = make_vec(&system, 0);
+  for (u64 i = 0; i < ARRSIZE(words); ++i)
+  {
+    char *word = words[i];
+    vec_append(as_vec(vec), word, strlen(word));
+    vec_append(as_vec(vec), " ", 1);
+  }
+  printf("[make_vec_test]: %lu/%lu, inlined?: %s, text=%.*s\n",
+         as_vec(vec)->size, as_vec(vec)->capacity,
+         as_vec(vec)->is_inlined ? "yes" : "no", (int)as_vec(vec)->size,
+         vec_data(as_vec(vec)));
 
   // Generating substrings
   struct Test
@@ -185,8 +178,6 @@ void cons_test(void)
 
 int main(void)
 {
-  vec_test();
-  printf("\n");
   symtable_test();
   printf("\n");
   make_int_test();
