@@ -43,12 +43,13 @@ void sys_cleanup(sys_t *sys)
     return;
 
   // Iterate through each element of memory
-  for (lisp_t *cell = sys->memory, *next = CDR(cell); cell;
-       cell = next, next = CDR(cell))
+  for (lisp_t *cell = sys->memory, *next = cdr(cell); cell;
+       cell = next, next = cdr(next))
   {
     // Only reason allocated exists is because we had to allocate memory on the
-    // heap for it.  It's therefore
-    lisp_t *allocated = CAR(cell);
+    // heap for it.  It's therefore enough to deal with only the allocated
+    // types.
+    lisp_t *allocated = car(cell);
     switch (get_tag(allocated))
     {
     case TAG_CONS:

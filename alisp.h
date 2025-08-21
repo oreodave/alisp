@@ -126,6 +126,9 @@ vec_t *as_vec(lisp_t *);
 #define CAR(L) (as_cons(L)->car)
 #define CDR(L) (as_cons(L)->cdr)
 
+lisp_t *car(lisp_t *);
+lisp_t *cdr(lisp_t *);
+
 /// Pointer tagging scheme for lisps
 
 typedef enum Tag

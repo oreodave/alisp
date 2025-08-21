@@ -46,3 +46,19 @@ lisp_t *intern(sys_t *sys, sv_t sv)
   char *str = sym_table_find(&sys->symtable, sv);
   return tag_sym(str);
 }
+
+lisp_t *car(lisp_t *lsp)
+{
+  if (!IS_TAG(lsp, CONS))
+    return NIL;
+  else
+    return CAR(lsp);
+}
+
+lisp_t *cdr(lisp_t *lsp)
+{
+  if (!IS_TAG(lsp, CONS))
+    return NIL;
+  else
+    return CDR(lsp);
+}
