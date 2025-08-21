@@ -49,6 +49,7 @@ Test if ~make_vec~ works with ~as_vec~, ~cons~ with ~as_cons~ AND
 We may need to think of effective ways to deal with NILs in ~car~ and
 ~cdr~.  Maybe make functions as well as the macros so I can choose
 between them?
+*** TODO Write more tests
 ** TODO Test system registration of allocated units :test:
 In particular, does clean up work as we expect?  Do we have situations
 where we may double free or not clean up something we should've?

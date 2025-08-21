@@ -126,6 +126,11 @@ void intern_test(void)
 
 void make_vec_test(void)
 {
+
+  sys_t system = {0};
+  sys_init(&system);
+
+  // Generating substrings
   struct Test
   {
     u64 start, size;
@@ -135,10 +140,6 @@ void make_vec_test(void)
       {32, 64},
       {0, ARRSIZE(text)},
   };
-
-  sys_t system = {0};
-  sys_init(&system);
-
   for (u64 i = 0; i < ARRSIZE(tests); ++i)
   {
     struct Test test = tests[i];
@@ -155,6 +156,33 @@ void make_vec_test(void)
   sys_cleanup(&system);
 }
 
+void cons_test(void)
+{
+  sys_t system = {0};
+  sys_init(&system);
+
+  // Iterate through each "word" in words, make a large contiguous list which is
+  // its reverse
+  lisp_t *lisp = NIL;
+  for (u64 i = 0; i < ARRSIZE(words); ++i)
+  {
+    char *word    = words[i];
+    lisp_t *lword = intern(&system, SV(word, strlen(word)));
+    lisp          = cons(&system, lword, lisp);
+  }
+
+  // Then iterate through it
+  printf("[cons_test]: ");
+  for (lisp_t *iter = lisp; iter; iter = cdr(iter))
+  {
+    lisp_t *item = car(iter);
+    printf("%s ", as_sym(item));
+  }
+  printf("\n");
+
+  sys_cleanup(&system);
+}
+
 int main(void)
 {
   vec_test();
@@ -166,5 +194,7 @@ int main(void)
   intern_test();
   printf("\n");
   make_vec_test();
+  printf("\n");
+  cons_test();
   return 0;
 }
