@@ -3,15 +3,25 @@
 set -xe
 
 CFLAGS="-Wall -Wextra -std=c11 -ggdb -fsanitize=address -fsanitize=undefined"
-SRC="vec.c symtable.c tag.c constructor.c sys.c main.c"
+LINK=""
+LIB="sv.c vec.c symtable.c tag.c constructor.c sys.c"
 OUT="alisp.out"
 
 build() {
-    cc $CFLAGS -o $OUT $SRC;
+    cc $LINK $CFLAGS -o $OUT $LIB main.c;
+    cc $LINK $CFLAGS -o test.out $LIB test.c;
+}
+
+clean() {
+    rm -v $OUT test.out;
 }
 
 run() {
     ./$OUT;
+}
+
+test() {
+    ./test.out
 }
 
 build
@@ -19,4 +29,10 @@ build
 if [ "$1" = "run" ]
 then
     run
+elif [ "$1" = "test" ]
+then
+    test
+elif [ "$1" = "clean" ]
+then
+    clean
 fi
