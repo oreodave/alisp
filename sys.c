@@ -20,8 +20,7 @@
 
 void sys_init(sys_t *sys)
 {
-  sys->memory = NIL;
-  sym_table_init(&sys->symtable);
+  memset(sys, 0, sizeof(*sys));
 }
 
 void sys_register(sys_t *sys, lisp_t *ptr)

@@ -34,6 +34,10 @@ void sym_table_init(sym_table_t *table)
 
 char *sym_table_find(sym_table_t *table, sv_t sv)
 {
+  // Initialise the table if it's not done already
+  if (table->entries.capacity == 0)
+    sym_table_init(table);
+
   // WIP: Deal with resizing this when table->count > table->size / 2
   u64 index = djb2(sv) & (table->capacity - 1);
 
