@@ -42,15 +42,13 @@ perspective.
 Should we capitalise symbols?  This way, we limit the symbol table's
 possible options a bit (potentially we could design a better hashing
 algorithm?) and it would be kinda like an actual Lisp.
-** DONE Test value constructors and destructors :test:
-Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
-Latter will require a symbol table.
-** TODO Test containers constructors and destructors :test:
+** WIP Test containers constructors and destructors :test:
 Test if ~make_vec~ works with ~as_vec~, ~cons~ with ~as_cons~ AND
 ~CAR~, ~CDR~.
 
-We may need to think of effective ways to deal with NILs.  Maybe make
-functions as well as the macros so I can choose between them?
+We may need to think of effective ways to deal with NILs in ~car~ and
+~cdr~.  Maybe make functions as well as the macros so I can choose
+between them?
 ** TODO Test system registration of allocated units :test:
 In particular, does clean up work as we expect?  Do we have situations
 where we may double free or not clean up something we should've?
@@ -110,3 +108,6 @@ Latter approach time complexity:
 
 Former approach is better time complexity wise, but latter is way
 better in terms of simplicity of code.  Must deliberate.
+** DONE Test value constructors and destructors :test:
+Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
+Latter will require a symbol table.

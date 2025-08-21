@@ -44,6 +44,19 @@ char *words[] = {
     "euismod",      "tellus",    "id",        "erat",
 };
 
+char text[] =
+    "Pellentesque dapibus suscipit ligula.  Donec posuere augue in quam.  "
+    "Etiam vel tortor sodales tellus ultricies commodo.  Suspendisse potenti.  "
+    "Aenean in sem ac leo mollis blandit.  Donec neque quam, dignissim in, "
+    "mollis nec, sagittis eu, wisi.  Phasellus lacus.  Etiam laoreet quam sed "
+    "arcu.  Phasellus at dui in ligula mollis ultricies.  Integer placerat "
+    "tristique nisl.  Praesent augue.  Fusce commodo.  Vestibulum convallis, "
+    "lorem a tempus semper, dui dui euismod elit, vitae placerat urna tortor "
+    "vitae lacus.  Nullam libero mauris, consequat quis, varius et, dictum id, "
+    "arcu.  Mauris mollis tincidunt felis.  Aliquam feugiat tellus ut neque.  "
+    "Nulla facilisis, risus a rhoncus fermentum, tellus tellus lacinia purus, "
+    "et dictum nunc justo sit amet elit.";
+
 void vec_test(void)
 {
   vec_t vec = {0};
@@ -111,6 +124,37 @@ void intern_test(void)
   sys_cleanup(&system);
 }
 
+void make_vec_test(void)
+{
+  struct Test
+  {
+    u64 start, size;
+  } tests[] = {
+      {0, 16},
+      {0, 32},
+      {32, 64},
+      {0, ARRSIZE(text)},
+  };
+
+  sys_t system = {0};
+  sys_init(&system);
+
+  for (u64 i = 0; i < ARRSIZE(tests); ++i)
+  {
+    struct Test test = tests[i];
+    // Always initialise below what we expect
+    lisp_t *lvec = make_vec(&system, test.size / 2);
+    vec_t *vec   = as_vec(lvec);
+    printf("[make_vec_test]: %p -> %p[%lu/%lu] -> ", lvec, vec, vec->size,
+           vec->capacity);
+    vec_append(vec, text + test.start, test.size);
+    printf("[%lu/%lu] -> ", vec->size, vec->capacity);
+    printf("`%.*s`\n", (int)vec->size, (char *)vec_data(vec));
+  }
+
+  sys_cleanup(&system);
+}
+
 int main(void)
 {
   vec_test();
@@ -120,5 +164,7 @@ int main(void)
   make_int_test();
   printf("\n");
   intern_test();
+  printf("\n");
+  make_vec_test();
   return 0;
 }
