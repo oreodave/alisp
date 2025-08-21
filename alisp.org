@@ -42,14 +42,57 @@ perspective.
 Should we capitalise symbols?  This way, we limit the symbol table's
 possible options a bit (potentially we could design a better hashing
 algorithm?) and it would be kinda like an actual Lisp.
-** WIP Test containers constructors and destructors :test:
-Test if ~make_vec~ works with ~as_vec~, ~cons~ with ~as_cons~ AND
-~CAR~, ~CDR~.
+** TODO Reader system
+We need to design a reader system.  The big idea: given a "stream" of
+data, we can break out expressions from it.  An expression could be
+either an atomic value or a container.
 
-We may need to think of effective ways to deal with NILs in ~car~ and
-~cdr~.  Maybe make functions as well as the macros so I can choose
-between them?
-*** TODO Write more tests
+The natural method is doing this one at a time (the runtime provides a
+~read~ function to do this), but we can also convert an entire stream
+into expressions by consuming it fully.  So the principle function
+here is ~read: stream -> expr~.
+*** TODO Design streams
+A stream needs to be able to provide characters for us to interpret in
+our parsing.  Lisp is an LL(1) grammar so we only really need one
+character lookup, but seeking is very useful.
+
+A stream could represent a file (using a FILE pointer), an IO stream
+(again using FILE pointer but something that could yield interminable
+data), or just a string.  We need to be able to encode all of these as
+streams.
+
+If it's a string, we can just read the entire thing as memory and work
+from there.  If it's a seekable FILE pointer (i.e. we can technically
+do random access), just use MMAP to read the thing into memory.  If
+it's a non-seekable FILE pointer, we'll need to read a chunk at a
+time.  We'll have a vector that caches the data as we read it maybe,
+allowing us to do random access, but only read chunks as and when
+required.
+
+Since they're all differing interfaces, we'll need an abstraction so
+parsing isn't as concerned with the specifics of the underlying data
+stream.  We can use a tagged union of data structures representing the
+different underlying stream types, then generate abstract functions
+that provide common functionality.
+**** TODO Design the tagged union
+**** TODO Design the API
+#+begin_src c
+bool stream_eos(stream_t *);
+char stream_next(stream_t *);
+char stream_peek(stream_t *);
+sv_t stream_substr(stream_t *, u64, u64);
+bool stream_seek(stream_t *, i64);
+bool stream_close(stream_t *);
+#+end_src
+*** TODO Figure out the possible parse errors
+*** TODO Design what a "parser function" would look like
+The general function is something like ~stream -> T | Err~.  What
+other state do we need to encode?
+*** TODO Write a parser for integers
+*** TODO Write a parser for symbols
+*** TODO Write a parser for lists
+*** TODO Write a parser for vectors
+*** TODO Write a generic parser that returns a generic expression
 ** TODO Test system registration of allocated units :test:
 In particular, does clean up work as we expect?  Do we have situations
 where we may double free or not clean up something we should've?
@@ -109,6 +152,18 @@ Latter approach time complexity:
 
 Former approach is better time complexity wise, but latter is way
 better in terms of simplicity of code.  Must deliberate.
+** TODO Design Big Integers
+We currently have 62 bit integers implemented via immediate values
+embedded in a pointer.  We need to be able to support even _bigger_
+integers.  How do we do this?
 ** DONE Test value constructors and destructors :test:
 Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
 Latter will require a symbol table.
+** DONE Test containers constructors and destructors :test:
+Test if ~make_vec~ works with ~as_vec~, ~cons~ with ~as_cons~ AND
+~CAR~, ~CDR~.
+
+We may need to think of effective ways to deal with NILs in ~car~ and
+~cdr~.  Maybe make functions as well as the macros so I can choose
+between them?
+*** DONE Write more tests
