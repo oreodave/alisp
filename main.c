@@ -20,8 +20,9 @@
 
 sv_t sv_copy(sv_t old)
 {
-  char *newstr = calloc(1, old.size * sizeof(*newstr));
+  char *newstr = calloc(1, (old.size + 1) * sizeof(*newstr));
   memcpy(newstr, old.data, old.size);
+  newstr[old.size] = '\0';
   return SV(newstr, old.size);
 }
 
