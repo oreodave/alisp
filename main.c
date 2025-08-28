@@ -20,6 +20,21 @@
 
 int main(void)
 {
-  puts("Watch this space\n");
+  stream_t stream = {0};
+  // const char data[] = "Hello, world!";
+  // const sv_t sv     = SV(data, ARRSIZE(data) - 1);
+  // stream_init_string(&stream, NULL, sv);
+
+  // stream_init_file(&stream, "test.txt");
+
+  stream_init_file(&stream, "stdin", stdin);
+  printf("[debug]: setup stream pipe\n");
+  do
+  {
+    printf("%s[%lu]: `%c`\n", stream.name, stream.position,
+           stream_next(&stream));
+  } while (!stream_eoc(&stream));
+  printf("%lu/%lu\n", stream.position, stream_size(&stream));
+  stream_stop(&stream);
   return 0;
 }

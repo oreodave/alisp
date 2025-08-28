@@ -4,7 +4,7 @@ set -xe
 
 CFLAGS="-Wall -Wextra -std=c11 -ggdb -fsanitize=address -fsanitize=undefined"
 LINK=""
-LIB="sv.c vec.c symtable.c tag.c constructor.c sys.c"
+LIB="sv.c vec.c symtable.c tag.c constructor.c stream.c sys.c"
 OUT="alisp.out"
 
 build() {

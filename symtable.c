@@ -38,7 +38,7 @@ char *sym_table_find(sym_table_t *table, sv_t sv)
   if (table->entries.capacity == 0)
     sym_table_init(table);
 
-  // WIP: Deal with resizing this when table->count > table->size / 2
+  // TODO: Deal with resizing this when table->count > table->size / 2
   u64 index = djb2(sv) & (table->capacity - 1);
 
   for (sv_t comp = VEC_GET(&table->entries, sv_t)[index]; comp.data; index += 1,
