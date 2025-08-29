@@ -20,25 +20,31 @@
 
 int main(void)
 {
-  stream_t stream   = {0};
-  const char data[] = "Hello, world!";
-  const sv_t sv     = SV(data, ARRSIZE(data) - 1);
-  char filename[]   = "test.txt";
+  stream_t stream = {0};
+  char _data[]    = "Hello, world!";
+  sv_t data       = SV(_data, ARRSIZE(_data) - 1);
+  char filename[] = "lorem.txt";
 
-  // stream_init_string(&stream, NULL, sv);
+  // stream_init_string(&stream, NULL, data);
 
-  // FILE *fp = fopen(filename, "rb");
-  // stream_init_file(&stream, filename, fp);
+  FILE *fp = fopen(filename, "rb");
+  stream_init_file(&stream, filename, fp);
 
-  stream_init_file(&stream, "stdin", stdin);
+  // stream_init_file(&stream, "stdin", stdin);
 
-  printf("[debug]: setup stream pipe\n");
-  do
-  {
-    printf("%s[%lu]: `%c`\n", stream.name, stream.position,
-           stream_next(&stream));
-  } while (!stream_eoc(&stream));
-  printf("%lu/%lu\n", stream.position, stream_size(&stream));
+  /// test 1
+  // printf("[debug]: setup stream pipe\n");
+  // do
+  // {
+  //   printf("%s[%lu]: `%c`\n", stream.name, stream.position,
+  //          stream_next(&stream));
+  // } while (!stream_eoc(&stream));
+  // printf("%lu/%lu\n", stream.position, stream_size(&stream));
+
+  /// test 2
+  sv_t sv = stream_substr_abs(&stream, 21, 3);
+  printf("`" PR_SV "`\n", SV_FMT(sv));
+
   stream_stop(&stream);
   // fclose(fp);
   return 0;
