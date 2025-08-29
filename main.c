@@ -42,8 +42,30 @@ int main(void)
   // printf("%lu/%lu\n", stream.position, stream_size(&stream));
 
   /// test 2
-  sv_t sv = stream_substr_abs(&stream, 21, 3);
-  printf("`" PR_SV "`\n", SV_FMT(sv));
+  sv_t a  = stream_substr(&stream, 100);
+  sv_t a_ = sv_copy(a);
+  printf("`" PR_SV "`\n", SV_FMT(a));
+  stream_seek(&stream, 100);
+  sv_t b  = stream_substr_abs(&stream, 0, 100);
+  sv_t b_ = sv_copy(b);
+  printf("`" PR_SV "`\n", SV_FMT(b));
+  printf("a=b ? %s\na_=b_ ? %s\n",
+         memcmp(&a, &b, sizeof(a)) == 0 ? "yes" : "no",
+         a_.size == b_.size && strncmp(a_.data, b_.data, a_.size) == 0 ? "yes"
+                                                                       : "no");
+  sv_t c  = stream_substr(&stream, 100);
+  sv_t c_ = sv_copy(c);
+  printf("`" PR_SV "`\n", SV_FMT(c));
+  stream_seek(&stream, 100);
+  sv_t d  = stream_substr_abs(&stream, stream.position - 100, 100);
+  sv_t d_ = sv_copy(d);
+  printf("`" PR_SV "`\n", SV_FMT(d));
+  printf("c=d ? %s\nc_=d_ ? %s\n",
+         memcmp(&c, &d, sizeof(a)) == 0 ? "yes" : "no",
+         c_.size == d_.size && strncmp(c_.data, d_.data, c_.size) == 0 ? "yes"
+                                                                       : "no");
+
+  printf("eos?=%s\n", stream_eos(&stream) ? "yes" : "no");
 
   stream_stop(&stream);
   // fclose(fp);
