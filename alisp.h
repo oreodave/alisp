@@ -50,6 +50,7 @@ typedef struct
 #define SV(DATA, SIZE) ((sv_t){.data = (DATA), .size = (SIZE)})
 #define SV_FMT(SV)     (int)(SV).size, (SV).data
 #define PR_SV          "%.*s"
+#define PRD_SV         "%d@%p"
 
 sv_t sv_copy(sv_t);
 
