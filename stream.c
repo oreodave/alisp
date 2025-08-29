@@ -188,18 +188,18 @@ bool stream_seek(stream_t *stream, i64 offset)
 
 bool stream_seek_forward(stream_t *stream, u64 offset)
 {
-  if (stream_eos(stream))
+  if (stream_eos(stream) && stream_eoc(stream))
     return false;
+
   switch (stream->type)
   {
   case STREAM_TYPE_STRING:
   {
-    if (stream->position + offset < stream->string.size)
-    {
-      stream->position += offset;
-      return true;
-    }
-    return false;
+    if (stream->position + offset >= stream->string.size)
+      return false;
+
+    stream->position += offset;
+    return true;
   }
   case STREAM_TYPE_FILE:
   {
@@ -219,7 +219,7 @@ bool stream_seek_forward(stream_t *stream, u64 offset)
          read_chunk = stream_chunk(stream))
       continue;
 
-    // Same principle as the stream_eos(stream) check.
+    // Same principle as the stream_eoc(stream) check.
     if (stream->position + offset >= stream->pipe.cache.size)
       return false;
     stream->position += offset;
@@ -242,12 +242,15 @@ bool stream_seek_backward(stream_t *stream, u64 offset)
 
 sv_t stream_substr(stream_t *stream, u64 size)
 {
-  if (stream_eos(stream))
+  if (stream_eos(stream) && stream_eoc(stream))
     return SV(NULL, 0);
+
+  // TODO: this is kinda disgusting, any better way of doing this
   u64 current_position = stream->position;
   bool successful      = stream_seek_forward(stream, size);
-  // In case we did happen to move forward
+  // Reset the position in either situation
   stream->position = current_position;
+
   if (!successful)
     return SV(NULL, 0);
 
@@ -270,16 +273,15 @@ sv_t stream_substr(stream_t *stream, u64 size)
 
 sv_t stream_substr_abs(stream_t *stream, u64 index, u64 size)
 {
-
   switch (stream->type)
   {
   case STREAM_TYPE_STRING:
-    if (index + size < stream_size(stream))
+    if (index + size <= stream_size(stream))
       return SV(stream->string.data + index, size);
     return SV(NULL, 0);
   case STREAM_TYPE_FILE:
   {
-    if (index + size < stream_size(stream))
+    if (index + size <= stream_size(stream))
       return SV(vec_data(&stream->pipe.cache) + index, size);
     // stream_size(stream) <= index + size => try reading chunks
     for (bool read_chunk = stream_chunk(stream);
@@ -287,7 +289,7 @@ sv_t stream_substr_abs(stream_t *stream, u64 index, u64 size)
          read_chunk = stream_chunk(stream))
       continue;
 
-    if (index + size >= stream_size(stream))
+    if (index + size > stream_size(stream))
       return SV(NULL, 0);
     return SV(vec_data(&stream->pipe.cache) + index, size);
   }
