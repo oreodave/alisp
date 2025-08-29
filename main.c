@@ -20,14 +20,18 @@
 
 int main(void)
 {
-  stream_t stream = {0};
-  // const char data[] = "Hello, world!";
-  // const sv_t sv     = SV(data, ARRSIZE(data) - 1);
+  stream_t stream   = {0};
+  const char data[] = "Hello, world!";
+  const sv_t sv     = SV(data, ARRSIZE(data) - 1);
+  char filename[]   = "test.txt";
+
   // stream_init_string(&stream, NULL, sv);
 
-  // stream_init_file(&stream, "test.txt");
+  // FILE *fp = fopen(filename, "rb");
+  // stream_init_file(&stream, filename, fp);
 
   stream_init_file(&stream, "stdin", stdin);
+
   printf("[debug]: setup stream pipe\n");
   do
   {
@@ -36,5 +40,6 @@ int main(void)
   } while (!stream_eoc(&stream));
   printf("%lu/%lu\n", stream.position, stream_size(&stream));
   stream_stop(&stream);
+  // fclose(fp);
   return 0;
 }

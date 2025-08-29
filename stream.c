@@ -142,7 +142,9 @@ char stream_next(stream_t *stream)
 
 char stream_peek(stream_t *stream)
 {
-  if (stream_eos(stream))
+  // If we've reached end of stream, and end of content, there's really nothing
+  // to check here.
+  if (stream_eoc(stream) && stream_eos(stream))
     return '\0';
 
   switch (stream->type)
