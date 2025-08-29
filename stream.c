@@ -121,8 +121,8 @@ bool stream_chunk(stream_t *stream)
     if (feof(stream->pipe.file))
       return false;
     vec_ensure_free(&stream->pipe.cache, STREAM_DEFAULT_CHUNK);
-    int read = fread(vec_data(&stream->pipe.cache), 1, STREAM_DEFAULT_CHUNK,
-                     stream->pipe.file);
+    int read = fread(vec_data(&stream->pipe.cache) + stream->pipe.cache.size, 1,
+                     STREAM_DEFAULT_CHUNK, stream->pipe.file);
     stream->pipe.cache.size += read;
     return true;
   }
