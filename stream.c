@@ -42,6 +42,8 @@ stream_err_t stream_init_file(stream_t *stream, char *name, FILE *pipe)
   stream->pipe.file = pipe;
 
   vec_init(&stream->pipe.cache, STREAM_DEFAULT_CHUNK);
+  // try to read an initial chunk
+  stream_chunk(stream);
 
   return STREAM_ERR_OK;
 }
