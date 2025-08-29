@@ -101,7 +101,8 @@ bool stream_eoc(stream_t *stream)
   case STREAM_TYPE_STRING:
     return stream->position >= stream->string.size;
   case STREAM_TYPE_FILE:
-    return stream->position >= stream->pipe.cache.size;
+    return feof(stream->pipe.file) &&
+           stream->position >= stream->pipe.cache.size;
   default:
     FAIL("Unreachable");
     return 0;
@@ -144,7 +145,7 @@ char stream_peek(stream_t *stream)
 {
   // If we've reached end of stream, and end of content, there's really nothing
   // to check here.
-  if (stream_eoc(stream) && stream_eos(stream))
+  if (stream_eoc(stream))
     return '\0';
 
   switch (stream->type)
@@ -188,7 +189,7 @@ bool stream_seek(stream_t *stream, i64 offset)
 
 bool stream_seek_forward(stream_t *stream, u64 offset)
 {
-  if (stream_eos(stream) && stream_eoc(stream))
+  if (stream_eoc(stream))
     return false;
 
   switch (stream->type)
@@ -242,7 +243,7 @@ bool stream_seek_backward(stream_t *stream, u64 offset)
 
 sv_t stream_substr(stream_t *stream, u64 size)
 {
-  if (stream_eos(stream) && stream_eoc(stream))
+  if (stream_eoc(stream))
     return SV(NULL, 0);
 
   // TODO: this is kinda disgusting, any better way of doing this
