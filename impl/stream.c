@@ -14,7 +14,7 @@
 
 #include <string.h>
 
-#include "./alisp.h"
+#include <alisp.h>
 
 stream_err_t stream_init_string(stream_t *stream, char *name, sv_t contents)
 {

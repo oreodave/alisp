@@ -16,7 +16,7 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "./alisp.h"
+#include <alisp.h>
 
 sv_t sv_copy(sv_t old)
 {
