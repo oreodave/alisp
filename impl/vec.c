@@ -16,7 +16,7 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "./alisp.h"
+#include <alisp.h>
 
 void vec_init(vec_t *vec, u64 size)
 {

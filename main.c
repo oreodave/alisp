@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "./alisp.h"
+#include <alisp.h>
 
 int main(void)
 {

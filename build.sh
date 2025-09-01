@@ -3,8 +3,8 @@
 set -xe
 
 CFLAGS="-Wall -Wextra -std=c11 -ggdb -fsanitize=address -fsanitize=undefined"
-LINK=""
-LIB="sv.c vec.c symtable.c tag.c constructor.c stream.c sys.c"
+LINK="-I."
+LIB="impl/sv.c impl/vec.c impl/symtable.c impl/tag.c impl/constructor.c impl/stream.c impl/sys.c"
 OUT="alisp.out"
 
 build() {
