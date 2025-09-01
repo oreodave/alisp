@@ -33,11 +33,11 @@ int main(void)
   // stream_init_file(&stream, "stdin", stdin);
 
   /// test 1
-  while (!stream_eoc(&stream))
+  do
   {
     printf("%s[%lu]: `%c`\n", stream.name, stream.position,
            stream_next(&stream));
-  }
+  } while (!stream_eoc(&stream));
   printf("%lu/%lu\n", stream.position, stream_size(&stream));
 
   /// test 2
@@ -61,7 +61,6 @@ int main(void)
          c_.size == d_.size && strncmp(c_.data, d_.data, c_.size) == 0 ? "yes"
                                                                        : "no");
 
-  printf("eos?=%s\n", stream_eos(&stream) ? "yes" : "no");
   printf("eoc?=%s\n", stream_eoc(&stream) ? "yes" : "no");
 
   stream_stop(&stream);

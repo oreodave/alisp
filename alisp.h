@@ -136,19 +136,24 @@ stream_err_t stream_init_string(stream_t *, char *, sv_t);
 stream_err_t stream_init_file(stream_t *, char *, FILE *);
 void stream_stop(stream_t *);
 
-// end of stream
-bool stream_eos(stream_t *);
-// end of cache
+// End of Content (i.e. we've consumed all cached content/file)
 bool stream_eoc(stream_t *);
+// size of immediately accessible content
 u64 stream_size(stream_t *);
 
-bool stream_chunk(stream_t *);
+// Return current character, push position by 1
 char stream_next(stream_t *);
+// Peek current character, do not push position
 char stream_peek(stream_t *);
+// Seek forward or backward in the stream, return success
 bool stream_seek(stream_t *, i64);
 bool stream_seek_forward(stream_t *, u64);
 bool stream_seek_backward(stream_t *, u64);
+
+// Return a relative substring (using sv_t) of a given size
 sv_t stream_substr(stream_t *, u64);
+// Return an absolutely located substring (using sv_t) at given index and of
+// given size.
 sv_t stream_substr_abs(stream_t *, u64, u64);
 
 /// Basic defintions for a Lisp
@@ -230,5 +235,19 @@ lisp_t *tag_int(i64);
 lisp_t *tag_sym(char *);
 lisp_t *tag_cons(cons_t *);
 lisp_t *tag_vec(vec_t *);
+
+/// Reader
+typedef enum
+{
+  READ_OK = 0,
+} read_err_t;
+
+// Attempt to read an expression from the stream, storing it in a pointer,
+// returning any errors if failed
+read_err_t read(sys_t *, stream_t *, lisp_t **);
+
+// Attempt to read all expressions from a stream till end of content, storing
+// them in the given vector.  Return any error at any point during the read.
+read_err_t read_all(sys_t *, stream_t *, vec_t *);
 
 #endif
