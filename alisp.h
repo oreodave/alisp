@@ -100,6 +100,7 @@ void sym_table_cleanup(sym_table_t *);
 typedef enum
 {
   STREAM_TYPE_STRING,
+  STREAM_TYPE_PIPE,
   STREAM_TYPE_FILE,
 } stream_type_t;
 
@@ -133,6 +134,7 @@ typedef struct
 #define STREAM_DEFAULT_CHUNK 64
 
 stream_err_t stream_init_string(stream_t *, char *, sv_t);
+stream_err_t stream_init_pipe(stream_t *, char *, FILE *);
 stream_err_t stream_init_file(stream_t *, char *, FILE *);
 void stream_stop(stream_t *);
 
