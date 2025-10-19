@@ -2,7 +2,7 @@
 
 set -xe
 
-CFLAGS="-Wall -Wextra -std=c11 -ggdb -fsanitize=address -fsanitize=undefined"
+CFLAGS="-Wall -Wextra -std=c11 -ggdb -fsanitize=address -fsanitize=undefined -Wswitch -Wswitch-enum"
 LINK="-I."
 LIB="impl/sv.c impl/vec.c impl/symtable.c impl/tag.c impl/constructor.c impl/stream.c impl/sys.c"
 OUT="alisp.out"
