@@ -4,7 +4,7 @@ set -xe
 
 CFLAGS="-Wall -Wextra -std=c11 -ggdb -fsanitize=address -fsanitize=undefined -Wswitch -Wswitch-enum"
 LINK="-I."
-LIB=$(find "./impl" -name "*.c" -not -name "main.c" -not -name "test.c")
+LIB=$(find "./" -name "*.c" -not -name "main.c" -not -name "test.c")
 OUT="alisp.out"
 
 build() {

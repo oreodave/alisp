@@ -12,7 +12,7 @@
  * Description: System management
  */
 
-#include <alisp.h>
+#include "./alisp.h"
 
 #include <assert.h>
 #include <malloc.h>
