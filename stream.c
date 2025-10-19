@@ -12,6 +12,7 @@
  * Description: Stream implementation
  */
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "./alisp.h"
@@ -25,7 +26,7 @@ stream_err_t stream_init_string(stream_t *stream, char *name, sv_t contents)
 
   stream->type   = STREAM_TYPE_STRING;
   stream->name   = name;
-  stream->string = contents;
+  stream->string = sv_copy(contents);
 
   return STREAM_ERR_OK;
 }
@@ -69,7 +70,7 @@ void stream_stop(stream_t *stream)
   switch (stream->type)
   {
   case STREAM_TYPE_STRING:
-    // Nothing to do, all dealt with outside of stream
+    free(stream->string.data);
     break;
   case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
