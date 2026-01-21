@@ -18,12 +18,25 @@
 
 #include "./alisp.h"
 
+const char *TOKEN_DELIM = "\n ";
+
 int main(void)
 {
+  char filename[] = "./lorem.txt";
+  FILE *fp        = fopen(filename, "r");
   stream_t stream = {0};
-  stream_init_pipe(&stream, "<stdin>", stdin);
-  sv_t sv = stream_substr(&stream, 10);
-  printf("=> `" PR_SV "`\n", SV_FMT(sv));
+  stream_init_file(&stream, filename, fp);
+
+  for (u64 token_no = 1; !stream_eoc(&stream); ++token_no)
+  {
+    // Skip forward any delimiters
+    stream_while(&stream, TOKEN_DELIM);
+    // Get the token (up until delimiter)
+    sv_t token = stream_till(&stream, TOKEN_DELIM);
+    printf("%s[%lu] => `" PR_SV "`\n", stream.name, token_no, SV_FMT(token));
+  }
+
   stream_stop(&stream);
+  fclose(fp);
   return 0;
 }
