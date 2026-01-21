@@ -28,8 +28,8 @@ void sys_register(sys_t *sys, lisp_t *ptr)
   // Generate an unmanaged cons
   cons_t *cons = calloc(1, sizeof(*cons));
   cons->car    = ptr;
-  cons->cdr    = sys->memory;
-  sys->memory  = tag_cons(cons);
+  cons->cdr    = sys->conses;
+  sys->conses  = tag_cons(cons);
 }
 
 void sys_cleanup(sys_t *sys)
@@ -38,11 +38,11 @@ void sys_cleanup(sys_t *sys)
 
   sym_table_cleanup(&sys->symtable);
 
-  if (!sys->memory)
+  if (!sys->conses)
     return;
 
   // Iterate through each element of memory
-  for (lisp_t *cell = sys->memory, *next = cdr(cell); cell;
+  for (lisp_t *cell = sys->conses, *next = cdr(cell); cell;
        cell = next, next = cdr(next))
   {
     // Only reason allocated exists is because we had to allocate memory on the
