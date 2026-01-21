@@ -25,11 +25,8 @@ void sys_init(sys_t *sys)
 
 void sys_register(sys_t *sys, lisp_t *ptr)
 {
-  // Generate an unmanaged cons
-  cons_t *cons = calloc(1, sizeof(*cons));
-  cons->car    = ptr;
-  cons->cdr    = sys->conses;
-  sys->conses  = tag_cons(cons);
+  // Simply append it to the list of currently active conses
+  vec_append(&sys->conses, ptr, sizeof(ptr));
 }
 
 void sys_cleanup(sys_t *sys)
@@ -37,18 +34,13 @@ void sys_cleanup(sys_t *sys)
   static_assert(NUM_TAGS == 5);
 
   sym_table_cleanup(&sys->symtable);
-
-  if (!sys->conses)
+  if (sys->conses.size == 0)
     return;
 
-  // Iterate through each element of memory
-  for (lisp_t *cell = sys->conses, *next = cdr(cell); cell;
-       cell = next, next = cdr(next))
+  // Iterate through each cons currently allocated and free them
+  for (size_t i = 0; i < VEC_SIZE(&sys->conses, lisp_t **); ++i)
   {
-    // Only reason allocated exists is because we had to allocate memory on the
-    // heap for it.  It's therefore enough to deal with only the allocated
-    // types.
-    lisp_t *allocated = car(cell);
+    lisp_t *allocated = VEC_GET(&sys->conses, lisp_t *)[i];
     switch (get_tag(allocated))
     {
     case TAG_CONS:
@@ -69,9 +61,11 @@ void sys_cleanup(sys_t *sys)
       // shouldn't be dealt with (either constant or dealt with elsewhere)
       break;
     }
-
-    // Then free the current cell
-    free(as_cons(cell));
   }
+
+  // Free the container
+  vec_free(&sys->conses);
+
+  // Ensure no one treats this as active in any sense
   memset(sys, 0, sizeof(*sys));
 }
