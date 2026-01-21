@@ -158,7 +158,14 @@ sv_t stream_substr(stream_t *, u64);
 // given size.
 sv_t stream_substr_abs(stream_t *, u64, u64);
 
-/// Basic defintions for a Lisp
+// Skip forward in stream till one of the characters in the given C string is
+// encountered.
+sv_t stream_till(stream_t *, const char *);
+// Skip forward in stream while one of the characters in the given C string is
+// present.
+sv_t stream_while(stream_t *, const char *);
+
+/// Lisp type definitions
 #define NIL 0
 
 typedef struct Obj lisp_t;

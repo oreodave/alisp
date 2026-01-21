@@ -339,3 +339,31 @@ sv_t stream_substr_abs(stream_t *stream, u64 index, u64 size)
     return SV(NULL, 0);
   }
 }
+
+sv_t stream_till(stream_t *stream, const char *str)
+{
+  if (stream_eoc(stream))
+    return SV(NULL, 0);
+  u64 current_position = stream->position;
+  for (char c = stream_peek(stream); c != '\0' && strchr(str, c) == NULL;
+       c      = stream_next(stream))
+    continue;
+  u64 size = stream->position - current_position;
+  if (size == 0)
+    return SV(NULL, 0);
+  return stream_substr_abs(stream, current_position, size - 1);
+}
+
+sv_t stream_while(stream_t *stream, const char *str)
+{
+  if (stream_eoc(stream))
+    return SV(NULL, 0);
+  u64 current_position = stream->position;
+  for (char c = stream_peek(stream); c != '\0' && strchr(str, c);
+       c      = stream_next(stream))
+    continue;
+  u64 size = stream->position - current_position;
+  if (size == 0)
+    return SV(NULL, 0);
+  return stream_substr_abs(stream, current_position, size - 1);
+}
