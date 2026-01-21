@@ -40,7 +40,7 @@ void sys_cleanup(sys_t *sys)
   // Iterate through each cons currently allocated and free them
   for (size_t i = 0; i < VEC_SIZE(&sys->conses, lisp_t **); ++i)
   {
-    lisp_t *allocated = VEC_GET(&sys->conses, lisp_t *)[i];
+    lisp_t *allocated = VEC_GET(&sys->conses, i, lisp_t *);
     switch (get_tag(allocated))
     {
     case TAG_CONS:

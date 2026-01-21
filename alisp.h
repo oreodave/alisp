@@ -76,8 +76,8 @@ typedef struct Vector
 
 static_assert(sizeof(vec_t) == 64, "vec_t has to be 64 bytes as part of SBO");
 
-#define VEC_GET(V, T)  ((T *)vec_data(V))
-#define VEC_SIZE(V, T) ((V)->size / (sizeof(T)))
+#define VEC_GET(V, I, T) (((T *)vec_data(V))[I])
+#define VEC_SIZE(V, T)   ((V)->size / (sizeof(T)))
 
 void vec_init(vec_t *, u64);
 void vec_free(vec_t *);
