@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "./alisp.h"
+#include "../alisp.h"
 
 #define TEST_PASSED() printf("[%s]: Pass\n", __func__)
 #define TEST(NAME, COND)                                \

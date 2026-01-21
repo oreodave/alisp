@@ -3,13 +3,15 @@
 set -xe
 
 CFLAGS="-Wall -Wextra -std=c11 -ggdb -fsanitize=address -fsanitize=undefined -Wswitch -Wswitch-enum"
-LINK="-I."
-LIB=$(find "./" -name "*.c" -not -name "main.c" -not -name "test.c")
-OUT="alisp.out"
+LDFLAGS="-lc"
+
+LIB=$(find "./runtime" -type 'f')
+OUT="build/alisp.out"
 
 build() {
-    cc $LINK $CFLAGS -o $OUT $LIB main.c;
-    cc $LINK $CFLAGS -o test.out $LIB test.c;
+    mkdir -p build;
+    cc $CFLAGS -o $OUT $LIB main.c $LDFLAGS;
+    cc $CFLAGS -o build/test.out $LIB test/test.c $LDFLAGS;
 }
 
 clean() {
@@ -21,7 +23,7 @@ run() {
 }
 
 test() {
-    ./test.out
+    ./build/test.out
 }
 
 build
