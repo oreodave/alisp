@@ -66,7 +66,7 @@ typedef struct Vector
 {
   u64 size, capacity;
   // Small buffer optimisation
-  u8 is_inlined;
+  u8 not_inlined;
   union
   {
     void *ptr;

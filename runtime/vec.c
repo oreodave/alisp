@@ -25,15 +25,15 @@ void vec_init(vec_t *vec, u64 size)
     return;
   else if (size <= VEC_INLINE_CAPACITY)
   {
-    vec->is_inlined = 1;
-    vec->capacity   = VEC_INLINE_CAPACITY;
-    vec->ptr        = NULL;
+    vec->not_inlined = 0;
+    vec->capacity    = VEC_INLINE_CAPACITY;
+    vec->ptr         = NULL;
   }
   else
   {
-    vec->is_inlined = 0;
-    vec->capacity   = size;
-    vec->ptr        = calloc(1, vec->capacity);
+    vec->not_inlined = 1;
+    vec->capacity    = size;
+    vec->ptr         = calloc(1, vec->capacity);
   }
 }
 
@@ -41,14 +41,14 @@ void vec_free(vec_t *vec)
 {
   if (!vec)
     return;
-  if (!vec->is_inlined && vec->ptr)
+  if (vec->not_inlined && vec->ptr)
     free(vec->ptr);
   memset(vec, 0, sizeof(*vec));
 }
 
 void *vec_data(vec_t *vec)
 {
-  return vec->is_inlined ? vec->inlined : vec->ptr;
+  return vec->not_inlined ? vec->ptr : vec->inlined;
 }
 
 void vec_ensure_free(vec_t *vec, u64 size)
@@ -58,7 +58,7 @@ void vec_ensure_free(vec_t *vec, u64 size)
   if (vec->capacity - vec->size < size)
   {
     vec->capacity = MAX(vec->capacity * VEC_MULT, vec->size + size);
-    if (vec->is_inlined)
+    if (!vec->not_inlined)
     {
       // If we're inlined, we need to allocate on the heap now.  So let's copy
       // vec->inlined over to vec->ptr, then turn off inlining.
@@ -69,7 +69,7 @@ void vec_ensure_free(vec_t *vec, u64 size)
       memcpy(buffer, vec->inlined, vec->size);
       vec->ptr = calloc(1, vec->capacity);
       memcpy(vec->ptr, buffer, vec->size);
-      vec->is_inlined = 0;
+      vec->not_inlined = 1;
     }
     else
       vec->ptr = realloc(vec->ptr, vec->capacity);

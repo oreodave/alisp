@@ -21,12 +21,13 @@
 void sys_init(sys_t *sys)
 {
   memset(sys, 0, sizeof(*sys));
+  vec_init(&sys->conses, 0);
 }
 
 void sys_register(sys_t *sys, lisp_t *ptr)
 {
   // Simply append it to the list of currently active conses
-  vec_append(&sys->conses, ptr, sizeof(ptr));
+  vec_append(&sys->conses, &ptr, sizeof(&ptr));
 }
 
 void sys_cleanup(sys_t *sys)
