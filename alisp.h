@@ -81,7 +81,7 @@ static_assert(sizeof(vec_t) == 64, "vec_t has to be 64 bytes as part of SBO");
 
 void vec_init(vec_t *, u64);
 void vec_free(vec_t *);
-void *vec_data(vec_t *);
+u8 *vec_data(vec_t *);
 void vec_ensure_free(vec_t *, u64);
 void vec_append(vec_t *, const void *const, u64);
 void vec_clone(vec_t *, vec_t *);
@@ -184,7 +184,7 @@ typedef struct
 /// System context
 typedef struct
 {
-  vec_t conses;
+  vec_t memory;
   sym_table_t symtable;
 } sys_t;
 

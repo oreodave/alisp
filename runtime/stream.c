@@ -191,7 +191,7 @@ char stream_peek(stream_t *stream)
     // Cached already?  We are done.
     if (stream->position < stream->pipe.cache.size)
     {
-      const char *const str = vec_data(&stream->pipe.cache);
+      const char *const str = (char *)vec_data(&stream->pipe.cache);
       return str[stream->position];
     }
 
@@ -301,7 +301,7 @@ sv_t stream_substr(stream_t *stream, u64 size)
     break;
   case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
-    ptr = vec_data(&stream->pipe.cache);
+    ptr = (char *)vec_data(&stream->pipe.cache);
     break;
   default:
     FAIL("Unreachable");
@@ -323,7 +323,7 @@ sv_t stream_substr_abs(stream_t *stream, u64 index, u64 size)
   case STREAM_TYPE_FILE:
   {
     if (index + size <= stream_size(stream))
-      return SV(vec_data(&stream->pipe.cache) + index, size);
+      return SV((char *)vec_data(&stream->pipe.cache) + index, size);
     // (index + size > stream_size(stream)) => try reading chunks
     for (bool read_chunk = stream_chunk(stream);
          read_chunk && index + size >= stream->pipe.cache.size;
@@ -332,7 +332,7 @@ sv_t stream_substr_abs(stream_t *stream, u64 index, u64 size)
 
     if (index + size > stream_size(stream))
       return SV(NULL, 0);
-    return SV(vec_data(&stream->pipe.cache) + index, size);
+    return SV((char *)vec_data(&stream->pipe.cache) + index, size);
   }
   default:
     assert("Unreachable");
