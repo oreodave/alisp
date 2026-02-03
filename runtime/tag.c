@@ -1,15 +1,8 @@
-/* Copyright (C) 2025 Aryadev Chavali
-
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the Unlicense for details.
-
- * You may distribute and modify this code under the terms of the Unlicense,
- * which you should have received a copy of along with this program.  If not,
- * please go to <https://unlicense.org/>.
-
+/* tag.c: Pointer tagging
  * Created: 2025-08-19
- * Description: Pointer tagging
+ * Author: Aryadev Chavali
+ * License: See end of file
+ * Commentary:
  */
 
 #include <assert.h>
@@ -74,3 +67,15 @@ vec_t *as_vec(lisp_t *obj)
   assert(IS_TAG(obj, VEC));
   return (vec_t *)UNTAG(obj, VEC);
 }
+
+/* Copyright (C) 2025, 2026 Aryadev Chavali
+
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the Unlicense for details.
+
+ * You may distribute and modify this code under the terms of the Unlicense,
+ * which you should have received a copy of along with this program.  If not,
+ * please go to <https://unlicense.org/>.
+
+ */

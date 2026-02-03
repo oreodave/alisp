@@ -1,15 +1,8 @@
-/* Copyright (C) 2025 Aryadev Chavali
-
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the Unlicense for details.
-
- * You may distribute and modify this code under the terms of the Unlicense,
- * which you should have received a copy of along with this program.  If not,
- * please go to <https://unlicense.org/>.
-
+/* sys.c: System management
  * Created: 2025-08-20
- * Description: System management
+ * Author: Aryadev Chavali
+ * License: See end of file
+ * Commentary:
  */
 
 #include "../alisp.h"
@@ -70,3 +63,15 @@ void sys_cleanup(sys_t *sys)
   // Ensure no one treats this as active in any sense
   memset(sys, 0, sizeof(*sys));
 }
+
+/* Copyright (C) 2025, 2026 Aryadev Chavali
+
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the Unlicense for details.
+
+ * You may distribute and modify this code under the terms of the Unlicense,
+ * which you should have received a copy of along with this program.  If not,
+ * please go to <https://unlicense.org/>.
+
+ */

@@ -1,15 +1,8 @@
-/* Copyright (C) 2025 Aryadev Chavali
-
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the Unlicense for details.
-
- * You may distribute and modify this code under the terms of the Unlicense,
- * which you should have received a copy of along with this program.  If not,
- * please go to <https://unlicense.org/>.
-
+/* constructor.c: Lisp constructors/destructors
  * Created: 2025-08-20
- * Description: Lisp constructors/destructors
+ * Author: Aryadev Chavali
+ * License: See end of file
+ * Commentary:
  */
 
 #include <malloc.h>
@@ -62,3 +55,15 @@ lisp_t *cdr(lisp_t *lsp)
   else
     return CDR(lsp);
 }
+
+/* Copyright (C) 2025, 2026 Aryadev Chavali
+
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the Unlicense for details.
+
+ * You may distribute and modify this code under the terms of the Unlicense,
+ * which you should have received a copy of along with this program.  If not,
+ * please go to <https://unlicense.org/>.
+
+ */

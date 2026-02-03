@@ -1,16 +1,8 @@
-/* Copyright (C) 2025 Aryadev Chavali
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Unlicense
- * for details.
-
- * You may distribute and modify this code under the terms of the
- * Unlicense, which you should have received a copy of along with this
- * program.  If not, please go to <https://unlicense.org/>.
-
+/* vec.c: Stable Vector implementation
  * Created: 2025-08-20
- * Description: Stable Vector implementation
+ * Author: Aryadev Chavali
+ * License: See end of file
+ * Commentary:
  */
 
 #include <malloc.h>
@@ -92,3 +84,15 @@ void vec_clone(vec_t *dest, vec_t *src)
   vec_init(dest, src->capacity);
   memcpy(vec_data(dest), vec_data(src), src->size);
 }
+
+/* Copyright (C) 2025, 2026 Aryadev Chavali
+
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the Unlicense for details.
+
+ * You may distribute and modify this code under the terms of the Unlicense,
+ * which you should have received a copy of along with this program.  If not,
+ * please go to <https://unlicense.org/>.
+
+ */
