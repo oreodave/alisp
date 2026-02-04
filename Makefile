@@ -3,9 +3,6 @@ CC=cc
 DIST=build
 OUT=$(DIST)/alisp.out
 
-UNITS=$(shell find ./src -type 'f')
-OBJECTS:=$(patsubst %.c, $(DIST)/%.o, $(UNITS))
-
 LDFLAGS=
 GFLAGS=-Wall -Wextra -Wpedantic -std=c23 -I./include/
 DFLAGS=-ggdb -fsanitize=address -fsanitize=undefined
@@ -18,6 +15,10 @@ else
 CFLAGS=$(GFLAGS) $(DFLAGS)
 endif
 
+# Units to compile
+UNITS=src/main.c src/sv.c src/vec.c src/stream.c src/symtable.c src/tag.c src/lisp.c src/reader.c
+OBJECTS:=$(patsubst src/%.c, $(DIST)/%.o, $(UNITS))
+
 # Dependency generation
 DEPFLAGS=-MT $@ -MMD -MP -MF
 DEPDIR=$(DIST)/deps
@@ -25,14 +26,14 @@ DEPDIR=$(DIST)/deps
 $(OUT): $(OBJECTS) | $(DIST)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-$(DIST)/%.o: %.c | $(DIST) $(DEPDIR)
+$(DIST)/%.o: src/%.c | $(DIST) $(DEPDIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(DEPDIR)/$*.d -c -o $@ $<
 
 $(DIST):
-	mkdir -p $(DIST)/src
+	mkdir -p $(DIST)
 
 $(DEPDIR):
-	mkdir -p $(DEPDIR)/src
+	mkdir -p $(DEPDIR)
 
 clangd: compile_commands.json
 compile_commands.json: Makefile
@@ -46,5 +47,5 @@ run: $(OUT)
 clean:
 	rm -rf $(DIST)
 
-DEPS:=$(patsubst %.c,$(DEPDIR)/%.d, $(UNITS))
+DEPS:=$(patsubst src/%.c,$(DEPDIR)/%.d, $(UNITS))
 include $(wildcard $(DEPS))
