@@ -1,24 +1,35 @@
-/* sv.c: String views
- * Created: 2025-08-21
+/* sv.h: String views
+ * Created: 2026-02-04
  * Author: Aryadev Chavali
  * License: See end of file
  * Commentary:
  */
 
-#include <malloc.h>
-#include <string.h>
+#ifndef SV_H
+#define SV_H
 
-#include <alisp/sv.h>
+#include <alisp/base.h>
 
-sv_t sv_copy(sv_t old)
+/// String Views
+typedef struct
 {
-  char *newstr = calloc(1, (old.size + 1) * sizeof(*newstr));
-  memcpy(newstr, old.data, old.size);
-  newstr[old.size] = '\0';
-  return SV(newstr, old.size);
-}
+  u64 size;
+  char *data;
+} sv_t;
 
-/* Copyright (C) 2025, 2026 Aryadev Chavali
+// String view macro constructor
+#define SV(DATA, SIZE) ((sv_t){.data = (DATA), .size = (SIZE)})
+// Pretty printers
+#define SV_FMT(SV) (int)(SV).size, (SV).data
+#define PR_SV      "%.*s"
+#define PRD_SV     "%d@%p"
+
+// String view functions
+sv_t sv_copy(sv_t);
+
+#endif
+
+/* Copyright (C) 2026 Aryadev Chavali
 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS

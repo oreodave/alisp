@@ -8,7 +8,7 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "../alisp.h"
+#include <alisp/vec.h>
 
 void vec_init(vec_t *vec, u64 size)
 {
@@ -47,6 +47,14 @@ void vec_ensure_free(vec_t *vec, u64 size)
 {
   if (!vec)
     return;
+  if (vec->capacity == 0)
+  {
+    // We need to initialise this ourselves.
+    vec->capacity = VEC_INLINE_CAPACITY;
+    vec->size     = 0;
+    memset(vec->inlined, 0, sizeof(vec->inlined));
+  }
+
   if (vec->capacity - vec->size < size)
   {
     vec->capacity = MAX(vec->capacity * VEC_MULT, vec->size + size);

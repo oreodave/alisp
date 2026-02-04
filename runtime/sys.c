@@ -5,22 +5,22 @@
  * Commentary:
  */
 
-#include "../alisp.h"
-
 #include <assert.h>
 #include <malloc.h>
 #include <string.h>
 
+#include <alisp/lisp.h>
+#include <alisp/tag.h>
+
 void sys_init(sys_t *sys)
 {
   memset(sys, 0, sizeof(*sys));
-  vec_init(&sys->conses, 0);
 }
 
 void sys_register(sys_t *sys, lisp_t *ptr)
 {
   // Simply append it to the list of currently active conses
-  vec_append(&sys->conses, &ptr, sizeof(&ptr));
+  vec_append(&sys->memory, &ptr, sizeof(&ptr));
 }
 
 void sys_cleanup(sys_t *sys)
@@ -28,13 +28,13 @@ void sys_cleanup(sys_t *sys)
   static_assert(NUM_TAGS == 5);
 
   sym_table_cleanup(&sys->symtable);
-  if (sys->conses.size == 0)
+  if (sys->memory.size == 0)
     return;
 
-  // Iterate through each cons currently allocated and free them
-  for (size_t i = 0; i < VEC_SIZE(&sys->conses, lisp_t **); ++i)
+  // Iterate through each cell of memory currently allocated and free them
+  for (size_t i = 0; i < VEC_SIZE(&sys->memory, lisp_t **); ++i)
   {
-    lisp_t *allocated = VEC_GET(&sys->conses, i, lisp_t *);
+    lisp_t *allocated = VEC_GET(&sys->memory, i, lisp_t *);
     switch (get_tag(allocated))
     {
     case TAG_CONS:
@@ -58,7 +58,7 @@ void sys_cleanup(sys_t *sys)
   }
 
   // Free the container
-  vec_free(&sys->conses);
+  vec_free(&sys->memory);
 
   // Ensure no one treats this as active in any sense
   memset(sys, 0, sizeof(*sys));

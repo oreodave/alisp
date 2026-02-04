@@ -5,13 +5,17 @@
  * Commentary:
  */
 
-#include "../alisp.h"
+#include <alisp/symtable.h>
 
 #include <malloc.h>
 #include <string.h>
 
+#define ENTRY_GET(TABLE, INDEX) (VEC_GET(&(TABLE)->entries, (INDEX), sv_t))
+
 u64 djb2(sv_t string)
 {
+  // magic number (see
+  // https://stackoverflow.com/questions/10696223/reason-for-the-number-5381-in-the-djb-hash-function)
   u64 hash = 5381;
   for (u64 i = 0; i < string.size; ++i)
     hash = string.data[i] + (hash + (hash << 5));
@@ -31,38 +35,36 @@ char *sym_table_find(sym_table_t *table, sv_t sv)
   if (table->entries.capacity == 0)
     sym_table_init(table);
 
-  // TODO: Deal with resizing this when table->count > table->size / 2
+  // TODO: Consider resizing table when count >= capacity / 2
   u64 index = djb2(sv) & (table->capacity - 1);
 
-  for (sv_t comp = VEC_GET(&table->entries, index, sv_t); comp.data; index += 1,
-            index = index & (table->capacity - 1),
-            comp  = VEC_GET(&table->entries, index, sv_t))
-    // Is it present in the table?
+  // FIXME: Since we don't implement resizing currently, this will infinite loop
+  // when the table capacity SYM_TABLE_INIT_SIZE=(1 << 10)=1024 is filled.
+  for (sv_t comp = ENTRY_GET(table, index); comp.data;
+       index     = (index + 1) & (table->capacity - 1),
+            comp = ENTRY_GET(table, index))
+    // If present in the table already, stop.
     if (sv.size == comp.size && strncmp(sv.data, comp.data, sv.size) == 0)
-      break;
+      return comp.data;
 
-  // we couldn't find it in our linear search (worst case scenario)
-  if (!VEC_GET(&table->entries, index, sv_t).data)
-  {
-    sv_t newsv                            = sv_copy(sv);
-    VEC_GET(&table->entries, index, sv_t) = newsv;
-    ++table->count;
-  }
-
-  return VEC_GET(&table->entries, index, sv_t).data;
+  // Worst case: not present in the table already.  Since index is certainly
+  // free (based on loop condition before) we can fill it.
+  ENTRY_GET(table, index) = sv_copy(sv);
+  ++table->count;
+  return ENTRY_GET(table, index).data;
 }
 
 void sym_table_cleanup(sym_table_t *table)
 {
-  // kill the data
+  // Iterate through the strings and free each of them.
   sv_t current = {0};
   for (u64 i = 0; i < table->capacity; ++i)
   {
-    current = VEC_GET(&table->entries, i, sv_t);
+    current = ENTRY_GET(table, i);
     if (current.data)
       free(current.data);
   }
-  // kill the container
+  // Free the underlying container
   vec_free(&table->entries);
   memset(table, 0, sizeof(*table));
 }

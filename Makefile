@@ -7,7 +7,7 @@ UNITS=main.c $(shell find ./runtime -type 'f')
 OBJECTS:=$(patsubst %.c, $(DIST)/%.o, $(UNITS))
 
 LDFLAGS=
-GFLAGS=-Wall -Wextra -Wpedantic -std=c23 -I./
+GFLAGS=-Wall -Wextra -Wpedantic -std=c23 -I./include/
 DFLAGS=-ggdb -fsanitize=address -fsanitize=undefined
 RFLAGS=-O3
 

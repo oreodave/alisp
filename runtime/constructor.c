@@ -7,7 +7,8 @@
 
 #include <malloc.h>
 
-#include "../alisp.h"
+#include <alisp/lisp.h>
+#include <alisp/tag.h>
 
 lisp_t *make_int(i64 i)
 {
