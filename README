@@ -12,8 +12,6 @@
 Arya's Lisp!  Or... Another Lisp.  However full you see the glass.
 
 Goals:
-- Working Lisp interpreter (designed as I go, not sticking to Common Lisp or
-  Scheme).
-- Bespoke compilation method by transpiling to C, with ability to compile
-  expressions and functions at runtime.
-- Self Hosted interpreter + compiler, with a small bootstrap runtime in C.
+- Working, self hosted, Lisp interpreter (probably something like R5RS or R7RS).
+- Bytecode compiler and interpreter
+- Native compilation option
