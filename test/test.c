@@ -8,18 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../alisp.h"
-
-#define TEST_PASSED() printf("[%s]: Pass\n", __func__)
-#define TEST(NAME, COND)                                \
-  do                                                    \
-  {                                                     \
-    if (!(COND))                                        \
-    {                                                   \
-      printf("[%s]: `%s` failed!\n", __func__, (NAME)); \
-      assert(0);                                        \
-    }                                                   \
-  } while (0)
+#include "./test.h"
 
 // Sample data
 const char *unique_words[] = {
@@ -84,8 +73,11 @@ void symtable_test(void)
   for (u64 i = 0; i < ARRSIZE(words); ++i)
     sym_table_find(&table, SV(words[i], strlen(words[i])));
 
-  TEST("|table|=|set(words)|", table.count == ARRSIZE(unique_words));
-  TEST("|table| < |words|", table.count < ARRSIZE(words));
+  TEST(table.count == ARRSIZE(unique_words), "%lu == %lu", table.count,
+       ARRSIZE(unique_words));
+
+  TEST(table.count < ARRSIZE(unique_words), "%lu < %lu", table.count,
+       ARRSIZE(unique_words));
 
   TEST_PASSED();
 
@@ -104,7 +96,7 @@ void int_test(void)
     lisp_t *lisp = make_int(in);
     i64 out      = as_int(lisp);
 
-    TEST("in == out", in == out);
+    TEST(in == out, "%ld == %ld", in, out);
   }
 
   TEST_PASSED();
@@ -119,9 +111,9 @@ void sym_test(void)
     char *in     = words[i];
     lisp_t *lisp = intern(&system, SV(in, strlen(in)));
     char *out    = as_sym(lisp);
-    TEST("unique pointers when interning a symbol", in != out);
-    TEST("same size", strlen(in) == strlen(out));
-    TEST("same string", strncmp(in, out, strlen(in)) == 0);
+    TEST(in != out, "%p != %p", in, out);
+    TEST(strlen(in) == strlen(out), "%zu == %zu", strlen(in), strlen(out));
+    TEST(strncmp(in, out, strlen(in)) == 0, "%d", strncmp(in, out, strlen(in)));
   }
   TEST_PASSED();
   sys_cleanup(&system);
@@ -145,9 +137,10 @@ void vec_test1(void)
 
   vec_t *vec = as_vec(lvec);
 
-  TEST("same size vector", vec->size == ARRSIZE(words_text));
-  TEST("same as actually concatenated string",
-       strncmp(vec_data(vec), words_text, vec->size) == 0);
+  TEST(vec->size == ARRSIZE(words_text), "%lu == %lu", vec->size,
+       ARRSIZE(words_text));
+  TEST(strncmp((char *)vec_data(vec), words_text, vec->size) == 0, "%d",
+       strncmp((char *)vec_data(vec), words_text, vec->size));
 
   TEST_PASSED();
   sys_cleanup(&system);
@@ -176,12 +169,13 @@ void vec_test2(void)
 
     lisp_t *lvec = make_vec(&system, size);
     vec_append(as_vec(lvec), text + test.start, test.size);
-    TEST("Vector grew", as_vec(lvec)->size > size);
-    TEST("Vector's substring is equivalent to the actual substring",
-         strncmp(vec_data(as_vec(lvec)), substr.data, substr.size) == 0);
+    TEST(as_vec(lvec)->size > size, "%lu > %lu", as_vec(lvec)->size, size);
+    TEST(strncmp((char *)vec_data(as_vec(lvec)), substr.data, substr.size) == 0,
+         "%d",
+         strncmp((char *)vec_data(as_vec(lvec)), substr.data, substr.size));
   }
 
-  printf("[vec_test2]: Pass\n");
+  TEST_PASSED();
   sys_cleanup(&system);
 }
 
@@ -204,8 +198,8 @@ void cons_test(void)
   for (lisp_t *iter = lisp; iter; iter = cdr(iter))
   {
     lisp_t *item = car(iter);
-    TEST("we've reversed the array",
-         strncmp(words[i - 1], as_sym(item), strlen(words[i - 1])) == 0);
+    TEST(strncmp(words[i - 1], as_sym(item), strlen(words[i - 1])) == 0, "%d",
+         strncmp(words[i - 1], as_sym(item), strlen(words[i - 1])));
     i -= 1;
   }
 
@@ -214,17 +208,25 @@ void cons_test(void)
   sys_cleanup(&system);
 }
 
-typedef void (*test_fn)(void);
+struct TestFn
+{
+  const char *name;
+  void (*fn)(void);
+};
 
-const test_fn TESTS[] = {
-    int_test, sym_test, vec_test1, vec_test2, cons_test,
+#define MAKE_TEST_FN(NAME) {.name = #NAME, .fn = NAME}
+
+const struct TestFn TESTS[] = {
+    MAKE_TEST_FN(int_test),  MAKE_TEST_FN(sym_test),  MAKE_TEST_FN(vec_test1),
+    MAKE_TEST_FN(vec_test2), MAKE_TEST_FN(cons_test),
 };
 
 int main(void)
 {
   for (u64 i = 0; i < ARRSIZE(TESTS); ++i)
   {
-    TESTS[i]();
+    printf("[%s]: Running...\n", TESTS[i].name);
+    TESTS[i].fn();
   }
   return 0;
 }
