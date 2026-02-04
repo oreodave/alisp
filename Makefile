@@ -1,4 +1,4 @@
-CC=gcc
+CC=cc
 
 DIST=build
 OUT=$(DIST)/alisp.out
@@ -20,6 +20,9 @@ endif
 UNITS=src/sv.c src/vec.c src/stream.c src/symtable.c src/tag.c src/lisp.c
 OBJECTS:=$(patsubst src/%.c, $(DIST)/%.o, $(UNITS))
 
+TEST_UNITS=test/main.c
+TEST_OBJECTS:=$(patsubst %.c, $(DIST)/%.o, $(TEST_UNITS))
+
 # Dependency generation
 DEPFLAGS=-MT $@ -MMD -MP -MF
 DEPDIR=$(DIST)/deps
@@ -29,14 +32,14 @@ all: $(OUT) $(TEST)
 $(OUT): $(OBJECTS) $(DIST)/main.o | $(DIST)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-$(TEST): $(OBJECTS) $(DIST)/test/test.o | $(DIST)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
 $(DIST)/%.o: src/%.c | $(DIST) $(DEPDIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(DEPDIR)/$*.d -c -o $@ $<
 
+$(TEST): $(OBJECTS) $(TEST_OBJECTS) | $(DIST)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 $(DIST)/test/%.o: test/%.c | $(DIST) $(DEPDIR)
-	$(CC) $(CFLAGS) $(DEPFLAGS) $(DEPDIR)/$*.d -c -o $@ $<
+	$(CC) $(CFLAGS) $(DEPFLAGS) $(DEPDIR)/test/$*.d -c -o $@ $<
 
 $(DIST):
 	mkdir -p $(DIST)
@@ -44,6 +47,7 @@ $(DIST):
 
 $(DEPDIR):
 	mkdir -p $(DEPDIR)
+	mkdir -p $(DEPDIR)/test
 
 clangd: compile_commands.json
 compile_commands.json: Makefile
@@ -60,5 +64,5 @@ test: $(TEST)
 clean:
 	rm -rf $(DIST)
 
-DEPS:=$(patsubst src/%.c,$(DEPDIR)/%.d, $(UNITS)) $(DEPDIR)/main.d $(DEPDIR)/test.d
+DEPS:=$(patsubst src/%.c,$(DEPDIR)/%.d, $(UNITS)) $(DEPDIR)/main.d $(DEPDIR)/test/main.d
 include $(wildcard $(DEPS))

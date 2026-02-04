@@ -1,0 +1,92 @@
+/* test_vec.c: Vector tests
+ * Created: 2026-02-04
+ * Author: Aryadev Chavali
+ * License: See end of file
+ * Commentary:
+ */
+
+#include "./data.h"
+#include "./test.h"
+
+void vec_test1(void)
+{
+  sys_t system = {0};
+  sys_init(&system);
+
+  // Generating a vector word by word
+  lisp_t *lvec = make_vec(&system, 0);
+  for (u64 i = 0; i < ARRSIZE(words); ++i)
+  {
+    const char *word = words[i];
+    vec_append(as_vec(lvec), word, strlen(word));
+    if (i != ARRSIZE(words) - 1)
+      vec_append(as_vec(lvec), " ", 1);
+  }
+  vec_append(as_vec(lvec), "\0", 1);
+
+  vec_t *vec = as_vec(lvec);
+
+  TEST(vec->size == ARRSIZE(words_text), "%lu == %lu", vec->size,
+       ARRSIZE(words_text));
+  TEST(strncmp((char *)vec_data(vec), words_text, vec->size) == 0, "%d",
+       strncmp((char *)vec_data(vec), words_text, vec->size));
+
+  TEST_PASSED();
+  sys_cleanup(&system);
+}
+
+void vec_test2(void)
+{
+  sys_t system = {0};
+  sys_init(&system);
+  // Generating substrings
+  struct Test
+  {
+    u64 start, size;
+  } tests[] = {
+      {0, 16},
+      {0, 32},
+      {32, 64},
+      {0, ARRSIZE(text)},
+  };
+
+  for (u64 i = 0; i < ARRSIZE(tests); ++i)
+  {
+    struct Test test  = tests[i];
+    const sv_t substr = SV((char *)text + test.start, test.size);
+    const u64 size    = test.size / 2;
+
+    lisp_t *lvec = make_vec(&system, size);
+    vec_append(as_vec(lvec), text + test.start, test.size);
+    TEST(as_vec(lvec)->size > size, "%lu > %lu", as_vec(lvec)->size, size);
+    TEST(strncmp((char *)vec_data(as_vec(lvec)), substr.data, substr.size) == 0,
+         "%d",
+         strncmp((char *)vec_data(as_vec(lvec)), substr.data, substr.size));
+  }
+
+  TEST_PASSED();
+  sys_cleanup(&system);
+}
+
+const test_fn TESTS_VEC[] = {
+    MAKE_TEST_FN(vec_test1),
+    MAKE_TEST_FN(vec_test2),
+};
+
+const test_suite_t VEC_SUITE = {
+    .name  = "Vector Tests",
+    .tests = TESTS_VEC,
+    .size  = ARRSIZE(TESTS_VEC),
+};
+
+/* Copyright (C) 2026 Aryadev Chavali
+
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the Unlicense for details.
+
+ * You may distribute and modify this code under the terms of the Unlicense,
+ * which you should have received a copy of along with this program.  If not,
+ * please go to <https://unlicense.org/>.
+
+ */

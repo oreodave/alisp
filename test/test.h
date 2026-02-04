@@ -32,6 +32,24 @@
     }                        \
   } while (0)
 
+typedef struct TestFn
+{
+  const char *name;
+  void (*fn)(void);
+} test_fn;
+
+#define MAKE_TEST_FN(NAME) {.name = #NAME, .fn = NAME}
+
+typedef struct
+{
+  const char *name;
+  const test_fn *tests;
+  const u64 size;
+} test_suite_t;
+
+#define MAKE_TEST_SUITE(NAME) \
+  {.name = #NAME, .tests = NAME, .size = ARRSIZE(NAME)}
+
 #endif
 
 /* Copyright (C) 2026 Aryadev Chavali
