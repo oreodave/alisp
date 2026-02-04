@@ -3,7 +3,7 @@ CC=cc
 DIST=build
 OUT=$(DIST)/alisp.out
 
-UNITS=main.c $(shell find ./runtime -type 'f')
+UNITS=$(shell find ./src -type 'f')
 OBJECTS:=$(patsubst %.c, $(DIST)/%.o, $(UNITS))
 
 LDFLAGS=
@@ -29,11 +29,10 @@ $(DIST)/%.o: %.c | $(DIST) $(DEPDIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) $(DEPDIR)/$*.d -c -o $@ $<
 
 $(DIST):
-	mkdir -p $(DIST) $(DIST)/runtime
+	mkdir -p $(DIST)/src
 
 $(DEPDIR):
-	mkdir -p $(DEPDIR)
-	mkdir -p $(DEPDIR)/runtime
+	mkdir -p $(DEPDIR)/src
 
 clangd: compile_commands.json
 compile_commands.json: Makefile
