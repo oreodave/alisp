@@ -1,4 +1,4 @@
-CC=cc
+CC=gcc
 
 DIST=build
 OUT=$(DIST)/alisp.out
