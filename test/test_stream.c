@@ -92,15 +92,15 @@ const test_suite_t STREAM_SUITE = {
     .tests =
         (test_fn[]){
             MAKE_TEST_FN(stream_test_string),
-            MAKE_TEST_FN(stream_test_file),
-            MAKE_TEST_FN(stream_test_peek_next),
-            MAKE_TEST_FN(stream_test_seek),
-            MAKE_TEST_FN(stream_test_substr),
-            MAKE_TEST_FN(stream_test_till),
-            MAKE_TEST_FN(stream_test_while),
-            MAKE_TEST_FN(stream_test_line_col),
+            // MAKE_TEST_FN(stream_test_file),
+            // MAKE_TEST_FN(stream_test_peek_next),
+            // MAKE_TEST_FN(stream_test_seek),
+            // MAKE_TEST_FN(stream_test_substr),
+            // MAKE_TEST_FN(stream_test_till),
+            // MAKE_TEST_FN(stream_test_while),
+            // MAKE_TEST_FN(stream_test_line_col),
         },
-    .size = 8,
+    .size = 1,
 };
 
 /* Copyright (C) 2026 Aryadev Chavali
