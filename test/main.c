@@ -31,7 +31,7 @@ int main(void)
     printf("Suite [%s]\n", suite.name);
     for (u64 j = 0; j < suite.size; ++j)
     {
-      printf("[%s]: Running...\n", suite.tests[j].name);
+      printf("\t[%s]: Running...\n", suite.tests[j].name);
       suite.tests[j].fn();
     }
   }

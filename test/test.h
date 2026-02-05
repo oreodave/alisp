@@ -10,26 +10,25 @@
 
 #include <alisp/alisp.h>
 
-#define TEST_PASSED() printf("[%s]: Passed\n", __func__)
-#define TEST(COND, ...)      \
-  do                         \
-  {                          \
-    bool cond = (COND);      \
-    if (!cond)               \
-    {                        \
-      printf("\tFAIL: ");    \
-    }                        \
-    else                     \
-    {                        \
-      printf("\tPASS: ");    \
-    }                        \
-    printf("%s => ", #COND); \
-    printf(__VA_ARGS__);     \
-    printf("\n");            \
-    if (!cond)               \
-    {                        \
-      assert(0);             \
-    }                        \
+#define TEST_PASSED() printf("\t[%s]: Passed\n", __func__)
+#define TEST(COND, ...)                  \
+  do                                     \
+  {                                      \
+    bool cond = (COND);                  \
+    if (!cond)                           \
+    {                                    \
+      printf("\t\tFAIL: ");              \
+    }                                    \
+    else                                 \
+    {                                    \
+      printf("\t\tPASS: ");              \
+    }                                    \
+    printf(__VA_ARGS__);                 \
+    printf("\n\t\t      [%s]\n", #COND); \
+    if (!cond)                           \
+    {                                    \
+      assert(0);                         \
+    }                                    \
   } while (0)
 
 typedef struct TestFn

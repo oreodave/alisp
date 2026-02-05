@@ -39,7 +39,7 @@ void sym_test(void)
     char *out      = as_sym(lisp);
     TEST(in != out, "%p != %p", in, out);
     TEST(strlen(in) == strlen(out), "%zu == %zu", strlen(in), strlen(out));
-    TEST(strncmp(in, out, strlen(in)) == 0, "%d", strncmp(in, out, strlen(in)));
+    TEST(strncmp(in, out, strlen(in)) == 0, "`%s` == `%s`", in, out);
   }
   TEST_PASSED();
   sys_free(&system);

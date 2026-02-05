@@ -8,7 +8,7 @@
 #include "./data.h"
 #include "./test.h"
 
-void vec_test1(void)
+void vec_test_concat(void)
 {
   sys_t system = {0};
   sys_init(&system);
@@ -28,14 +28,15 @@ void vec_test1(void)
 
   TEST(vec->size == ARRSIZE(words_text), "%lu == %lu", vec->size,
        ARRSIZE(words_text));
-  TEST(strncmp((char *)vec_data(vec), words_text, vec->size) == 0, "%d",
-       strncmp((char *)vec_data(vec), words_text, vec->size));
+  TEST(strncmp((char *)vec_data(vec), words_text, vec->size) == 0,
+       "%p@%lu == %p@%lu", (char *)vec_data(vec), vec->size, words_text,
+       strlen(words_text));
 
   TEST_PASSED();
   sys_free(&system);
 }
 
-void vec_test2(void)
+void vec_test_substr(void)
 {
   sys_t system = {0};
   sys_init(&system);
@@ -60,8 +61,8 @@ void vec_test2(void)
     vec_append(as_vec(lvec), text + test.start, test.size);
     TEST(as_vec(lvec)->size > size, "%lu > %lu", as_vec(lvec)->size, size);
     TEST(strncmp((char *)vec_data(as_vec(lvec)), substr.data, substr.size) == 0,
-         "%d",
-         strncmp((char *)vec_data(as_vec(lvec)), substr.data, substr.size));
+         "%p@%lu == %p@%lu", (char *)vec_data(as_vec(lvec)), as_vec(lvec)->size,
+         substr.data, substr.size);
   }
 
   TEST_PASSED();
@@ -69,8 +70,8 @@ void vec_test2(void)
 }
 
 const test_fn TESTS_VEC[] = {
-    MAKE_TEST_FN(vec_test1),
-    MAKE_TEST_FN(vec_test2),
+    MAKE_TEST_FN(vec_test_concat),
+    MAKE_TEST_FN(vec_test_substr),
 };
 
 const test_suite_t VEC_SUITE = {
