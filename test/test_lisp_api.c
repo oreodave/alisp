@@ -28,24 +28,6 @@ void int_test(void)
   TEST_PASSED();
 }
 
-void symtable_test(void)
-{
-  sym_table_t table = {0};
-  sym_table_init(&table);
-  for (u64 i = 0; i < ARRSIZE(words); ++i)
-    sym_table_find(&table, SV((char *)words[i], strlen(words[i])));
-
-  TEST(table.count == ARRSIZE(unique_words), "%lu == %lu", table.count,
-       ARRSIZE(unique_words));
-
-  TEST(table.count < ARRSIZE(unique_words), "%lu < %lu", table.count,
-       ARRSIZE(unique_words));
-
-  TEST_PASSED();
-
-  sym_table_cleanup(&table);
-}
-
 void sym_test(void)
 {
   sys_t system = {0};

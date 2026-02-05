@@ -12,9 +12,11 @@
 #include "./test.h"
 
 #include "./test_lisp_api.c"
+#include "./test_symtable.c"
 #include "./test_vec.c"
 
 test_suite_t SUITES[] = {
+    SYMTABLE_SUITE,
     LISP_API_SUITE,
     VEC_SUITE,
 };
