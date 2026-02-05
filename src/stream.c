@@ -50,8 +50,11 @@ stream_err_t stream_init_string(stream_t *stream, char *name, sv_t contents)
 
 stream_err_t stream_init_pipe(stream_t *stream, char *name, FILE *pipe)
 {
-  if (!stream || !pipe)
+  if (!stream)
     return STREAM_ERR_INVALID_PTR;
+  else if (!pipe)
+    return STREAM_ERR_PIPE_NONEXISTENT;
+
   name = name ? name : "<stream>";
   memset(stream, 0, sizeof(*stream));
 
@@ -66,8 +69,11 @@ stream_err_t stream_init_pipe(stream_t *stream, char *name, FILE *pipe)
 
 stream_err_t stream_init_file(stream_t *stream, char *name, FILE *pipe)
 {
-  if (!stream || !pipe)
+  if (!stream)
     return STREAM_ERR_INVALID_PTR;
+  else if (!pipe)
+    return STREAM_ERR_FILE_NONEXISTENT;
+
   name = name ? name : "<stream>";
   memset(stream, 0, sizeof(*stream));
 
