@@ -83,7 +83,6 @@ easier.  We're not going to do anything more advanced than the API
 i.e. no parsing.
 **** DONE Design the tagged union
 **** DONE Design the API
-*** WIP Figure out the possible parse errors
 *** DONE Design what a "parser function" would look like
 The general function is something like ~stream -> T | Err~.  What
 other state do we need to encode?
@@ -91,38 +90,68 @@ other state do we need to encode?
 *** TODO Write a parser for symbols
 *** TODO Write a parser for lists
 *** TODO Write a parser for vectors
-*** TODO Write a generic parser that returns a generic expression
-** TODO Test system registration of allocated units :test:
-In particular, does clean up work as we expect?  Do we have situations
-where we may double free or not clean up something we should've?
-** TODO Design garbage collection scheme :design:gc:
+*** TODO Write the general parser
+** Backlog
+*** TODO Design Big Integers
+We currently have 62 bit integers implemented via immediate values
+embedded in a pointer.  We need to be able to support even _bigger_
+integers.  How do we do this?
+*** TODO Design garbage collection scheme :design:gc:
 Really, regardless of what I do, we need to have some kind of garbage
-collection header on whatever we allocate e.g. references if we
-reference count for GC.
-*** TODO Mark stage
-When some item is being used by another, we need a way to adjust the
-metadata such that the system is aware of it being used.
+collection header on whatever managed objects we allocate.
 
-For example, say I have X, Y as random allocated objects.  Then I
-construct CONS(X, Y).  Then, ref(X) and ref(Y) need to be incremented
-to say I'm using them.
-*** TODO Sweep
-Say I have an object that I construct, C.  If ref(C) = 0, then C is no
-longer needed, and is free.
+Firstly, the distinction between managed and unmanaged objects:
+- Managed objects are allocations that are generated as part of
+  evaluating user code i.e. strings, vectors, conses that are all made
+  as part of evaluating code.
+- Unmanaged objects are allocations we do as part of the runtime.
+  These are things that we expect to have near infinite lifetimes
+  (such as the symbol table, vector of allocated objects, etc).
 
-There are two components to this:
-- we need a way of decrementing references if an object is no longer needed.
-- we need a way of running through everything we've allocated so far
-  to figure out what's free to take away.
+We need to perform garbage collection against the managed objects, and
+leave the unmanaged objects to the runtime.
+**** TODO Mark stage
+We need to mark all objects that are currently accessible from the
+environment.  This means we need to have a root environment which we
+mark all our accessible objects from.  Any objects that aren't marked
+by this obviously are inaccessible, so we can then sweep them.
 
-Once we've filtered out what we don't need anymore, what should we do
-with them?  Naive approach would be to just actually ~free~ the cells
-in question.  But I think the next item may be a better idea.
-*** TODO Use previous allocations if they're free to use
-If we have no references to a cell, this cell is free to use.  In
-other words, if I later allocate something of the same type, instead
-of allocating a new object, why not just use the one I've already got?
+How do we store this mark on our managed objects?  I think the
+simplest approach would be to allocate an extra 8 bytes just before
+any managed object we allocate i.e. [8 byte buffer] <object>.  Then,
+during the mark phase, we can walk back those 8 bytes and
+inspect/mutate the mark.
+**** TODO Sweep
+Once we've marked all objects that are accessible, we need to
+investigate all the objects that aren't.  We do have
+[[file:alisp.h::vec_t memory;][this]] which provides a global map of
+all the stuff we've allocated so far ([[file:alisp.h::void
+sys_register(sys_t *, lisp_t *);][sys_register]] is used to add to
+this, and any managed object is expected to register).
 
+We can iterate through the map and collect all the unmarked objects.
+What do we do with these?
+
+1) They are technically freestanding objects allocated through
+   ~calloc~, so we could just free them.
+2) Manage some collection of previous allocations to reuse in our next
+   allocation.
+
+Option (1) is obvious and relatively clean to setup in our current
+idea:
+- Say at index I we have an object that is unmarked
+- Free the associated object at index I
+- Swap the end of the array with the cell at index I, then decrement
+  the size of the container
+
+This is an O(1) time operation.
+
+Option (2) is also relatively straightforward, but we need another
+counter in order to make it work:
+- Say at index I we have an object that is unmarked
+- Swap the end of the array with the cell at index I, then decrement
+  the size of the container
+**** TODO Use previous allocations if they're free to use
 This way, instead of deleting the memory or forgetting about it, we
 can reuse it.  We need to be really careful to make sure our ref(X) is
 actually precise, we don't want to trample on the user's hard work.
@@ -151,18 +180,25 @@ Latter approach time complexity:
 
 Former approach is better time complexity wise, but latter is way
 better in terms of simplicity of code.  Must deliberate.
-** TODO Design Big Integers
-We currently have 62 bit integers implemented via immediate values
-embedded in a pointer.  We need to be able to support even _bigger_
-integers.  How do we do this?
-** DONE Test value constructors and destructors :test:
+*** TODO Test system registration of allocated units :test:
+In particular, does clean up work as we expect?  Do we have situations
+where we may double free or not clean up something we should've?
+*** TODO Design Strings
+We have ~sv_t~ so our basic C API is done.  We just need pluggable
+functions to construct and deconstruct strings as lisps.
+*** TODO Capitalise symbols (TBD) :optimisation:design:
+Should we capitalise symbols?  This way, we limit the symbol table's
+possible options a bit (potentially we could design a better hashing
+algorithm?) and it would be kinda like an actual Lisp.
+** Completed
+*** DONE Test value constructors and destructors :test:
 Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
 Latter will require a symbol table.
-** DONE Test containers constructors and destructors :test:
+*** DONE Test containers constructors and destructors :test:
 Test if ~make_vec~ works with ~as_vec~, ~cons~ with ~as_cons~ AND
 ~CAR~, ~CDR~.
 
 We may need to think of effective ways to deal with NILs in ~car~ and
 ~cdr~.  Maybe make functions as well as the macros so I can choose
 between them?
-*** DONE Write more tests
+**** DONE Write more tests
