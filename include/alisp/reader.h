@@ -8,12 +8,17 @@
 #ifndef READER_H
 #define READER_H
 
+#include <alisp/lisp.h>
 #include <alisp/stream.h>
 
 typedef enum
 {
-  READ_OK = 0,
+  READ_ERR_OK = 0,
+  READ_ERR_EOF,
+  READ_ERR_UNKNOWN_CHAR,
 } read_err_t;
+
+const char *read_err_to_cstr(read_err_t);
 
 // Attempt to read an expression from the stream, storing it in a pointer,
 // returning any errors if failed.
