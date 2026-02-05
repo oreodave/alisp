@@ -10,7 +10,12 @@
 
 #include <alisp/alisp.h>
 
+#ifndef TEST_VERBOSE
+#define TEST_VERBOSE 0
+#endif
+
 #define TEST_PASSED() printf("\t[%s]: Passed\n", __func__)
+#if TEST_VERBOSE
 #define TEST(COND, ...)                  \
   do                                     \
   {                                      \
@@ -30,6 +35,16 @@
       assert(0);                         \
     }                                    \
   } while (0)
+#else
+#define TEST(COND, ...) \
+  do                    \
+  {                     \
+    if (!(COND))        \
+    {                   \
+      assert(0);        \
+    }                   \
+  } while (0)
+#endif
 
 typedef struct TestFn
 {
