@@ -32,8 +32,8 @@ void vec_test_concat(void)
        "%p@%lu == %p@%lu", (char *)vec_data(vec), vec->size, words_text,
        strlen(words_text));
 
-  TEST_PASSED();
   sys_free(&system);
+  TEST_PASSED();
 }
 
 void vec_test_substr(void)
@@ -65,8 +65,8 @@ void vec_test_substr(void)
          substr.data, substr.size);
   }
 
-  TEST_PASSED();
   sys_free(&system);
+  TEST_PASSED();
 }
 
 const test_fn TESTS_VEC[] = {

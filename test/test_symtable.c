@@ -18,9 +18,8 @@ void symtable_test(void)
   TEST(table.count == ARRSIZE(unique_words), "%lu == %lu", table.count,
        ARRSIZE(unique_words));
 
-  TEST_PASSED();
-
   sym_table_cleanup(&table);
+  TEST_PASSED();
 }
 
 const test_fn TESTS_SYMTABLE[] = {

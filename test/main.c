@@ -17,10 +17,10 @@
 #include "./test_vec.c"
 
 test_suite_t SUITES[] = {
+    VEC_SUITE,
+    SV_SUITE,
     SYMTABLE_SUITE,
     LISP_API_SUITE,
-    SV_SUITE,
-    VEC_SUITE,
 };
 
 int main(void)

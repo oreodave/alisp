@@ -32,6 +32,7 @@ void sym_test(void)
 {
   sys_t system = {0};
   sys_init(&system);
+
   for (u64 i = 0; i < ARRSIZE(words); ++i)
   {
     const char *in = words[i];
@@ -41,8 +42,9 @@ void sym_test(void)
     TEST(strlen(in) == strlen(out), "%zu == %zu", strlen(in), strlen(out));
     TEST(strncmp(in, out, strlen(in)) == 0, "`%s` == `%s`", in, out);
   }
-  TEST_PASSED();
+
   sys_free(&system);
+  TEST_PASSED();
 }
 
 void cons_test(void)
@@ -71,9 +73,8 @@ void cons_test(void)
     TEST(strncmp(expected, got, size) == 0, "%s == %s", expected, got);
   }
 
-  TEST_PASSED();
-
   sys_free(&system);
+  TEST_PASSED();
 }
 
 const test_fn TESTS_LISP_API[] = {
