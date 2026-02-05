@@ -61,6 +61,9 @@ run: $(OUT)
 test: $(TEST)
 	./$^
 
+examples: $(OUT)
+	./$^ ./examples/hello-world.lisp
+
 clean:
 	rm -rf $(DIST)
 
