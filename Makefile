@@ -12,8 +12,10 @@ RFLAGS=-O3
 MODE=release
 ifeq ($(MODE), release)
 CFLAGS=$(GFLAGS) $(RFLAGS)
-else
+else ifeq ($(MODE), debug)
 CFLAGS=$(GFLAGS) $(DFLAGS)
+else ifeq ($(MODE), full)
+CFLAGS=$(GFLAGS) $(DFLAGS) -DTEST_VERBOSE=1
 endif
 
 # Units to compile
