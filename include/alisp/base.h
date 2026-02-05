@@ -19,6 +19,20 @@
 #define FAIL(MSG)      assert(false && "FAIL: " #MSG)
 #define TODO(MSG)      assert(false && "TODO: " #MSG)
 
+#ifndef VERBOSE_LOGS
+#define VERBOSE_LOGS 0
+#endif
+
+#if VERBOSE_LOGS
+#define LOG(...)         \
+  do                     \
+  {                      \
+    printf(__VA_ARGS__); \
+  } while (0)
+#else
+#define LOG(...)
+#endif
+
 /// Numeric aliases
 typedef uint8_t u8;
 typedef uint16_t u16;
