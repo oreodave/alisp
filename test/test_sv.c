@@ -28,14 +28,7 @@ void sv_copy_test(void)
   }
 }
 
-const test_suite_t SV_SUITE = {
-    .name = "String View Tests",
-    .tests =
-        (test_fn[]){
-            MAKE_TEST_FN(sv_copy_test),
-        },
-    .size = 1,
-};
+MAKE_TEST_SUITE(SV_SUITE, "String View Tests", MAKE_TEST_FN(sv_copy_test), );
 
 /* Copyright (C) 2026 Aryadev Chavali
 

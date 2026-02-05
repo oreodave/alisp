@@ -87,21 +87,9 @@ void stream_test_line_col(void)
   TODO("Not implemented");
 }
 
-const test_suite_t STREAM_SUITE = {
-    .name = "Stream Tests",
-    .tests =
-        (test_fn[]){
-            MAKE_TEST_FN(stream_test_string),
-            // MAKE_TEST_FN(stream_test_file),
-            // MAKE_TEST_FN(stream_test_peek_next),
-            // MAKE_TEST_FN(stream_test_seek),
-            // MAKE_TEST_FN(stream_test_substr),
-            // MAKE_TEST_FN(stream_test_till),
-            // MAKE_TEST_FN(stream_test_while),
-            // MAKE_TEST_FN(stream_test_line_col),
-        },
-    .size = 1,
-};
+MAKE_TEST_SUITE(STREAM_SUITE, "Stream Tests",
+
+                MAKE_TEST_FN(stream_test_string), );
 
 /* Copyright (C) 2026 Aryadev Chavali
 

@@ -22,14 +22,9 @@ void symtable_test(void)
   TEST_PASSED();
 }
 
-const test_suite_t SYMTABLE_SUITE = {
-    .name = "Symbol Table Tests",
-    .tests =
-        (test_fn[]){
-            MAKE_TEST_FN(symtable_test),
-        },
-    .size = 1,
-};
+MAKE_TEST_SUITE(SYMTABLE_SUITE, "Symbol Table Tests",
+
+                MAKE_TEST_FN(symtable_test), );
 
 /* Copyright (C) 2026 Aryadev Chavali
 

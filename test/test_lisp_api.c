@@ -186,19 +186,11 @@ void sys_test(void)
   TEST_PASSED();
 }
 
-const test_suite_t LISP_API_SUITE = {
-    .name = "Lisp API Tests",
-    .tests =
-        (test_fn[]){
-            MAKE_TEST_FN(smi_test),
-            MAKE_TEST_FN(smi_oob_test),
-            MAKE_TEST_FN(sym_fresh_test),
-            MAKE_TEST_FN(sym_unique_test),
-            MAKE_TEST_FN(cons_test),
-            MAKE_TEST_FN(sys_test),
-        },
-    .size = 6,
-};
+MAKE_TEST_SUITE(LISP_API_SUITE, "LISP API Tests",
+
+                MAKE_TEST_FN(smi_test), MAKE_TEST_FN(smi_oob_test),
+                MAKE_TEST_FN(sym_fresh_test), MAKE_TEST_FN(sym_unique_test),
+                MAKE_TEST_FN(cons_test), MAKE_TEST_FN(sys_test), );
 
 /* Copyright (C) 2026 Aryadev Chavali
 
