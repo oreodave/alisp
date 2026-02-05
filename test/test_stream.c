@@ -5,12 +5,51 @@
  * Commentary:
  */
 
+#include <malloc.h>
+
 #include "./data.h"
 #include "./test.h"
 
+#include <alisp/stream.h>
+
 void stream_test_string(void)
 {
-  TODO("Not implemented");
+  sv_t test_strings[] = {
+      SV("hello, world!", 13),
+      SV("another string", 14),
+      SV((char *)text, ARRSIZE(text) / 2),
+  };
+
+  for (u64 i = 0; i < ARRSIZE(test_strings); ++i)
+  {
+    sv_t copy = sv_copy(test_strings[i]);
+
+    stream_t stream  = {0};
+    stream_err_t err = stream_init_string(&stream, NULL, test_strings[i]);
+    TEST(err == STREAM_ERR_OK, "Stream initialising did not fail: %s",
+         stream_err_to_cstr(err));
+    TEST(stream_size(&stream) == test_strings[i].size,
+         "Stream size is always string size (%lu == %lu)", stream_size(&stream),
+         test_strings[i].size);
+    TEST(!stream_eoc(&stream), "Not end of content already");
+
+    stream_stop(&stream);
+    TEST(strncmp(copy.data, test_strings[i].data, copy.size) == 0,
+         "Freeing a stream does not free the underlying memory it was derived "
+         "from");
+
+    free(copy.data);
+  }
+
+  stream_t stream  = {0};
+  stream_err_t err = stream_init_string(&stream, NULL, SV(NULL, 0));
+  TEST(err == STREAM_ERR_OK, "NULL stream initialising did not fail: %s",
+       stream_err_to_cstr(err));
+  TEST(stream_size(&stream) == 0, "NULL stream size is 0");
+  TEST(stream_eoc(&stream), "NULL stream is always at end of content");
+  stream_stop(&stream);
+
+  TEST_PASSED();
 }
 
 void stream_test_file(void)
