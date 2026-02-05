@@ -10,7 +10,7 @@
 
 void vec_test_concat(void)
 {
-  TEST_INIT();
+  TEST_START();
   sys_t system = {0};
   sys_init(&system);
 
@@ -34,12 +34,12 @@ void vec_test_concat(void)
        strlen(words_text));
 
   sys_free(&system);
-  TEST_PASSED();
+  TEST_END();
 }
 
 void vec_test_substr(void)
 {
-  TEST_INIT();
+  TEST_START();
   sys_t system = {0};
   sys_init(&system);
   // Generating substrings
@@ -68,7 +68,7 @@ void vec_test_substr(void)
   }
 
   sys_free(&system);
-  TEST_PASSED();
+  TEST_END();
 }
 
 MAKE_TEST_SUITE(VEC_SUITE, "Vector Tests",

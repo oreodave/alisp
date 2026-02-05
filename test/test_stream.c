@@ -43,7 +43,7 @@ void stream_test_epilogue(void)
 
 void stream_test_string(void)
 {
-  TEST_INIT();
+  TEST_START();
   sv_t test_strings[] = {
       SV("hello, world!", 13),
       SV("another string", 14),
@@ -79,12 +79,12 @@ void stream_test_string(void)
   TEST(stream_eoc(&stream), "NULL stream is always at end of content");
   stream_stop(&stream);
 
-  TEST_PASSED();
+  TEST_END();
 }
 
 void stream_test_file(void)
 {
-  TEST_INIT();
+  TEST_START();
 
   // Test that initialising works correctly
   {
@@ -110,42 +110,42 @@ void stream_test_file(void)
     }
   }
 
-  TEST_PASSED();
+  TEST_END();
 }
 
 void stream_test_peek_next(void)
 {
-  TEST_INIT();
+  TEST_START();
   TODO("Not implemented");
 }
 
 void stream_test_seek(void)
 {
-  TEST_INIT();
+  TEST_START();
   TODO("Not implemented");
 }
 
 void stream_test_substr(void)
 {
-  TEST_INIT();
+  TEST_START();
   TODO("Not implemented");
 }
 
 void stream_test_till(void)
 {
-  TEST_INIT();
+  TEST_START();
   TODO("Not implemented");
 }
 
 void stream_test_while(void)
 {
-  TEST_INIT();
+  TEST_START();
   TODO("Not implemented");
 }
 
 void stream_test_line_col(void)
 {
-  TEST_INIT();
+  TEST_START();
   TODO("Not implemented");
 }
 

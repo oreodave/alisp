@@ -14,8 +14,8 @@
 #define TEST_VERBOSE 0
 #endif
 
-#define TEST_INIT()   printf("\t[%s]: Running...\n", __func__)
-#define TEST_PASSED() printf("\t[%s]: Passed\n", __func__)
+#define TEST_START() printf("\t[%s]: Running...\n", __func__)
+#define TEST_END()   printf("\t[%s]: Passed\n", __func__)
 #define TEST_INFO(...)   \
   do                     \
   {                      \

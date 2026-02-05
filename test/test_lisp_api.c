@@ -12,7 +12,7 @@
 
 void smi_test(void)
 {
-  TEST_INIT();
+  TEST_START();
   // Standard old testing, checking both sides of the number line and our set
   // bounds.
   i64 ints[] = {
@@ -28,12 +28,12 @@ void smi_test(void)
     TEST(in == out, "%ld == %ld", in, out);
   }
 
-  TEST_PASSED();
+  TEST_END();
 }
 
 void smi_oob_test(void)
 {
-  TEST_INIT();
+  TEST_START();
   // These are integers that are completely out of the bounds of our standard
   // tagging system due to their size.  We need to use big integers for this.
   i64 ints[] = {
@@ -52,12 +52,12 @@ void smi_oob_test(void)
     TEST(in != out, "%ld != %ld", in, out);
   }
 
-  TEST_PASSED();
+  TEST_END();
 }
 
 void sym_fresh_test(void)
 {
-  TEST_INIT();
+  TEST_START();
   sys_t system = {0};
   sys_init(&system);
 
@@ -74,12 +74,12 @@ void sym_fresh_test(void)
   }
 
   sys_free(&system);
-  TEST_PASSED();
+  TEST_END();
 }
 
 void sym_unique_test(void)
 {
-  TEST_INIT();
+  TEST_START();
   sys_t system = {0};
   sys_init(&system);
 
@@ -106,12 +106,12 @@ void sym_unique_test(void)
   }
 
   sys_free(&system);
-  TEST_PASSED();
+  TEST_END();
 }
 
 void cons_test(void)
 {
-  TEST_INIT();
+  TEST_START();
   sys_t system = {0};
   sys_init(&system);
 
@@ -143,12 +143,12 @@ void cons_test(void)
   }
 
   sys_free(&system);
-  TEST_PASSED();
+  TEST_END();
 }
 
 void sys_test(void)
 {
-  TEST_INIT();
+  TEST_START();
   sys_t sys = {0};
   sys_init(&sys);
   u64 old_memory_size = sys.memory.size;
@@ -189,7 +189,7 @@ void sys_test(void)
   TEST(sys.memory.size == 0, "sys_free cleans up memory (shallow check)");
   TEST(sys.symtable.count == 0, "sys_free cleans up symtable (shallow check)");
 
-  TEST_PASSED();
+  TEST_END();
 }
 
 MAKE_TEST_SUITE(LISP_API_SUITE, "LISP API Tests",

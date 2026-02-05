@@ -10,7 +10,7 @@
 
 void symtable_test(void)
 {
-  TEST_INIT();
+  TEST_START();
   sym_table_t table = {0};
   sym_table_init(&table);
   for (u64 i = 0; i < ARRSIZE(words); ++i)
@@ -20,7 +20,7 @@ void symtable_test(void)
        ARRSIZE(unique_words));
 
   sym_table_free(&table);
-  TEST_PASSED();
+  TEST_END();
 }
 
 MAKE_TEST_SUITE(SYMTABLE_SUITE, "Symbol Table Tests",
