@@ -22,7 +22,7 @@ typedef struct
 
 void sym_table_init(sym_table_t *);
 char *sym_table_find(sym_table_t *, sv_t);
-void sym_table_cleanup(sym_table_t *);
+void sym_table_free(sym_table_t *);
 
 #endif
 

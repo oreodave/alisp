@@ -18,7 +18,7 @@ void symtable_test(void)
   TEST(table.count == ARRSIZE(unique_words), "%lu == %lu", table.count,
        ARRSIZE(unique_words));
 
-  sym_table_cleanup(&table);
+  sym_table_free(&table);
   TEST_PASSED();
 }
 

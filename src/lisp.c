@@ -26,7 +26,7 @@ void sys_free(sys_t *sys)
 {
   static_assert(NUM_TAGS == 5);
 
-  sym_table_cleanup(&sys->symtable);
+  sym_table_free(&sys->symtable);
   if (sys->memory.size == 0)
     return;
 
