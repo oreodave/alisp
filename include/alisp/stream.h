@@ -22,11 +22,11 @@ typedef enum
 
 typedef enum
 {
-  STREAM_ERR_INVALID_PTR      = -4,
-  STREAM_ERR_FILE_NONEXISTENT = -3,
-  STREAM_ERR_FILE_READ        = -2,
-  STREAM_ERR_PIPE_NONEXISTENT = -1,
-  STREAM_ERR_OK               = 0,
+  STREAM_ERR_OK = 0,
+  STREAM_ERR_INVALID_PTR,
+  STREAM_ERR_FILE_NONEXISTENT,
+  STREAM_ERR_FILE_READ,
+  STREAM_ERR_PIPE_NONEXISTENT,
 } stream_err_t;
 
 const char *stream_err_to_cstr(stream_err_t);
