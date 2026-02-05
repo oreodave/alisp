@@ -13,6 +13,34 @@
 
 #include <alisp/stream.h>
 
+const char *valid_filename = "build/stream_test_artifact";
+FILE *valid_fp             = NULL;
+FILE *invalid_fp           = NULL;
+
+void stream_test_prologue(void)
+{
+  TEST_INFO("Creating file named `%s`\n", valid_filename);
+  valid_fp = fopen(valid_filename, "wb");
+  // This should do a few things for us
+  // 1) Create a file, or clear the contents of it if it exists already.
+  // 2) Write some content to it.
+  assert(valid_fp);
+  fwrite(words_text, ARRSIZE(words_text), 1, valid_fp);
+  fclose(valid_fp);
+  valid_fp = fopen(valid_filename, "rb");
+  assert(valid_fp);
+
+  invalid_fp = NULL;
+}
+
+void stream_test_epilogue(void)
+{
+  TEST_INFO("Freeing resources and deleting file `%s`\n", valid_filename);
+  assert(valid_fp);
+  fclose(valid_fp);
+  remove(valid_filename);
+}
+
 void stream_test_string(void)
 {
   TEST_INIT();
@@ -58,41 +86,25 @@ void stream_test_file(void)
 {
   TEST_INIT();
 
-  // Create a mock temporary file
-  const char *filename = "ahsudhaiusdhasd.txt";
-  {
-    FILE *fp = fopen(filename, "wb");
-    assert(fp);
-    fwrite(words_text, ARRSIZE(words_text), 1, fp);
-    fclose(fp);
-  }
-
   // Test that initialising works correctly
   {
-    FILE *fp = fopen(filename, "rb");
-    assert(fp); // Isn't a test
     stream_t stream = {0};
     {
-      stream_err_t err = stream_init_file(&stream, filename, fp);
+      stream_err_t err = stream_init_file(&stream, valid_filename, valid_fp);
       TEST(err == STREAM_ERR_OK, "Expected initialisating to be okay: %s",
            stream_err_to_cstr(err));
     }
     TEST(stream_size(&stream) == 0, "Stream doesn't read on init: size = %lu",
          stream_size(&stream));
     TEST(!stream_eoc(&stream), "Stream should not be at the EoC from init.");
-    fclose(fp);
   }
-
-  // Delete mock file from file system
-  assert(remove(filename) == 0);
 
   // try to initialise the stream again but against a nonexistent file - we're
   // expecting an error.
   {
-    FILE *fp        = fopen(filename, "rb");
     stream_t stream = {0};
     {
-      stream_err_t err = stream_init_file(&stream, filename, fp);
+      stream_err_t err = stream_init_file(&stream, NULL, invalid_fp);
       TEST(err != STREAM_ERR_OK, "Expected initialisating to not be okay: %s",
            stream_err_to_cstr(err));
     }
@@ -139,8 +151,10 @@ void stream_test_line_col(void)
 
 MAKE_TEST_SUITE(STREAM_SUITE, "Stream Tests",
 
+                MAKE_TEST_FN(stream_test_prologue),
                 MAKE_TEST_FN(stream_test_string),
-                MAKE_TEST_FN(stream_test_file));
+                MAKE_TEST_FN(stream_test_file),
+                MAKE_TEST_FN(stream_test_epilogue), );
 
 /* Copyright (C) 2026 Aryadev Chavali
 

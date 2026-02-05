@@ -16,6 +16,12 @@
 
 #define TEST_INIT()   printf("\t[%s]: Running...\n", __func__)
 #define TEST_PASSED() printf("\t[%s]: Passed\n", __func__)
+#define TEST_INFO(...)   \
+  do                     \
+  {                      \
+    printf("\tINFO: ");  \
+    printf(__VA_ARGS__); \
+  } while (0);
 
 #if TEST_VERBOSE
 #define TEST(COND, ...)                  \
