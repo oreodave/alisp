@@ -12,6 +12,7 @@
 
 void smi_test(void)
 {
+  TEST_INIT();
   // Standard old testing, checking both sides of the number line and our set
   // bounds.
   i64 ints[] = {
@@ -32,6 +33,7 @@ void smi_test(void)
 
 void smi_oob_test(void)
 {
+  TEST_INIT();
   // These are integers that are completely out of the bounds of our standard
   // tagging system due to their size.  We need to use big integers for this.
   i64 ints[] = {
@@ -55,6 +57,7 @@ void smi_oob_test(void)
 
 void sym_fresh_test(void)
 {
+  TEST_INIT();
   sys_t system = {0};
   sys_init(&system);
 
@@ -76,6 +79,7 @@ void sym_fresh_test(void)
 
 void sym_unique_test(void)
 {
+  TEST_INIT();
   sys_t system = {0};
   sys_init(&system);
 
@@ -107,6 +111,7 @@ void sym_unique_test(void)
 
 void cons_test(void)
 {
+  TEST_INIT();
   sys_t system = {0};
   sys_init(&system);
 
@@ -143,6 +148,7 @@ void cons_test(void)
 
 void sys_test(void)
 {
+  TEST_INIT();
   sys_t sys = {0};
   sys_init(&sys);
   u64 old_memory_size = sys.memory.size;

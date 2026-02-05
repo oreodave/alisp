@@ -13,6 +13,7 @@
 
 void sv_copy_test(void)
 {
+  TEST_INIT();
   static_assert(ARRSIZE(unique_words) > 3, "Expected at least 3 unique words");
   for (u64 i = 0; i < 3; ++i)
   {

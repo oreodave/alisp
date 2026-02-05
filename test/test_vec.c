@@ -10,6 +10,7 @@
 
 void vec_test_concat(void)
 {
+  TEST_INIT();
   sys_t system = {0};
   sys_init(&system);
 
@@ -38,6 +39,7 @@ void vec_test_concat(void)
 
 void vec_test_substr(void)
 {
+  TEST_INIT();
   sys_t system = {0};
   sys_init(&system);
   // Generating substrings

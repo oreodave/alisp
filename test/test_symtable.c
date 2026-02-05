@@ -10,6 +10,7 @@
 
 void symtable_test(void)
 {
+  TEST_INIT();
   sym_table_t table = {0};
   sym_table_init(&table);
   for (u64 i = 0; i < ARRSIZE(words); ++i)

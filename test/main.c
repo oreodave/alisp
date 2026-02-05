@@ -18,7 +18,7 @@
 #include "./test_vec.c"
 
 test_suite_t SUITES[] = {
-    VEC_SUITE, SV_SUITE, SYMTABLE_SUITE, STREAM_SUITE, LISP_API_SUITE,
+    SV_SUITE, VEC_SUITE, SYMTABLE_SUITE, STREAM_SUITE, LISP_API_SUITE,
 };
 
 int main(void)
@@ -29,7 +29,6 @@ int main(void)
     printf("Suite [%s]\n", suite.name);
     for (u64 j = 0; j < suite.size; ++j)
     {
-      printf("\t[%s]: Running...\n", suite.tests[j].name);
       suite.tests[j].fn();
     }
   }

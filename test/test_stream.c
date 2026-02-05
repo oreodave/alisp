@@ -14,6 +14,7 @@
 
 void stream_test_string(void)
 {
+  TEST_INIT();
   sv_t test_strings[] = {
       SV("hello, world!", 13),
       SV("another string", 14),
@@ -54,36 +55,43 @@ void stream_test_string(void)
 
 void stream_test_file(void)
 {
+  TEST_INIT();
   TODO("Not implemented");
 }
 
 void stream_test_peek_next(void)
 {
+  TEST_INIT();
   TODO("Not implemented");
 }
 
 void stream_test_seek(void)
 {
+  TEST_INIT();
   TODO("Not implemented");
 }
 
 void stream_test_substr(void)
 {
+  TEST_INIT();
   TODO("Not implemented");
 }
 
 void stream_test_till(void)
 {
+  TEST_INIT();
   TODO("Not implemented");
 }
 
 void stream_test_while(void)
 {
+  TEST_INIT();
   TODO("Not implemented");
 }
 
 void stream_test_line_col(void)
 {
+  TEST_INIT();
   TODO("Not implemented");
 }
 
