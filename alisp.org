@@ -58,7 +58,7 @@ other state do we need to encode?
 Ensure stream_size is 0 i.e. we don't read anything on creation.
 Also ensure stream_eoc is false.
 ***** DONE Test failed init from fake files
-**** TODO Test peeking and next
+**** DONE Test peeking and next
 [[file:test/test_stream.c::void stream_test_peek_next(void)]]
 - Peeking with bad streams ('\0' return)
 - Peeking with good streams (no effect on position)

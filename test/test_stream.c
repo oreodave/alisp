@@ -116,7 +116,53 @@ void stream_test_file(void)
 void stream_test_peek_next(void)
 {
   TEST_START();
-  TODO("Not implemented");
+
+  // Valid streams
+  {
+    stream_t stream = {0};
+    stream_init_file(&stream, valid_filename, valid_fp);
+
+    u64 old_position = stream.position;
+    char c1          = stream_peek(&stream);
+    TEST(c1 != '\0', "Peek should provide a normal character (%c)", c1);
+    TEST(stream.position == old_position,
+         "Peek should not shift the position (%lu -> %lu)", old_position,
+         stream.position);
+
+    char c2 = stream_next(&stream);
+    TEST(c2 != '\0', "Next should provide a normal character (%c)", c2);
+    TEST(stream.position > old_position,
+         "Next should shift the position (%lu -> %lu)", old_position,
+         stream.position);
+    TEST(c2 != c1,
+         "Next should yield a different character (%c) to the previous peek "
+         "(%c)",
+         c2, c1);
+
+    char c3 = stream_peek(&stream);
+    TEST(c3 == c2,
+         "Peeking should yield the same character (%c) as the previous next "
+         "(%c)",
+         c3, c2);
+
+    stream_stop(&stream);
+  }
+
+  // Invalid streams
+  {
+    stream_t stream = {0};
+    stream_init_file(&stream, NULL, invalid_fp);
+    char c = stream_peek(&stream);
+    TEST(c == '\0', "Invalid streams should have an invalid peek (%c)", c);
+
+    u64 old_position = stream.position;
+    c                = stream_next(&stream);
+    TEST(c == '\0', "Invalid streams should have an invalid next (%c)", c);
+    TEST(old_position == stream.position,
+         "Next on an invalid stream should not affect position (%lu -> %lu)",
+         old_position, stream.position);
+  }
+  TEST_END();
 }
 
 void stream_test_seek(void)
@@ -154,6 +200,7 @@ MAKE_TEST_SUITE(STREAM_SUITE, "Stream Tests",
                 MAKE_TEST_FN(stream_test_prologue),
                 MAKE_TEST_FN(stream_test_string),
                 MAKE_TEST_FN(stream_test_file),
+                MAKE_TEST_FN(stream_test_peek_next),
                 MAKE_TEST_FN(stream_test_epilogue), );
 
 /* Copyright (C) 2026 Aryadev Chavali
