@@ -12,15 +12,13 @@
 #include "./test.h"
 
 #include "./test_lisp_api.c"
+#include "./test_stream.c"
 #include "./test_sv.c"
 #include "./test_symtable.c"
 #include "./test_vec.c"
 
 test_suite_t SUITES[] = {
-    VEC_SUITE,
-    SV_SUITE,
-    SYMTABLE_SUITE,
-    LISP_API_SUITE,
+    VEC_SUITE, SV_SUITE, SYMTABLE_SUITE, STREAM_SUITE, LISP_API_SUITE,
 };
 
 int main(void)
