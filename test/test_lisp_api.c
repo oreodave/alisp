@@ -74,6 +74,37 @@ void sym_fresh_test(void)
   TEST_PASSED();
 }
 
+void sym_unique_test(void)
+{
+  sys_t system = {0};
+  sys_init(&system);
+
+  sv_t symbols[] = {
+      SV("hello", 5),
+      SV("goodbye", 7),
+      SV("display", 7),
+      SV("@xs'a_sh;d::a-h]", 16),
+  };
+
+  lisp_t *ptrs[ARRSIZE(symbols)];
+  for (u64 i = 0; i < ARRSIZE(symbols); ++i)
+  {
+    ptrs[i] = intern(&system, symbols[i]);
+    TEST(ptrs[i] != 0, "%p (derived from `" PR_SV "`) is not NIL",
+         (void *)ptrs[i], SV_FMT(symbols[i]));
+  }
+
+  for (u64 i = 0; i < ARRSIZE(symbols); ++i)
+  {
+    lisp_t *newptr = intern(&system, symbols[i]);
+    TEST(newptr == ptrs[i], "interning again (%p) gives us the same (%p)",
+         (void *)newptr, (void *)ptrs[i]);
+  }
+
+  sys_free(&system);
+  TEST_PASSED();
+}
+
 void cons_test(void)
 {
   sys_t system = {0};
@@ -117,9 +148,10 @@ const test_suite_t LISP_API_SUITE = {
             MAKE_TEST_FN(smi_test),
             MAKE_TEST_FN(smi_oob_test),
             MAKE_TEST_FN(sym_fresh_test),
+            MAKE_TEST_FN(sym_unique_test),
             MAKE_TEST_FN(cons_test),
         },
-    .size = 4,
+    .size = 5,
 };
 
 /* Copyright (C) 2026 Aryadev Chavali
