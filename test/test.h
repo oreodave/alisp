@@ -14,8 +14,7 @@
 #define TEST_VERBOSE 0
 #endif
 
-#define TEST_START() printf("\t[%s]: Running...\n", __func__)
-#define TEST_END()   printf("\t[%s]: Passed\n", __func__)
+#define TEST_END() printf("\t[%s]: Passed\n", __func__)
 #define TEST_INFO(...)   \
   do                     \
   {                      \
@@ -24,6 +23,7 @@
   } while (0);
 
 #if TEST_VERBOSE
+#define TEST_START() printf("\t[%s]: Running...\n", __func__)
 #define TEST(COND, ...)                  \
   do                                     \
   {                                      \
@@ -44,6 +44,7 @@
     }                                    \
   } while (0)
 #else
+#define TEST_START()
 #define TEST(COND, ...) \
   do                    \
   {                     \
