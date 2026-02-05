@@ -35,7 +35,8 @@ const char *stream_err_to_cstr(stream_err_t err)
   }
 }
 
-stream_err_t stream_init_string(stream_t *stream, char *name, sv_t contents)
+stream_err_t stream_init_string(stream_t *stream, const char *name,
+                                sv_t contents)
 {
   if (!stream)
     return STREAM_ERR_INVALID_PTR;
@@ -49,7 +50,7 @@ stream_err_t stream_init_string(stream_t *stream, char *name, sv_t contents)
   return STREAM_ERR_OK;
 }
 
-stream_err_t stream_init_pipe(stream_t *stream, char *name, FILE *pipe)
+stream_err_t stream_init_pipe(stream_t *stream, const char *name, FILE *pipe)
 {
   if (!stream)
     return STREAM_ERR_INVALID_PTR;
@@ -68,7 +69,7 @@ stream_err_t stream_init_pipe(stream_t *stream, char *name, FILE *pipe)
   return STREAM_ERR_OK;
 }
 
-stream_err_t stream_init_file(stream_t *stream, char *name, FILE *pipe)
+stream_err_t stream_init_file(stream_t *stream, const char *name, FILE *pipe)
 {
   if (!stream)
     return STREAM_ERR_INVALID_PTR;

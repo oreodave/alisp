@@ -40,7 +40,7 @@ typedef struct
 typedef struct
 {
   stream_type_t type;
-  char *name;
+  const char *name;
   u64 position;
   union
   {
@@ -51,9 +51,9 @@ typedef struct
 
 #define STREAM_DEFAULT_CHUNK 64
 
-stream_err_t stream_init_string(stream_t *, char *, sv_t);
-stream_err_t stream_init_pipe(stream_t *, char *, FILE *);
-stream_err_t stream_init_file(stream_t *, char *, FILE *);
+stream_err_t stream_init_string(stream_t *, const char *, sv_t);
+stream_err_t stream_init_pipe(stream_t *, const char *, FILE *);
+stream_err_t stream_init_file(stream_t *, const char *, FILE *);
 void stream_stop(stream_t *);
 
 // End of Content (i.e. we've consumed all cached content/file)
