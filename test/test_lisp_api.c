@@ -10,7 +10,7 @@
 
 #include <alisp/lisp.h>
 
-void int_test(void)
+void smi_test(void)
 {
   i64 ints[] = {
       1, -1, (1 << 10) - 1, (-1) * ((1 << 10) - 1), INT_MIN, INT_MAX,
@@ -23,6 +23,29 @@ void int_test(void)
     i64 out      = as_int(lisp);
 
     TEST(in == out, "%ld == %ld", in, out);
+  }
+
+  TEST_PASSED();
+}
+
+void smi_oob_test(void)
+{
+  // These are integers that are completely out of the bounds of our standard
+  // tagging system due to their size.  We need to use big integers for this.
+  i64 ints[] = {
+      INT_MIN - 1,
+      INT_MAX + 1,
+      INT64_MIN,
+      INT64_MAX,
+  };
+
+  for (u64 i = 0; i < ARRSIZE(ints); ++i)
+  {
+    i64 in       = ints[i];
+    lisp_t *lisp = make_int(in);
+    i64 out      = as_int(lisp);
+
+    TEST(in != out, "%ld != %ld", in, out);
   }
 
   TEST_PASSED();
@@ -81,7 +104,8 @@ const test_suite_t LISP_API_SUITE = {
     .name = "Lisp API Tests",
     .tests =
         (test_fn[]){
-            MAKE_TEST_FN(int_test),
+            MAKE_TEST_FN(smi_test),
+            MAKE_TEST_FN(smi_oob_test),
             MAKE_TEST_FN(sym_test),
             MAKE_TEST_FN(cons_test),
         },
