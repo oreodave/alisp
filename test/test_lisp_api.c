@@ -12,6 +12,8 @@
 
 void smi_test(void)
 {
+  // Standard old testing, checking both sides of the number line and our set
+  // bounds.
   i64 ints[] = {
       1, -1, (1 << 10) - 1, (-1) * ((1 << 10) - 1), INT_MIN, INT_MAX,
   };
@@ -51,11 +53,13 @@ void smi_oob_test(void)
   TEST_PASSED();
 }
 
-void sym_test(void)
+void sym_fresh_test(void)
 {
   sys_t system = {0};
   sys_init(&system);
 
+  // We expect every interned symbol to get a fresh allocation, but still be a
+  // valid representation of the original symbol.
   for (u64 i = 0; i < ARRSIZE(words); ++i)
   {
     const char *in = words[i];
@@ -84,7 +88,13 @@ void cons_test(void)
     lisp             = cons(&system, lword, lisp);
   }
 
-  // Make sure we've essentially reversed the `words` array
+  /*
+    As we've cons'd each word, we'd expect the order to be reversed.  This test
+    will allow us to verify:
+        1) words have actually been added to the linked list.
+        2) words are in the order we expect.
+    in one go.
+   */
   u64 i = ARRSIZE(words);
   for (lisp_t *iter = lisp; iter; iter = cdr(iter), --i)
   {
@@ -106,7 +116,7 @@ const test_suite_t LISP_API_SUITE = {
         (test_fn[]){
             MAKE_TEST_FN(smi_test),
             MAKE_TEST_FN(smi_oob_test),
-            MAKE_TEST_FN(sym_test),
+            MAKE_TEST_FN(sym_fresh_test),
             MAKE_TEST_FN(cons_test),
         },
     .size = 4,
