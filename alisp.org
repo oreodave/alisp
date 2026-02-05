@@ -50,6 +50,11 @@ other state do we need to encode?
 *** TODO Write a parser for lists
 *** TODO Write a parser for vectors
 *** TODO Write the general parser
+** WIP Unit tests :tests:
+*** TODO Test system registration of allocated units
+In particular, does clean up work as we expect?  Do we have situations
+where we may double free or not clean up something we should've?
+*** TODO Test streams
 ** Backlog
 *** TODO Design Big Integers
 We currently have 62 bit integers implemented via immediate values
@@ -139,9 +144,6 @@ Latter approach time complexity:
 
 Former approach is better time complexity wise, but latter is way
 better in terms of simplicity of code.  Must deliberate.
-*** TODO Test system registration of allocated units :test:
-In particular, does clean up work as we expect?  Do we have situations
-where we may double free or not clean up something we should've?
 *** TODO Design Strings
 We have ~sv_t~ so our basic C API is done.  We just need pluggable
 functions to construct and deconstruct strings as lisps.
@@ -160,4 +162,4 @@ Test if ~make_vec~ works with ~as_vec~, ~cons~ with ~as_cons~ AND
 We may need to think of effective ways to deal with NILs in ~car~ and
 ~cdr~.  Maybe make functions as well as the macros so I can choose
 between them?
-**** DONE Write more tests
+*** DONE Write more tests
