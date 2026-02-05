@@ -164,14 +164,14 @@ void sys_test(void)
        "Interning doesn't affect system memory size");
   TEST(sys.symtable.count > 0, "Interning affects symbol table");
 
-  // Creating cons' do affect memory size
+  // Creating conses do affect memory size
   (void)cons(&sys, make_int(1), make_int(2));
-  TEST(sys.memory.size > 0, "Creating cons' affects memory size");
+  TEST(sys.memory.size > 0, "Creating conses affects memory size");
   old_memory_size = sys.memory.size;
 
   (void)cons(&sys, intern(&sys, SV("test", 4)), NIL);
   TEST(sys.memory.size > old_memory_size,
-       "Creating cons' back to back affects memory size");
+       "Creating conses back to back affects memory size");
   old_memory_size = sys.memory.size;
 
   // Creating vectors does affect memory size
