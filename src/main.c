@@ -11,42 +11,67 @@
 
 #include <alisp/alisp.h>
 
-const char *TOKEN_DELIM = "\n ";
-
-int main(void)
+void usage(FILE *fp)
 {
-  sym_table_t table = {0};
-  sym_table_init(&table);
+  fprintf(fp, "Usage: alisp [OPTIONS...] FILE\n"
+              "Options:\n"
+              "\t--help        Print this usage and exit.\n"
+              "File:\n"
+              "\t<filename>  Read and interpret this file from filesystem.\n"
+              "\t--          Read and interpret from stdin using an EOF.\n");
+}
 
-  char filename[] = "./lorem.txt";
-  FILE *fp        = fopen(filename, "r");
+int main(int argc, char *argv[])
+{
+  int ret = 0;
+  if (argc == 1)
+  {
+    usage(stderr);
+    ret = 1;
+    goto end;
+  }
+  else if (argc != 2)
+  {
+    TODO("alisp doesn't support multiple files currently.");
+  }
+
+  FILE *fp        = NULL;
   stream_t stream = {0};
-  stream_init_file(&stream, filename, fp);
-
-  for (u64 token_no = 1; !stream_eoc(&stream); ++token_no)
+  if (strncmp(argv[1], "--", 2) == 0)
   {
-    // Skip forward any delimiters
-    stream_while(&stream, TOKEN_DELIM);
-    // Get the token (up until delimiter)
-    sv_t token     = stream_till(&stream, TOKEN_DELIM);
-    char *interned = sym_table_find(&table, token);
-    printf("%s[%lu] => `%s`\n", stream.name, token_no, interned);
+    stream_err_t err = stream_init_pipe(&stream, "stdin", stdin);
+    if (err)
+    {
+      fprintf(stderr, "ERROR: %s from `%s`\n", stream_err_to_cstr(err),
+              argv[1]);
+      ret = 1;
+      goto end;
+    }
+  }
+  else if (strncmp(argv[1], "--help", 6) == 0)
+  {
+    usage(stdout);
+    goto end;
+  }
+  else
+  {
+    fp               = fopen(argv[1], "rb");
+    stream_err_t err = stream_init_file(&stream, argv[1], fp);
+    if (err)
+    {
+      fprintf(stderr, "ERROR: %s from `%s`\n", stream_err_to_cstr(err),
+              argv[1]);
+      ret = 1;
+      goto end;
+    }
   }
 
-  printf("\nTable count=%lu\n", table.count);
-  for (u64 i = 0, j = 0; i < table.capacity; ++i)
-  {
-    sv_t token = VEC_GET(&table.entries, i, sv_t);
-    if (!token.data)
-      continue;
-    printf("[%lu]@[%lu] => `" PR_SV "`\n", j, i, SV_FMT(token));
-    ++j;
-  }
-
+  LOG("[INFO]: Initialised stream for `%s`\n", stream.name);
+end:
+  if (fp)
+    fclose(fp);
   stream_stop(&stream);
-  fclose(fp);
-  sym_table_cleanup(&table);
-  return 0;
+  return ret;
 }
 
 /* Copyright (C) 2025, 2026 Aryadev Chavali
