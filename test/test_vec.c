@@ -69,15 +69,14 @@ void vec_test_substr(void)
   TEST_PASSED();
 }
 
-const test_fn TESTS_VEC[] = {
-    MAKE_TEST_FN(vec_test_concat),
-    MAKE_TEST_FN(vec_test_substr),
-};
-
 const test_suite_t VEC_SUITE = {
-    .name  = "Vector Tests",
-    .tests = TESTS_VEC,
-    .size  = ARRSIZE(TESTS_VEC),
+    .name = "Vector Tests",
+    .tests =
+        (test_fn[]){
+            MAKE_TEST_FN(vec_test_concat),
+            MAKE_TEST_FN(vec_test_substr),
+        },
+    .size = 2,
 };
 
 /* Copyright (C) 2026 Aryadev Chavali

@@ -77,16 +77,15 @@ void cons_test(void)
   TEST_PASSED();
 }
 
-const test_fn TESTS_LISP_API[] = {
-    MAKE_TEST_FN(int_test),
-    MAKE_TEST_FN(sym_test),
-    MAKE_TEST_FN(cons_test),
-};
-
 const test_suite_t LISP_API_SUITE = {
-    .name  = "Lisp API Tests",
-    .tests = TESTS_LISP_API,
-    .size  = ARRSIZE(TESTS_LISP_API),
+    .name = "Lisp API Tests",
+    .tests =
+        (test_fn[]){
+            MAKE_TEST_FN(int_test),
+            MAKE_TEST_FN(sym_test),
+            MAKE_TEST_FN(cons_test),
+        },
+    .size = 3,
 };
 
 /* Copyright (C) 2026 Aryadev Chavali
