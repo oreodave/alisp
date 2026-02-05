@@ -85,7 +85,7 @@ const test_suite_t LISP_API_SUITE = {
             MAKE_TEST_FN(sym_test),
             MAKE_TEST_FN(cons_test),
         },
-    .size = 3,
+    .size = 4,
 };
 
 /* Copyright (C) 2026 Aryadev Chavali
