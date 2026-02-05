@@ -12,13 +12,19 @@
 #include "./test.h"
 
 #include <alisp/stream.h>
+#include <string.h>
 
-const char *valid_filename = "build/stream_test_artifact";
-FILE *valid_fp             = NULL;
-FILE *invalid_fp           = NULL;
+char valid_filename[24];
+FILE *valid_fp   = NULL;
+FILE *invalid_fp = NULL;
 
 void stream_test_prologue(void)
 {
+  valid_filename[ARRSIZE(valid_filename) - 1] = '\0';
+  memcpy(valid_filename, "build/stream_test_", 18);
+  for (u64 i = 0; i < 5; ++i)
+    valid_filename[18 + i] = (rand() % 26) + 'a';
+
   TEST_INFO("Creating file named `%s`\n", valid_filename);
   valid_fp = fopen(valid_filename, "wb");
   // This should do a few things for us
