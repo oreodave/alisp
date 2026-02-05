@@ -22,7 +22,7 @@ void sys_register(sys_t *sys, lisp_t *ptr)
   vec_append(&sys->memory, &ptr, sizeof(&ptr));
 }
 
-void sys_cleanup(sys_t *sys)
+void sys_free(sys_t *sys)
 {
   static_assert(NUM_TAGS == 5);
 

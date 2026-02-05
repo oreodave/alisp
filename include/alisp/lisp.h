@@ -30,7 +30,7 @@ typedef struct
 
 void sys_init(sys_t *);
 void sys_register(sys_t *, lisp_t *);
-void sys_cleanup(sys_t *);
+void sys_free(sys_t *);
 
 /// Constructors and destructors
 lisp_t *make_int(i64);

@@ -60,7 +60,7 @@ void sym_test(void)
     TEST(strncmp(in, out, strlen(in)) == 0, "%d", strncmp(in, out, strlen(in)));
   }
   TEST_PASSED();
-  sys_cleanup(&system);
+  sys_free(&system);
 }
 
 void cons_test(void)
@@ -91,7 +91,7 @@ void cons_test(void)
 
   TEST_PASSED();
 
-  sys_cleanup(&system);
+  sys_free(&system);
 }
 
 const test_fn TESTS_LISP_API[] = {

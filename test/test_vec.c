@@ -32,7 +32,7 @@ void vec_test1(void)
        strncmp((char *)vec_data(vec), words_text, vec->size));
 
   TEST_PASSED();
-  sys_cleanup(&system);
+  sys_free(&system);
 }
 
 void vec_test2(void)
@@ -65,7 +65,7 @@ void vec_test2(void)
   }
 
   TEST_PASSED();
-  sys_cleanup(&system);
+  sys_free(&system);
 }
 
 const test_fn TESTS_VEC[] = {
