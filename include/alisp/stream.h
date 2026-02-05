@@ -82,6 +82,9 @@ sv_t stream_till(stream_t *, const char *);
 // present.
 sv_t stream_while(stream_t *, const char *);
 
+// Get the line and column of the stream at its current position.
+void stream_line_col(stream_t *, u64 *line, u64 *col);
+
 #endif
 
 /* Copyright (C) 2026 Aryadev Chavali

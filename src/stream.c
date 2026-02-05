@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <alisp/base.h>
 #include <alisp/stream.h>
 
 const char *stream_err_to_cstr(stream_err_t err)
@@ -389,6 +390,41 @@ sv_t stream_while(stream_t *stream, const char *str)
   if (size == 0)
     return SV(NULL, 0);
   return stream_substr_abs(stream, current_position, size - 1);
+}
+
+void stream_line_col(stream_t *stream, u64 *line, u64 *col)
+{
+  if (!stream || !line || !col)
+    return;
+  // Go through the cache, byte by byte.
+  char *cache = NULL;
+  u64 size    = 0;
+  if (stream->type == STREAM_TYPE_STRING)
+  {
+    cache = stream->string.data;
+    size  = stream->string.size;
+  }
+  else
+  {
+    cache = (char *)vec_data(&stream->pipe.cache);
+    size  = stream->pipe.cache.size;
+  }
+
+  *line = 1;
+  *col  = 0;
+  for (u64 i = 0; i < size; ++i)
+  {
+    char c = cache[i];
+    if (c == '\n')
+    {
+      *line += 1;
+      *col = 0;
+    }
+    else
+    {
+      *col += 1;
+    }
+  }
 }
 
 /* Copyright (C) 2025, 2026 Aryadev Chavali
