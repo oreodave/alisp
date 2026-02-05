@@ -29,6 +29,8 @@ typedef enum
   STREAM_ERR_OK               = 0,
 } stream_err_t;
 
+const char *stream_err_to_cstr(stream_err_t);
+
 typedef struct
 {
   vec_t cache;

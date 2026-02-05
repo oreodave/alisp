@@ -10,6 +10,30 @@
 
 #include <alisp/stream.h>
 
+const char *stream_err_to_cstr(stream_err_t err)
+{
+  switch (err)
+  {
+  case STREAM_ERR_INVALID_PTR:
+    return "INVALID PTR";
+    break;
+  case STREAM_ERR_FILE_NONEXISTENT:
+    return "FILE NONEXISTENT";
+    break;
+  case STREAM_ERR_FILE_READ:
+    return "FILE READ";
+    break;
+  case STREAM_ERR_PIPE_NONEXISTENT:
+    return "PIPE NONEXISTENT";
+    break;
+  case STREAM_ERR_OK:
+    return "OK";
+    break;
+  default:
+    FAIL("Unreachable");
+  }
+}
+
 stream_err_t stream_init_string(stream_t *stream, char *name, sv_t contents)
 {
   if (!stream)
