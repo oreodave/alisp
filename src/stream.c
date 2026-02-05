@@ -83,8 +83,6 @@ stream_err_t stream_init_file(stream_t *stream, const char *name, FILE *pipe)
   stream->name      = name;
   stream->pipe.file = pipe;
 
-  vec_init(&stream->pipe.cache, STREAM_DEFAULT_CHUNK);
-
   return STREAM_ERR_OK;
 }
 
