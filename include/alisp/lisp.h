@@ -49,6 +49,8 @@ vec_t *as_vec(lisp_t *);
 lisp_t *car(lisp_t *);
 lisp_t *cdr(lisp_t *);
 
+void lisp_free(lisp_t *);
+
 #endif
 
 /* Copyright (C) 2026 Aryadev Chavali
