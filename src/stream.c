@@ -192,10 +192,9 @@ bool stream_chunk(stream_t *stream)
 
 char stream_next(stream_t *stream)
 {
-  char c = stream_peek(stream);
-  if (c != '\0')
+  if (stream_peek(stream) != '\0')
     ++stream->position;
-  return c;
+  return stream_peek(stream);
 }
 
 char stream_peek(stream_t *stream)
