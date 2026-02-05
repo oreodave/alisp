@@ -6,6 +6,7 @@
  */
 
 #include <malloc.h>
+#include <stdio.h>
 
 #include "./data.h"
 #include "./test.h"
@@ -56,7 +57,48 @@ void stream_test_string(void)
 void stream_test_file(void)
 {
   TEST_INIT();
-  TODO("Not implemented");
+
+  // Create a mock temporary file
+  const char *filename = "ahsudhaiusdhasd.txt";
+  {
+    FILE *fp = fopen(filename, "wb");
+    assert(fp);
+    fwrite(words_text, ARRSIZE(words_text), 1, fp);
+    fclose(fp);
+  }
+
+  // Test that initialising works correctly
+  {
+    FILE *fp = fopen(filename, "rb");
+    assert(fp); // Isn't a test
+    stream_t stream = {0};
+    {
+      stream_err_t err = stream_init_file(&stream, filename, fp);
+      TEST(err == STREAM_ERR_OK, "Expected initialisating to be okay: %s",
+           stream_err_to_cstr(err));
+    }
+    TEST(stream_size(&stream) == 0, "Stream doesn't read on init: size = %lu",
+         stream_size(&stream));
+    TEST(!stream_eoc(&stream), "Stream should not be at the EoC from init.");
+    fclose(fp);
+  }
+
+  // Delete mock file from file system
+  assert(remove(filename) == 0);
+
+  // try to initialise the stream again but against a nonexistent file - we're
+  // expecting an error.
+  {
+    FILE *fp        = fopen(filename, "rb");
+    stream_t stream = {0};
+    {
+      stream_err_t err = stream_init_file(&stream, filename, fp);
+      TEST(err != STREAM_ERR_OK, "Expected initialisating to not be okay: %s",
+           stream_err_to_cstr(err));
+    }
+  }
+
+  TEST_PASSED();
 }
 
 void stream_test_peek_next(void)
@@ -97,7 +139,8 @@ void stream_test_line_col(void)
 
 MAKE_TEST_SUITE(STREAM_SUITE, "Stream Tests",
 
-                MAKE_TEST_FN(stream_test_string), );
+                MAKE_TEST_FN(stream_test_string),
+                MAKE_TEST_FN(stream_test_file));
 
 /* Copyright (C) 2026 Aryadev Chavali
 
