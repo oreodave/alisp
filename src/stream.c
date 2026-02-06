@@ -5,6 +5,7 @@
  * Commentary:
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -95,8 +96,11 @@ void stream_stop(stream_t *stream)
   case STREAM_TYPE_STRING:
     free(stream->string.data);
     break;
-  case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
+    // ensure we reset the FILE pointer to the start
+    fseek(stream->pipe.file, 0, SEEK_SET);
+    // fallthrough
+  case STREAM_TYPE_PIPE:
     // Must cleanup vector
     vec_free(&stream->pipe.cache);
     break;
