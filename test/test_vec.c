@@ -37,7 +37,7 @@ void vec_test_concat(void)
   TEST_END();
 }
 
-void vec_test_substr(void)
+void vec_test_gen_substr(void)
 {
   TEST_START();
   sys_t system = {0};
@@ -73,7 +73,8 @@ void vec_test_substr(void)
 
 MAKE_TEST_SUITE(VEC_SUITE, "Vector Tests",
 
-                MAKE_TEST_FN(vec_test_concat), MAKE_TEST_FN(vec_test_substr), );
+                MAKE_TEST_FN(vec_test_concat),
+                MAKE_TEST_FN(vec_test_gen_substr), );
 
 /* Copyright (C) 2026 Aryadev Chavali
 
