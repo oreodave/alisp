@@ -50,7 +50,7 @@ other state do we need to encode?
 *** TODO Write a parser for lists
 *** TODO Write a parser for vectors
 *** TODO Write the general parser
-** WIP Unit tests :tests:
+** Unit tests :tests:
 *** TODO Test streams
 **** DONE Test file init
 [[file:test/test_stream.c::void stream_test_file(void)]]
@@ -100,8 +100,17 @@ Also ensure stream_eoc is false.
 *** DONE Test system registration of allocated units
 In particular, does clean up work as we expect?  Do we have situations
 where we may double free or not clean up something we should've?
+** String views :sv_t:
+[[file:include/alisp/sv.h::/// String Views]]
+*** DONE sv_substr
+Takes an index and a size, returns a string view to that substring.
+*** DONE sv_chop_left and sv_chop_right
+Super obvious.
+*** TODO Design Strings for the Lisp :api:
+We have ~sv_t~ so our basic C API is done.  We just need pluggable
+functions to construct and deconstruct strings as lisps.
 ** Backlog
-*** TODO Design Big Integers
+*** TODO Design Big Integers :api:
 We currently have 62 bit integers implemented via immediate values
 embedded in a pointer.  We need to be able to support even _bigger_
 integers.  How do we do this?
@@ -189,19 +198,10 @@ Latter approach time complexity:
 
 Former approach is better time complexity wise, but latter is way
 better in terms of simplicity of code.  Must deliberate.
-*** TODO Design Strings
-We have ~sv_t~ so our basic C API is done.  We just need pluggable
-functions to construct and deconstruct strings as lisps.
 *** TODO Capitalise symbols (TBD) :optimisation:design:
 Should we capitalise symbols?  This way, we limit the symbol table's
 possible options a bit (potentially we could design a better hashing
 algorithm?) and it would be kinda like an actual Lisp.
-*** TODO sv_t
-[[file:include/alisp/sv.h::/// String Views]]
-**** TODO sv_substr
-Takes an index and a size, returns a string view to that substring.
-**** TODO sv_chop_left and sv_chop_right
-Super obvious.
 ** Completed
 *** DONE Test value constructors and destructors :test:
 Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
