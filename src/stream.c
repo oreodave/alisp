@@ -352,7 +352,9 @@ sv_t stream_substr(stream_t *stream, u64 size)
   if (successful != size)
     return SV(NULL, 0);
 
-  return SV(ptr + stream->position, size);
+  sv_t sv = stream_sv(stream);
+  sv      = sv_truncate(sv, size);
+  return sv;
 }
 
 sv_t stream_substr_abs(stream_t *stream, u64 index, u64 size)
@@ -360,23 +362,21 @@ sv_t stream_substr_abs(stream_t *stream, u64 index, u64 size)
   switch (stream->type)
   {
   case STREAM_TYPE_STRING:
-    if (index + size <= stream_size(stream))
-      return SV(stream->string.data + index, size);
-    return SV(NULL, 0);
+    return sv_truncate(sv_chop_left(stream_sv_abs(stream), index), size);
   case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
   {
-    if (index + size <= stream_size(stream))
-      return SV((char *)vec_data(&stream->pipe.cache) + index, size);
-    // (index + size > stream_size(stream)) => try reading chunks
-    for (bool read_chunk = stream_chunk(stream);
-         read_chunk && index + size >= stream->pipe.cache.size;
-         read_chunk = stream_chunk(stream))
-      continue;
-
     if (index + size > stream_size(stream))
-      return SV(NULL, 0);
-    return SV((char *)vec_data(&stream->pipe.cache) + index, size);
+      // => try reading chunks till either we drop or we have enough space
+      for (bool read_chunk = stream_chunk(stream);
+           read_chunk && index + size >= stream->pipe.cache.size;
+           read_chunk = stream_chunk(stream))
+        continue;
+
+    sv_t sv = stream_sv_abs(stream);
+    sv      = sv_chop_left(sv, index);
+    sv      = sv_truncate(sv, size);
+    return sv;
   }
   default:
     assert("Unreachable");
