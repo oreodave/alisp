@@ -277,7 +277,109 @@ void stream_test_seek(void)
 void stream_test_substr(void)
 {
   TEST_START();
-  TODO("Not implemented");
+  u64 size     = rand() % (ARRSIZE(words_text) - 1);
+  u64 position = ARRSIZE(words_text) - size - 1;
+
+  // Taking substrings of invalid streams
+  {
+    stream_t stream = {0};
+    stream_init_file(&stream, NULL, invalid_fp);
+
+    // Relative
+    {
+      sv_t result = stream_substr(&stream, size);
+      TEST(result.data == NULL && result.size == 0,
+           "Relative substring with size %lu on invalid stream should be NULL",
+           size);
+    }
+
+    // Absolute
+    {
+      sv_t result = stream_substr_abs(&stream, position, size);
+      TEST(result.data == NULL && result.size == 0,
+           "Absolute substring @%lu with size %lu on invalid stream should be "
+           "NULL",
+           position, size);
+    }
+
+    stream_stop(&stream);
+  }
+
+  // Taking substrings of valid streams
+  {
+    stream_t stream = {0};
+    stream_init_file(&stream, valid_filename, valid_fp);
+
+    // Absolute
+    {
+      sv_t result = stream_substr_abs(&stream, position, size);
+      TEST(result.data && result.size,
+           "Absolute substring @%lu with size %lu on valid stream should be "
+           "nonzero",
+           position, size);
+
+      TEST(result.size == size, "Substring has right size (%lu)", result.size);
+
+      sv_t expected = SV((char *)words_text + position, size);
+      TEST(strncmp(result.data, expected.data, result.size) == 0,
+           "Expect the substring to be the same as the data we put in");
+    }
+
+    // Relative
+    {
+      sv_t result = stream_substr(&stream, size);
+      TEST(result.data && result.size,
+           "Relative substring with size %lu should be nonzero", size);
+
+      TEST(result.size == size, "Substring has right size (%lu)", result.size);
+
+      sv_t expected = SV((char *)words_text, size);
+      TEST(strncmp(result.data, expected.data, result.size) == 0,
+           "Expect the substring to be the same as the data we put in");
+    }
+
+    // Relative substring after seeking
+    {
+      // Shift forward to a random position
+      assert(stream_seek_forward(&stream, position)); // not a test
+      sv_t result = stream_substr(&stream, size);
+      TEST(result.data && result.size,
+           "Relative substring with size %lu after seeking %lu bytes should be "
+           "nonzero",
+           size, position);
+
+      TEST(result.size == size, "Substring has right size (%lu)", result.size);
+
+      sv_t expected = SV((char *)words_text + position, size);
+      TEST(strncmp(result.data, expected.data, result.size) == 0,
+           "Expect the substring to be the same as the data we put in");
+
+      // Shift back to the original position.
+      assert(stream_seek_backward(&stream, position)); // not a test
+    }
+
+    // Bad substrings
+    {
+      {
+        sv_t result = stream_substr_abs(&stream, stream_size(&stream), 100);
+        TEST(!result.data && !result.size,
+             "Absolute substring at %lu of 100 bytes is invalid",
+             stream_size(&stream));
+      }
+
+      assert(stream_seek_forward(&stream, stream_size(&stream))); // not a test
+      {
+        sv_t result = stream_substr(&stream, 100);
+        TEST(!result.data && !result.size,
+             "Relative substring with size 100 after seeking %lu bytes is "
+             "invalid",
+             stream.position);
+      }
+    }
+
+    stream_stop(&stream);
+  }
+  TEST_END();
 }
 
 void stream_test_till(void)
@@ -305,6 +407,7 @@ MAKE_TEST_SUITE(STREAM_SUITE, "Stream Tests",
                 MAKE_TEST_FN(stream_test_file),
                 MAKE_TEST_FN(stream_test_peek_next),
                 MAKE_TEST_FN(stream_test_seek),
+                MAKE_TEST_FN(stream_test_substr),
                 MAKE_TEST_FN(stream_test_epilogue), );
 
 /* Copyright (C) 2026 Aryadev Chavali

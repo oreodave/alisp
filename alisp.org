@@ -70,7 +70,7 @@ Also ensure stream_eoc is false.
 - Seeking forward/backward on a bad stream (should stop at 0)
 - Seeking forward/backward too far (should clamp)
 - Seeking forward/backward zero sum via relative index (stream_seek)
-**** TODO Test substring
+**** DONE Test substring
 [[file:test/test_stream.c::void stream_test_substr(void)]]
 - Substr on bad stream (NULL sv)
 - Substr on bad position/size (NULL sv)
