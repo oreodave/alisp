@@ -50,7 +50,7 @@ other state do we need to encode?
 *** TODO Write a parser for lists
 *** TODO Write a parser for vectors
 *** TODO Write the general parser
-** WIP Unit tests :tests:
+** TODO Unit tests :tests:
 *** TODO Test streams
 **** DONE Test file init
 [[file:test/test_stream.c::void stream_test_file(void)]]
