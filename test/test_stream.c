@@ -180,6 +180,8 @@ void stream_test_peek_next(void)
     TEST(old_position == stream.position,
          "Next on an invalid stream should not affect position (%lu -> %lu)",
          old_position, stream.position);
+
+    stream_stop(&stream);
   }
   TEST_END();
 }
@@ -187,7 +189,89 @@ void stream_test_peek_next(void)
 void stream_test_seek(void)
 {
   TEST_START();
-  TODO("Not implemented");
+  // Seeking on invalid streams
+  {
+    stream_t stream = {0};
+    stream_init_file(&stream, NULL, invalid_fp);
+
+    u64 old_position = stream.position;
+    TEST(!stream_seek_forward(&stream, 1),
+         "Shouldn't be possible to seek forward on an invalid stream.");
+    TEST(old_position == stream.position,
+         "Position shouldn't be affected when seeking forward on an invalid "
+         "stream"
+         "(%lu -> %lu)",
+         old_position, stream.position);
+
+    TEST(!stream_seek_backward(&stream, 1),
+         "Shouldn't be possible to seek backward on an invalid stream.");
+    TEST(old_position == stream.position,
+         "Position shouldn't be affected when seeking backward on an invalid "
+         "stream (%lu -> %lu)",
+         old_position, stream.position);
+
+    stream_stop(&stream);
+  }
+
+  // Valid streams
+  {
+    stream_t stream = {0};
+    stream_init_file(&stream, valid_filename, valid_fp);
+
+    u64 old_position = stream.position;
+    TEST(stream_seek_forward(&stream, 1),
+         "Okay to seek forward on a valid stream.");
+    TEST(old_position < stream.position,
+         "Position should be greater than before when seeking forward on a "
+         "valid stream (%lu -> %lu)",
+         old_position, stream.position);
+
+    TEST(stream_seek_backward(&stream, 1),
+         "Okay to seek backward on a valid stream.");
+    TEST(old_position == stream.position,
+         "stream_seek_forward and stream_seek_backward are inverse operations");
+
+    u64 forward_offset = stream_seek_forward(&stream, ARRSIZE(words_text) * 2);
+    TEST(forward_offset < ARRSIZE(words_text) * 2,
+         "Forward seeking by offsets greater than file size clamps (%lu "
+         "clamps to %lu)",
+         ARRSIZE(words_text) * 2, forward_offset);
+
+    u64 file_size       = stream_size(&stream);
+    u64 backward_offset = stream_seek_backward(&stream, file_size + 1);
+    TEST(backward_offset == file_size,
+         "Backward seeking by offsets greater than file size clamps (%lu "
+         "clamps to %lu)",
+         file_size + 1, backward_offset);
+
+    TEST(stream.position == 0,
+         "Clamped forward and clamped backward seeking "
+         "leads to start of stream (position=%lu)",
+         stream.position);
+
+    i64 r_forward_offset  = (rand() % (file_size - 1)) + 1;
+    i64 r_backward_offset = (rand() % (file_size - 1)) + 1;
+    while (r_backward_offset >= r_forward_offset)
+      r_backward_offset = (rand() % (file_size - 1)) + 1;
+
+    TEST(stream_seek(&stream, r_forward_offset) == (u64)r_forward_offset,
+         "Seeking by a random positive offset (%lu) is valid",
+         r_forward_offset);
+
+    TEST(stream_seek(&stream, -r_backward_offset) == (u64)r_backward_offset,
+         "Seeking backward by a random negative offset (%lu) is valid",
+         r_backward_offset);
+
+    TEST(
+        (i64)stream.position == r_forward_offset - r_backward_offset,
+        "Stream position (%lu) is exactly shifted by seeking offsets described "
+        "above.",
+        stream.position);
+
+    stream_stop(&stream);
+  }
+
+  TEST_END();
 }
 
 void stream_test_substr(void)
@@ -220,6 +304,7 @@ MAKE_TEST_SUITE(STREAM_SUITE, "Stream Tests",
                 MAKE_TEST_FN(stream_test_string),
                 MAKE_TEST_FN(stream_test_file),
                 MAKE_TEST_FN(stream_test_peek_next),
+                MAKE_TEST_FN(stream_test_seek),
                 MAKE_TEST_FN(stream_test_epilogue), );
 
 /* Copyright (C) 2026 Aryadev Chavali

@@ -65,7 +65,7 @@ Also ensure stream_eoc is false.
 - Next with bad streams ('\0' return, no effect on position)
 - Next with good streams (effects position)
 - Peeking after next (should just work)
-**** TODO Test seeking
+**** DONE Test seeking
 [[file:test/test_stream.c::void stream_test_seek(void)]]
 - Seeking forward/backward on a bad stream (should stop at 0)
 - Seeking forward/backward too far (should clamp)
