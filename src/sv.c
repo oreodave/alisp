@@ -41,6 +41,13 @@ sv_t sv_substr(sv_t sv, u64 position, u64 size)
   return sv_chop_right(sv_chop_left(sv, position), size);
 }
 
+sv_t sv_truncate(sv_t sv, u64 newsize)
+{
+  if (newsize >= sv.size)
+    return sv;
+  return SV(sv.data, newsize);
+}
+
 sv_t sv_till(sv_t sv, const char *reject)
 {
   if (sv.size == 0 || !sv.data)
