@@ -66,9 +66,9 @@ char stream_next(stream_t *);
 // Peek current character, do not push position
 char stream_peek(stream_t *);
 // Move forward or backward in the stream, return success of operation
-bool stream_seek(stream_t *, i64);
-bool stream_seek_forward(stream_t *, u64);
-bool stream_seek_backward(stream_t *, u64);
+u64 stream_seek(stream_t *, i64);
+u64 stream_seek_forward(stream_t *, u64);
+u64 stream_seek_backward(stream_t *, u64);
 
 // Return a relative substring of a given size
 sv_t stream_substr(stream_t *, u64);

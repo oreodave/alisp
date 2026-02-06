@@ -235,7 +235,7 @@ char stream_peek(stream_t *stream)
   }
 }
 
-bool stream_seek(stream_t *stream, i64 offset)
+u64 stream_seek(stream_t *stream, i64 offset)
 {
   if (offset < 0)
     return stream_seek_backward(stream, offset * -1);
@@ -246,20 +246,20 @@ bool stream_seek(stream_t *stream, i64 offset)
     return true;
 }
 
-bool stream_seek_forward(stream_t *stream, u64 offset)
+u64 stream_seek_forward(stream_t *stream, u64 offset)
 {
   if (stream_eoc(stream))
-    return false;
+    return 0;
 
   switch (stream->type)
   {
   case STREAM_TYPE_STRING:
   {
     if (stream->position + offset >= stream->string.size)
-      return false;
+      return 0;
 
     stream->position += offset;
-    return true;
+    return offset;
   }
   case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
@@ -270,7 +270,7 @@ bool stream_seek_forward(stream_t *stream, u64 offset)
     if (stream->position + offset < stream->pipe.cache.size)
     {
       stream->position += offset;
-      return true;
+      return offset;
     }
 
     // Try to read chunks in till we've reached it or we're at the end of the
@@ -282,9 +282,11 @@ bool stream_seek_forward(stream_t *stream, u64 offset)
 
     // Same principle as the stream_eoc(stream) check.
     if (stream->position + offset > stream->pipe.cache.size)
-      return false;
+    {
+      offset = stream->pipe.cache.size - stream->position;
+    }
     stream->position += offset;
-    return true;
+    return offset;
   }
   default:
     FAIL("Unreachable");
@@ -292,13 +294,16 @@ bool stream_seek_forward(stream_t *stream, u64 offset)
   }
 }
 
-bool stream_seek_backward(stream_t *stream, u64 offset)
+u64 stream_seek_backward(stream_t *stream, u64 offset)
 {
   assert(stream);
   if (stream->position < offset)
-    return false;
+  {
+    offset = stream->position;
+  }
+
   stream->position -= offset;
-  return true;
+  return offset;
 }
 
 sv_t stream_substr(stream_t *stream, u64 size)
