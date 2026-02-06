@@ -4,6 +4,12 @@
 #+filetags: :alisp:
 
 * Tasks
+** WIP sv_t
+[[file:include/alisp/sv.h::/// String Views]]
+*** WIP sv_substr
+Takes an index and a size, returns a string view to that substring.
+*** WIP sv_chop_left and sv_chop_right
+Super obvious.
 ** WIP Reader system
 We need to design a reader system.  The big idea: given a "stream" of
 data, we can break out expressions from it.  An expression could be
@@ -196,12 +202,6 @@ functions to construct and deconstruct strings as lisps.
 Should we capitalise symbols?  This way, we limit the symbol table's
 possible options a bit (potentially we could design a better hashing
 algorithm?) and it would be kinda like an actual Lisp.
-*** TODO sv_t
-[[file:include/alisp/sv.h::/// String Views]]
-**** TODO sv_substr
-Takes an index and a size, returns a string view to that substring.
-**** TODO sv_chop_left and sv_chop_right
-Super obvious.
 ** Completed
 *** DONE Test value constructors and destructors :test:
 Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
