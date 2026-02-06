@@ -70,6 +70,12 @@ u64 stream_seek(stream_t *, i64);
 u64 stream_seek_forward(stream_t *, u64);
 u64 stream_seek_backward(stream_t *, u64);
 
+// Return a string view to stream data relative to the current position of the
+// stream
+sv_t stream_sv(stream_t *);
+// Return a string view to data from the start of the stream
+sv_t stream_sv_abs(stream_t *);
+
 // Return a relative substring of a given size
 sv_t stream_substr(stream_t *, u64);
 // Return an absolute substring at given index and of given size.
