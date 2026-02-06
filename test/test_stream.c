@@ -14,18 +14,31 @@
 #include <alisp/stream.h>
 #include <string.h>
 
-char valid_filename[24];
+char valid_filename[50];
 FILE *valid_fp   = NULL;
 FILE *invalid_fp = NULL;
 
 void stream_test_prologue(void)
 {
+  const char filename_prefix[]                = "build/stream_test_";
   valid_filename[ARRSIZE(valid_filename) - 1] = '\0';
-  memcpy(valid_filename, "build/stream_test_", 18);
-  for (u64 i = 0; i < 5; ++i)
-    valid_filename[18 + i] = (rand() % 26) + 'a';
+  memcpy(valid_filename, filename_prefix, ARRSIZE(filename_prefix) - 1);
+  for (u64 i = ARRSIZE(filename_prefix) - 1; i < ARRSIZE(valid_filename) - 1;
+       ++i)
+  {
+    u8 num = (rand() % 36);
+    if (num < 26)
+    {
+      valid_filename[i] = num + 'a';
+    }
+    else
+    {
+      valid_filename[i] = num + '0';
+    }
+  }
 
-  TEST_INFO("Creating file named `%s`\n", valid_filename);
+  TEST_INFO("Creating file named `%.*s`\n", (int)ARRSIZE(valid_filename),
+            valid_filename);
   valid_fp = fopen(valid_filename, "wb");
   // This should do a few things for us
   // 1) Create a file, or clear the contents of it if it exists already.
