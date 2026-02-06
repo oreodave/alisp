@@ -6,7 +6,9 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "./data.h"
 #include "./test.h"
@@ -23,6 +25,8 @@ test_suite_t SUITES[] = {
 
 int main(void)
 {
+  // Seed the pseudorandom gen for subsequent tests.
+  srand(time(NULL));
   for (u64 i = 0; i < ARRSIZE(SUITES); ++i)
   {
     test_suite_t suite = SUITES[i];
