@@ -12,6 +12,10 @@
 
 sv_t sv_copy(sv_t old)
 {
+  if (old.size == 0)
+    return SV(old.data, 0);
+  else if (old.data == NULL)
+    return SV(NULL, old.size);
   char *newstr = calloc(1, (old.size + 1) * sizeof(*newstr));
   memcpy(newstr, old.data, old.size);
   newstr[old.size] = '\0';

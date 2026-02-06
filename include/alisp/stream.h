@@ -40,7 +40,7 @@ typedef struct
 typedef struct
 {
   stream_type_t type;
-  char *name;
+  const char *name;
   u64 position;
   union
   {
@@ -51,9 +51,9 @@ typedef struct
 
 #define STREAM_DEFAULT_CHUNK 64
 
-stream_err_t stream_init_string(stream_t *, char *, sv_t);
-stream_err_t stream_init_pipe(stream_t *, char *, FILE *);
-stream_err_t stream_init_file(stream_t *, char *, FILE *);
+stream_err_t stream_init_string(stream_t *, const char *, sv_t);
+stream_err_t stream_init_pipe(stream_t *, const char *, FILE *);
+stream_err_t stream_init_file(stream_t *, const char *, FILE *);
 void stream_stop(stream_t *);
 
 // End of Content (i.e. we've consumed all cached content/file)
@@ -66,9 +66,9 @@ char stream_next(stream_t *);
 // Peek current character, do not push position
 char stream_peek(stream_t *);
 // Move forward or backward in the stream, return success of operation
-bool stream_seek(stream_t *, i64);
-bool stream_seek_forward(stream_t *, u64);
-bool stream_seek_backward(stream_t *, u64);
+u64 stream_seek(stream_t *, i64);
+u64 stream_seek_forward(stream_t *, u64);
+u64 stream_seek_backward(stream_t *, u64);
 
 // Return a relative substring of a given size
 sv_t stream_substr(stream_t *, u64);

@@ -6,28 +6,33 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "./data.h"
 #include "./test.h"
 
 #include "./test_lisp_api.c"
+#include "./test_stream.c"
+#include "./test_sv.c"
+#include "./test_symtable.c"
 #include "./test_vec.c"
 
 test_suite_t SUITES[] = {
-    LISP_API_SUITE,
-    VEC_SUITE,
+    SV_SUITE, VEC_SUITE, SYMTABLE_SUITE, STREAM_SUITE, LISP_API_SUITE,
 };
 
 int main(void)
 {
+  // Seed the pseudorandom gen for subsequent tests.
+  srand(time(NULL));
   for (u64 i = 0; i < ARRSIZE(SUITES); ++i)
   {
     test_suite_t suite = SUITES[i];
     printf("Suite [%s]\n", suite.name);
     for (u64 j = 0; j < suite.size; ++j)
     {
-      printf("[%s]: Running...\n", suite.tests[j].name);
       suite.tests[j].fn();
     }
   }

@@ -54,7 +54,7 @@ char *sym_table_find(sym_table_t *table, sv_t sv)
   return ENTRY_GET(table, index).data;
 }
 
-void sym_table_cleanup(sym_table_t *table)
+void sym_table_free(sym_table_t *table)
 {
   // Iterate through the strings and free each of them.
   sv_t current = {0};

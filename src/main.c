@@ -23,7 +23,10 @@ void usage(FILE *fp)
 
 int main(int argc, char *argv[])
 {
-  int ret = 0;
+  int ret         = 0;
+  FILE *pipe      = NULL;
+  stream_t stream = {0};
+
   if (argc == 1)
   {
     usage(stderr);
@@ -35,8 +38,6 @@ int main(int argc, char *argv[])
     TODO("alisp doesn't support multiple files currently.");
   }
 
-  FILE *fp        = NULL;
-  stream_t stream = {0};
   if (strncmp(argv[1], "--", 2) == 0)
   {
     stream_err_t err = stream_init_pipe(&stream, "stdin", stdin);
@@ -55,8 +56,8 @@ int main(int argc, char *argv[])
   }
   else
   {
-    fp               = fopen(argv[1], "rb");
-    stream_err_t err = stream_init_file(&stream, argv[1], fp);
+    pipe             = fopen(argv[1], "rb");
+    stream_err_t err = stream_init_file(&stream, argv[1], pipe);
     if (err)
     {
       fprintf(stderr, "ERROR: %s from `%s`\n", stream_err_to_cstr(err),
@@ -68,9 +69,9 @@ int main(int argc, char *argv[])
 
   LOG("[INFO]: Initialised stream for `%s`\n", stream.name);
 end:
-  if (fp)
-    fclose(fp);
   stream_stop(&stream);
+  if (pipe)
+    fclose(pipe);
   return ret;
 }
 

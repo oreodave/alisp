@@ -26,7 +26,7 @@ void sys_free(sys_t *sys)
 {
   static_assert(NUM_TAGS == 5);
 
-  sym_table_cleanup(&sys->symtable);
+  sym_table_free(&sys->symtable);
   if (sys->memory.size == 0)
     return;
 
@@ -34,26 +34,7 @@ void sys_free(sys_t *sys)
   for (size_t i = 0; i < VEC_SIZE(&sys->memory, lisp_t **); ++i)
   {
     lisp_t *allocated = VEC_GET(&sys->memory, i, lisp_t *);
-    switch (get_tag(allocated))
-    {
-    case TAG_CONS:
-      // Delete the cons
-      free(as_cons(allocated));
-      break;
-    case TAG_VEC:
-    {
-      vec_t *vec = as_vec(allocated);
-      vec_free(vec);
-      free(vec);
-      break;
-    }
-    case TAG_NIL:
-    case TAG_INT:
-    case TAG_SYM:
-    case NUM_TAGS:
-      // shouldn't be dealt with (either constant or dealt with elsewhere)
-      break;
-    }
+    lisp_free(allocated);
   }
 
   // Free the container
@@ -108,6 +89,30 @@ lisp_t *cdr(lisp_t *lsp)
     return NIL;
   else
     return CDR(lsp);
+}
+
+void lisp_free(lisp_t *item)
+{
+  switch (get_tag(item))
+  {
+  case TAG_CONS:
+    // Delete the cons
+    free(as_cons(item));
+    break;
+  case TAG_VEC:
+  {
+    vec_t *vec = as_vec(item);
+    vec_free(vec);
+    free(vec);
+    break;
+  }
+  case TAG_NIL:
+  case TAG_INT:
+  case TAG_SYM:
+  case NUM_TAGS:
+    // shouldn't be dealt with (either constant or dealt with elsewhere)
+    break;
+  }
 }
 
 /* Copyright (C) 2025, 2026 Aryadev Chavali

@@ -5,6 +5,7 @@
  * Commentary:
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -35,7 +36,8 @@ const char *stream_err_to_cstr(stream_err_t err)
   }
 }
 
-stream_err_t stream_init_string(stream_t *stream, char *name, sv_t contents)
+stream_err_t stream_init_string(stream_t *stream, const char *name,
+                                sv_t contents)
 {
   if (!stream)
     return STREAM_ERR_INVALID_PTR;
@@ -49,7 +51,7 @@ stream_err_t stream_init_string(stream_t *stream, char *name, sv_t contents)
   return STREAM_ERR_OK;
 }
 
-stream_err_t stream_init_pipe(stream_t *stream, char *name, FILE *pipe)
+stream_err_t stream_init_pipe(stream_t *stream, const char *name, FILE *pipe)
 {
   if (!stream)
     return STREAM_ERR_INVALID_PTR;
@@ -68,7 +70,7 @@ stream_err_t stream_init_pipe(stream_t *stream, char *name, FILE *pipe)
   return STREAM_ERR_OK;
 }
 
-stream_err_t stream_init_file(stream_t *stream, char *name, FILE *pipe)
+stream_err_t stream_init_file(stream_t *stream, const char *name, FILE *pipe)
 {
   if (!stream)
     return STREAM_ERR_INVALID_PTR;
@@ -82,8 +84,6 @@ stream_err_t stream_init_file(stream_t *stream, char *name, FILE *pipe)
   stream->name      = name;
   stream->pipe.file = pipe;
 
-  vec_init(&stream->pipe.cache, STREAM_DEFAULT_CHUNK);
-
   return STREAM_ERR_OK;
 }
 
@@ -96,8 +96,11 @@ void stream_stop(stream_t *stream)
   case STREAM_TYPE_STRING:
     free(stream->string.data);
     break;
-  case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
+    // ensure we reset the FILE pointer to the start
+    fseek(stream->pipe.file, 0, SEEK_SET);
+    // fallthrough
+  case STREAM_TYPE_PIPE:
     // Must cleanup vector
     vec_free(&stream->pipe.cache);
     break;
@@ -236,7 +239,7 @@ char stream_peek(stream_t *stream)
   }
 }
 
-bool stream_seek(stream_t *stream, i64 offset)
+u64 stream_seek(stream_t *stream, i64 offset)
 {
   if (offset < 0)
     return stream_seek_backward(stream, offset * -1);
@@ -247,20 +250,20 @@ bool stream_seek(stream_t *stream, i64 offset)
     return true;
 }
 
-bool stream_seek_forward(stream_t *stream, u64 offset)
+u64 stream_seek_forward(stream_t *stream, u64 offset)
 {
   if (stream_eoc(stream))
-    return false;
+    return 0;
 
   switch (stream->type)
   {
   case STREAM_TYPE_STRING:
   {
     if (stream->position + offset >= stream->string.size)
-      return false;
+      return 0;
 
     stream->position += offset;
-    return true;
+    return offset;
   }
   case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
@@ -271,7 +274,7 @@ bool stream_seek_forward(stream_t *stream, u64 offset)
     if (stream->position + offset < stream->pipe.cache.size)
     {
       stream->position += offset;
-      return true;
+      return offset;
     }
 
     // Try to read chunks in till we've reached it or we're at the end of the
@@ -283,9 +286,11 @@ bool stream_seek_forward(stream_t *stream, u64 offset)
 
     // Same principle as the stream_eoc(stream) check.
     if (stream->position + offset > stream->pipe.cache.size)
-      return false;
+    {
+      offset = stream->pipe.cache.size - stream->position;
+    }
     stream->position += offset;
-    return true;
+    return offset;
   }
   default:
     FAIL("Unreachable");
@@ -293,13 +298,16 @@ bool stream_seek_forward(stream_t *stream, u64 offset)
   }
 }
 
-bool stream_seek_backward(stream_t *stream, u64 offset)
+u64 stream_seek_backward(stream_t *stream, u64 offset)
 {
   assert(stream);
   if (stream->position < offset)
-    return false;
+  {
+    offset = stream->position;
+  }
+
   stream->position -= offset;
-  return true;
+  return offset;
 }
 
 sv_t stream_substr(stream_t *stream, u64 size)
@@ -309,11 +317,11 @@ sv_t stream_substr(stream_t *stream, u64 size)
 
   // See if I can go forward enough to make this substring
   u64 current_position = stream->position;
-  bool successful      = stream_seek_forward(stream, size);
+  u64 successful       = stream_seek_forward(stream, size);
   // Reset the position in either situation
   stream->position = current_position;
 
-  if (!successful)
+  if (successful != size)
     return SV(NULL, 0);
 
   char *ptr = NULL;

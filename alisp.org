@@ -45,11 +45,61 @@ i.e. no parsing.
 *** DONE Design what a "parser function" would look like
 The general function is something like ~stream -> T | Err~.  What
 other state do we need to encode?
-*** WIP Write a parser for integers
+*** TODO Write a parser for integers
 *** TODO Write a parser for symbols
 *** TODO Write a parser for lists
 *** TODO Write a parser for vectors
 *** TODO Write the general parser
+** WIP Unit tests :tests:
+*** TODO Test streams
+**** DONE Test file init
+[[file:test/test_stream.c::void stream_test_file(void)]]
+***** DONE Test successful init from real files
+Ensure stream_size is 0 i.e. we don't read anything on creation.
+Also ensure stream_eoc is false.
+***** DONE Test failed init from fake files
+**** DONE Test peeking and next
+[[file:test/test_stream.c::void stream_test_peek_next(void)]]
+- Peeking with bad streams ('\0' return)
+- Peeking with good streams (no effect on position)
+- Next with bad streams ('\0' return, no effect on position)
+- Next with good streams (effects position)
+- Peeking after next (should just work)
+**** DONE Test seeking
+[[file:test/test_stream.c::void stream_test_seek(void)]]
+- Seeking forward/backward on a bad stream (should stop at 0)
+- Seeking forward/backward too far (should clamp)
+- Seeking forward/backward zero sum via relative index (stream_seek)
+**** DONE Test substring
+[[file:test/test_stream.c::void stream_test_substr(void)]]
+- Substr on bad stream (NULL sv)
+- Substr on bad position/size (NULL sv)
+- Substr relative/absolute (good SV)
+**** TODO Test till
+[[file:test/test_stream.c::void stream_test_till(void)]]
+- till on a bad stream (NULL SV)
+- till on an ended stream (NULL SV)
+- till on a stream with no items in search string (eoc)
+- till on a stream with all items in search string (no effect)
+- till on a stream with prefix being all search string (no effect)
+- till on a stream with suffix being all search string (stops at
+  suffix)
+**** TODO Test while
+[[file:test/test_stream.c::void stream_test_while(void)]]
+- while on a bad stream (NULL SV)
+- while on an ended stream (NULL SV)
+- while on a stream with no items in search string (no effect)
+- while on a stream with all items in search string (eoc)
+- while on a stream with prefix being all search string (effect)
+- while on a stream with suffix being all search string (no effect)
+**** TODO Test line_col
+[[file:test/test_stream.c::void stream_test_line_col(void)]]
+- line_col on bad stream (no effect on args)
+- line_col on eoc stream (should go right to the end)
+- line_col on random points in a stream
+*** DONE Test system registration of allocated units
+In particular, does clean up work as we expect?  Do we have situations
+where we may double free or not clean up something we should've?
 ** Backlog
 *** TODO Design Big Integers
 We currently have 62 bit integers implemented via immediate values
@@ -139,9 +189,6 @@ Latter approach time complexity:
 
 Former approach is better time complexity wise, but latter is way
 better in terms of simplicity of code.  Must deliberate.
-*** TODO Test system registration of allocated units :test:
-In particular, does clean up work as we expect?  Do we have situations
-where we may double free or not clean up something we should've?
 *** TODO Design Strings
 We have ~sv_t~ so our basic C API is done.  We just need pluggable
 functions to construct and deconstruct strings as lisps.
@@ -149,6 +196,12 @@ functions to construct and deconstruct strings as lisps.
 Should we capitalise symbols?  This way, we limit the symbol table's
 possible options a bit (potentially we could design a better hashing
 algorithm?) and it would be kinda like an actual Lisp.
+*** TODO sv_t
+[[file:include/alisp/sv.h::/// String Views]]
+**** TODO sv_substr
+Takes an index and a size, returns a string view to that substring.
+**** TODO sv_chop_left and sv_chop_right
+Super obvious.
 ** Completed
 *** DONE Test value constructors and destructors :test:
 Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
@@ -160,4 +213,4 @@ Test if ~make_vec~ works with ~as_vec~, ~cons~ with ~as_cons~ AND
 We may need to think of effective ways to deal with NILs in ~car~ and
 ~cdr~.  Maybe make functions as well as the macros so I can choose
 between them?
-**** DONE Write more tests
+*** DONE Write more tests

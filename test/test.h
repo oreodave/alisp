@@ -10,27 +10,50 @@
 
 #include <alisp/alisp.h>
 
-#define TEST_PASSED() printf("[%s]: Passed\n", __func__)
-#define TEST(COND, ...)      \
-  do                         \
-  {                          \
-    bool cond = (COND);      \
-    if (!cond)               \
-    {                        \
-      printf("\tFAIL: ");    \
-    }                        \
-    else                     \
-    {                        \
-      printf("\tPASS: ");    \
-    }                        \
-    printf("%s => ", #COND); \
-    printf(__VA_ARGS__);     \
-    printf("\n");            \
-    if (!cond)               \
-    {                        \
-      assert(0);             \
-    }                        \
+#ifndef TEST_VERBOSE
+#define TEST_VERBOSE 0
+#endif
+
+#define TEST_END() printf("\t[%s]: Passed\n", __func__)
+#define TEST_INFO(...)   \
+  do                     \
+  {                      \
+    printf("\tINFO: ");  \
+    printf(__VA_ARGS__); \
+  } while (0);
+
+#if TEST_VERBOSE
+#define TEST_START() printf("\t[%s]: Running...\n", __func__)
+#define TEST(COND, ...)                  \
+  do                                     \
+  {                                      \
+    bool cond = (COND);                  \
+    if (!cond)                           \
+    {                                    \
+      printf("\t\tFAIL: ");              \
+    }                                    \
+    else                                 \
+    {                                    \
+      printf("\t\tPASS: ");              \
+    }                                    \
+    printf(__VA_ARGS__);                 \
+    printf("\n\t\t      [%s]\n", #COND); \
+    if (!cond)                           \
+    {                                    \
+      assert(0);                         \
+    }                                    \
   } while (0)
+#else
+#define TEST_START()
+#define TEST(COND, ...) \
+  do                    \
+  {                     \
+    if (!(COND))        \
+    {                   \
+      assert(0);        \
+    }                   \
+  } while (0)
+#endif
 
 typedef struct TestFn
 {
@@ -47,8 +70,13 @@ typedef struct
   const u64 size;
 } test_suite_t;
 
-#define MAKE_TEST_SUITE(NAME) \
-  {.name = #NAME, .tests = NAME, .size = ARRSIZE(NAME)}
+#define MAKE_TEST_SUITE(NAME, DESC, ...)        \
+  const test_fn NAME##_TESTS[] = {__VA_ARGS__}; \
+  const test_suite_t NAME      = {              \
+           .name  = DESC,                       \
+           .tests = NAME##_TESTS,               \
+           .size  = ARRSIZE(NAME##_TESTS),      \
+  }
 
 #endif
 
