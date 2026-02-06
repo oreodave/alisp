@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
 
   LOG("[INFO]: Initialised stream for `%s`\n", stream.name);
 end:
+  stream_stop(&stream);
   if (pipe)
     fclose(pipe);
-  stream_stop(&stream);
   return ret;
 }
 
