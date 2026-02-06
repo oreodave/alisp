@@ -317,11 +317,11 @@ sv_t stream_substr(stream_t *stream, u64 size)
 
   // See if I can go forward enough to make this substring
   u64 current_position = stream->position;
-  bool successful      = stream_seek_forward(stream, size);
+  u64 successful       = stream_seek_forward(stream, size);
   // Reset the position in either situation
   stream->position = current_position;
 
-  if (!successful)
+  if (successful != size)
     return SV(NULL, 0);
 
   char *ptr = NULL;
