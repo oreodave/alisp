@@ -44,7 +44,7 @@ void stream_test_prologue(void)
   // 1) Create a file, or clear the contents of it if it exists already.
   // 2) Write some content to it.
   assert(valid_fp);
-  fwrite(words_text, ARRSIZE(words_text), 1, valid_fp);
+  fwrite(words_text, ARRSIZE(words_text) - 1, 1, valid_fp);
   fclose(valid_fp);
   valid_fp = fopen(valid_filename, "rb");
   assert(valid_fp);
