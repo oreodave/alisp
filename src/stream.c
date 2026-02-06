@@ -11,6 +11,8 @@
 
 #include <alisp/base.h>
 #include <alisp/stream.h>
+#include <alisp/sv.h>
+#include <alisp/vec.h>
 
 const char *stream_err_to_cstr(stream_err_t err)
 {
@@ -310,6 +312,32 @@ u64 stream_seek_backward(stream_t *stream, u64 offset)
   return offset;
 }
 
+sv_t stream_sv(stream_t *stream)
+{
+  return sv_chop_left(stream_sv_abs(stream), stream->position);
+}
+
+sv_t stream_sv_abs(stream_t *stream)
+{
+  if (!stream)
+    return SV(NULL, 0);
+  sv_t sv = {0};
+  switch (stream->type)
+  {
+  case STREAM_TYPE_STRING:
+    sv = stream->string;
+    break;
+  case STREAM_TYPE_PIPE:
+  case STREAM_TYPE_FILE:
+    sv = SV((char *)vec_data(&stream->pipe.cache), stream_size(stream));
+    break;
+  default:
+    FAIL("Unreachable");
+    return SV(NULL, 0);
+  }
+  return sv;
+}
+
 sv_t stream_substr(stream_t *stream, u64 size)
 {
   if (stream_eoc(stream))
@@ -323,21 +351,6 @@ sv_t stream_substr(stream_t *stream, u64 size)
 
   if (successful != size)
     return SV(NULL, 0);
-
-  char *ptr = NULL;
-  switch (stream->type)
-  {
-  case STREAM_TYPE_STRING:
-    ptr = stream->string.data;
-    break;
-  case STREAM_TYPE_PIPE:
-  case STREAM_TYPE_FILE:
-    ptr = (char *)vec_data(&stream->pipe.cache);
-    break;
-  default:
-    FAIL("Unreachable");
-    return SV(NULL, 0);
-  }
 
   return SV(ptr + stream->position, size);
 }
