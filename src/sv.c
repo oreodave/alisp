@@ -29,7 +29,7 @@ sv_t sv_chop_left(sv_t sv, u64 size)
   return SV(sv.data + size, sv.size - size);
 }
 
-sv_t sv_chop_right(sv_t, u64 size)
+sv_t sv_chop_right(sv_t sv, u64 size)
 {
   if (sv.size <= size)
     return SV(NULL, 0);
@@ -39,6 +39,36 @@ sv_t sv_chop_right(sv_t, u64 size)
 sv_t sv_substr(sv_t sv, u64 position, u64 size)
 {
   return sv_chop_right(sv_chop_left(sv, position), size);
+}
+
+sv_t sv_till(sv_t sv, const char *reject)
+{
+  if (sv.size == 0 || !sv.data)
+    return SV(NULL, 0);
+
+  u64 offset;
+  for (offset = 0; offset < sv.size && strchr(reject, sv.data[offset]) == NULL;
+       ++offset)
+    continue;
+
+  if (offset == sv.size)
+    return sv;
+  return sv_chop_right(sv, sv.size - offset);
+}
+
+sv_t sv_while(sv_t sv, const char *accept)
+{
+  if (sv.size == 0 || !sv.data)
+    return SV(NULL, 0);
+
+  u64 offset;
+  for (offset = 0; offset < sv.size && strchr(accept, sv.data[offset]) != NULL;
+       ++offset)
+    continue;
+
+  if (offset == sv.size)
+    return sv;
+  return sv_chop_right(sv, sv.size - offset);
 }
 
 /* Copyright (C) 2025, 2026 Aryadev Chavali

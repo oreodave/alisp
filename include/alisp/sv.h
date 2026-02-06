@@ -29,6 +29,8 @@ sv_t sv_copy(sv_t);
 sv_t sv_chop_left(sv_t, u64 size);
 sv_t sv_chop_right(sv_t, u64 size);
 sv_t sv_substr(sv_t, u64 position, u64 size);
+sv_t sv_till(sv_t, const char *reject);
+sv_t sv_while(sv_t, const char *accept);
 
 #endif
 
