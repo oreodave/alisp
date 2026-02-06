@@ -22,6 +22,25 @@ sv_t sv_copy(sv_t old)
   return SV(newstr, old.size);
 }
 
+sv_t sv_chop_left(sv_t sv, u64 size)
+{
+  if (sv.size <= size)
+    return SV(NULL, 0);
+  return SV(sv.data + size, sv.size - size);
+}
+
+sv_t sv_chop_right(sv_t, u64 size)
+{
+  if (sv.size <= size)
+    return SV(NULL, 0);
+  return SV(sv.data, sv.size - size);
+}
+
+sv_t sv_substr(sv_t sv, u64 position, u64 size)
+{
+  return sv_chop_right(sv_chop_left(sv, position), size);
+}
+
 /* Copyright (C) 2025, 2026 Aryadev Chavali
 
  * This program is distributed in the hope that it will be useful, but WITHOUT
