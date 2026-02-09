@@ -15,6 +15,7 @@ typedef enum
 {
   READ_ERR_OK = 0,
   READ_ERR_EOF,
+  READ_ERR_EXPECTED_CLOSED_BRACE,
   READ_ERR_UNKNOWN_CHAR,
 } read_err_t;
 
