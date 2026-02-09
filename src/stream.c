@@ -396,7 +396,7 @@ void stream_line_col(stream_t *stream, u64 *line, u64 *col)
   // Generate a string view from the stream of exactly the content /upto/
   // stream.postion.
   sv_t sv = stream_sv_abs(stream);
-  sv      = sv_truncate(sv, stream->position);
+  sv      = sv_truncate(sv, stream->position + 1);
 
   *line = 1;
   *col  = 0;
