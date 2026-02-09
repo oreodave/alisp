@@ -20,19 +20,14 @@ const char *stream_err_to_cstr(stream_err_t err)
   {
   case STREAM_ERR_INVALID_PTR:
     return "INVALID PTR";
-    break;
   case STREAM_ERR_FILE_NONEXISTENT:
     return "FILE NONEXISTENT";
-    break;
   case STREAM_ERR_FILE_READ:
     return "FILE READ";
-    break;
   case STREAM_ERR_PIPE_NONEXISTENT:
     return "PIPE NONEXISTENT";
-    break;
   case STREAM_ERR_OK:
     return "OK";
-    break;
   default:
     FAIL("Unreachable");
   }

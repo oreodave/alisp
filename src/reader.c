@@ -17,13 +17,10 @@ const char *read_err_to_cstr(read_err_t err)
   {
   case READ_ERR_OK:
     return "OK";
-    break;
   case READ_ERR_EOF:
     return "EOF";
-    break;
   case READ_ERR_UNKNOWN_CHAR:
     return "UNKNOWN_CHAR";
-    break;
   default:
     FAIL("Unreachable");
   }
