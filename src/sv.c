@@ -60,7 +60,7 @@ sv_t sv_till(sv_t sv, const char *reject)
 
   if (offset == sv.size)
     return sv;
-  return sv_chop_right(sv, sv.size - offset);
+  return sv_truncate(sv, offset);
 }
 
 sv_t sv_while(sv_t sv, const char *accept)
@@ -75,7 +75,7 @@ sv_t sv_while(sv_t sv, const char *accept)
 
   if (offset == sv.size)
     return sv;
-  return sv_chop_right(sv, sv.size - offset);
+  return sv_truncate(sv, offset);
 }
 
 /* Copyright (C) 2025, 2026 Aryadev Chavali
