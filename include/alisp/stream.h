@@ -53,6 +53,8 @@ typedef struct
 
 stream_err_t stream_init_string(stream_t *, const char *, sv_t);
 stream_err_t stream_init_pipe(stream_t *, const char *, FILE *);
+// NOTE: stream_init_file will attempt to read all content from the FILE
+// descriptor.  Use with caution.
 stream_err_t stream_init_file(stream_t *, const char *, FILE *);
 void stream_stop(stream_t *);
 

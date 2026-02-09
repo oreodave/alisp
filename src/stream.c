@@ -84,7 +84,18 @@ stream_err_t stream_init_file(stream_t *stream, const char *name, FILE *pipe)
 
   stream->type      = STREAM_TYPE_FILE;
   stream->name      = name;
-  stream->pipe.file = pipe;
+  stream->pipe.file = NULL;
+
+  // NOTE: We're reading all the data from the file descriptor now.
+  fseek(pipe, 0, SEEK_END);
+  long size = ftell(pipe);
+  fseek(pipe, 0, SEEK_SET);
+  vec_ensure_free(&stream->pipe.cache, size);
+  int read = fread(vec_data(&stream->pipe.cache), 1, size, pipe);
+
+  // These must be equivalent for this function.
+  assert(read == size);
+  stream->pipe.cache.size += size;
 
   return STREAM_ERR_OK;
 }
@@ -99,11 +110,8 @@ void stream_stop(stream_t *stream)
     free(stream->string.data);
     break;
   case STREAM_TYPE_FILE:
-    // ensure we reset the FILE pointer to the start
-    fseek(stream->pipe.file, 0, SEEK_SET);
-    // fallthrough
   case STREAM_TYPE_PIPE:
-    // Must cleanup vector
+    // Must cleanup caching vector
     vec_free(&stream->pipe.cache);
     break;
   }
@@ -131,10 +139,10 @@ bool stream_eoc(stream_t *stream)
   assert(stream);
   switch (stream->type)
   {
-  case STREAM_TYPE_STRING:
-    return stream->position >= stream->string.size;
-  case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
+  case STREAM_TYPE_STRING:
+    return stream->position >= stream_size(stream);
+  case STREAM_TYPE_PIPE:
     return feof(stream->pipe.file) &&
            stream->position >= stream->pipe.cache.size;
   default:
@@ -148,12 +156,11 @@ bool stream_chunk(stream_t *stream)
   assert(stream);
   switch (stream->type)
   {
+  case STREAM_TYPE_FILE:
   case STREAM_TYPE_STRING:
     // nothing to chunk, hence false
     return false;
   case STREAM_TYPE_PIPE:
-    // fallthrough
-  case STREAM_TYPE_FILE:
   {
     if (feof(stream->pipe.file))
       // We can't read anymore.  End of the line
@@ -194,10 +201,10 @@ char stream_peek(stream_t *stream)
 
   switch (stream->type)
   {
-  case STREAM_TYPE_STRING:
-    return stream->string.data[stream->position];
-  case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
+  case STREAM_TYPE_STRING:
+    return stream_sv(stream).data[0];
+  case STREAM_TYPE_PIPE:
   {
     // Cached already?  We are done.
     if (stream->position < stream->pipe.cache.size)
@@ -306,8 +313,8 @@ sv_t stream_sv_abs(stream_t *stream)
   case STREAM_TYPE_STRING:
     sv = stream->string;
     break;
-  case STREAM_TYPE_PIPE:
   case STREAM_TYPE_FILE:
+  case STREAM_TYPE_PIPE:
     sv = SV((char *)vec_data(&stream->pipe.cache), stream_size(stream));
     break;
   default:

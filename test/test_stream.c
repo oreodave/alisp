@@ -113,9 +113,8 @@ void stream_test_file(void)
       TEST(err == STREAM_ERR_OK, "Expected initialisating to be okay: %s",
            stream_err_to_cstr(err));
     }
-    TEST(stream_size(&stream) == 0, "Stream doesn't read on init: size = %lu",
-         stream_size(&stream));
     TEST(!stream_eoc(&stream), "Stream should not be at the EoC from init.");
+    stream_stop(&stream);
   }
 
   // try to initialise the stream again but against a nonexistent file - we're
