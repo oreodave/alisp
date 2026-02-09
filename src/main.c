@@ -26,6 +26,8 @@ int main(int argc, char *argv[])
   int ret         = 0;
   FILE *pipe      = NULL;
   stream_t stream = {0};
+  vec_t ast       = {0};
+  sys_t sys       = {0};
 
   if (argc == 1)
   {
@@ -68,8 +70,23 @@ int main(int argc, char *argv[])
   }
 
   LOG("[INFO]: Initialised stream for `%s`\n", stream.name);
+
+  {
+    read_err_t err = read_all(&sys, &stream, &ast);
+    if (err)
+    {
+      u64 line = 0, col = 0;
+      stream_line_col(&stream, &line, &col);
+      fprintf(stderr, "%s:%lu:%lu: ERROR: %s\n", stream.name, line, col,
+              read_err_to_cstr(err));
+      ret = 1;
+      goto end;
+    }
+  }
 end:
-  stream_stop(&stream);
+  sys_free(&sys);
+  vec_free(&ast);
+  stream_free(&stream);
   if (pipe)
     fclose(pipe);
   return ret;
