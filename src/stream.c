@@ -162,23 +162,21 @@ bool stream_eoc(stream_t *stream)
 bool stream_chunk(stream_t *stream)
 {
   assert(stream);
-  u64 to_read = STREAM_DEFAULT_CHUNK;
   switch (stream->type)
   {
   case STREAM_TYPE_STRING:
-    // vacuously true
-    return true;
+    // nothing to chunk, hence false
+    return false;
   case STREAM_TYPE_PIPE:
-    to_read = 1;
     // fallthrough
   case STREAM_TYPE_FILE:
   {
     if (feof(stream->pipe.file))
       // We can't read anymore.  End of the line
       return false;
-    vec_ensure_free(&stream->pipe.cache, to_read);
+    vec_ensure_free(&stream->pipe.cache, STREAM_DEFAULT_CHUNK);
     int read = fread(vec_data(&stream->pipe.cache) + stream->pipe.cache.size, 1,
-                     to_read, stream->pipe.file);
+                     STREAM_DEFAULT_CHUNK, stream->pipe.file);
 
     // If we read something it's a good thing
     if (read > 0)
@@ -219,8 +217,7 @@ char stream_peek(stream_t *stream)
     // Cached already?  We are done.
     if (stream->position < stream->pipe.cache.size)
     {
-      const char *const str = (char *)vec_data(&stream->pipe.cache);
-      return str[stream->position];
+      return stream_sv(stream).data[0];
     }
 
     // Try to read chunks in till we've reached it or we're at the end of the
@@ -233,7 +230,7 @@ char stream_peek(stream_t *stream)
     // Same principle as the stream_eos(stream) check.
     if (stream->position >= stream->pipe.cache.size)
       return '\0';
-    return ((char *)vec_data(&stream->pipe.cache))[stream->position];
+    return stream_sv(stream).data[0];
   }
   default:
     FAIL("Unreachable");
@@ -248,8 +245,9 @@ u64 stream_seek(stream_t *stream, i64 offset)
   else if (offset > 0)
     return stream_seek_forward(stream, offset);
   else
-    // vacuously successful
-    return true;
+  {
+    return 0;
+  }
 }
 
 u64 stream_seek_forward(stream_t *stream, u64 offset)
@@ -359,29 +357,19 @@ sv_t stream_substr(stream_t *stream, u64 size)
 
 sv_t stream_substr_abs(stream_t *stream, u64 index, u64 size)
 {
-  switch (stream->type)
+  if (index + size > stream_size(stream))
   {
-  case STREAM_TYPE_STRING:
-    return sv_truncate(sv_chop_left(stream_sv_abs(stream), index), size);
-  case STREAM_TYPE_PIPE:
-  case STREAM_TYPE_FILE:
-  {
-    if (index + size > stream_size(stream))
-      // => try reading chunks till either we drop or we have enough space
-      for (bool read_chunk = stream_chunk(stream);
-           read_chunk && index + size >= stream->pipe.cache.size;
-           read_chunk = stream_chunk(stream))
-        continue;
+    // => try reading chunks till either we drop or we have enough space
+    for (bool read_chunk = stream_chunk(stream);
+         read_chunk && index + size >= stream->pipe.cache.size;
+         read_chunk = stream_chunk(stream))
+      continue;
+  }
 
-    sv_t sv = stream_sv_abs(stream);
-    sv      = sv_chop_left(sv, index);
-    sv      = sv_truncate(sv, size);
-    return sv;
-  }
-  default:
-    assert("Unreachable");
-    return SV(NULL, 0);
-  }
+  sv_t sv = stream_sv_abs(stream);
+  sv      = sv_chop_left(sv, index);
+  sv      = sv_truncate(sv, size);
+  return sv;
 }
 
 sv_t stream_till(stream_t *stream, const char *str)
