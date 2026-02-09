@@ -67,8 +67,6 @@ stream_err_t stream_init_pipe(stream_t *stream, const char *name, FILE *pipe)
   stream->name      = name;
   stream->pipe.file = pipe;
 
-  vec_init(&stream->pipe.cache, STREAM_DEFAULT_CHUNK);
-
   return STREAM_ERR_OK;
 }
 
@@ -249,28 +247,31 @@ u64 stream_seek_forward(stream_t *stream, u64 offset)
 {
   if (stream_eoc(stream))
     return 0;
+  else if (stream->position + offset < stream_size(stream))
+  {
+    stream->position += offset;
+    return offset;
+  }
 
+  // NOTE: The only case not caught by the above branches is exact-to-end
+  // movement (i.e. offset puts us exactly at the end of the stream) or movement
+  // beyond what we've cached.
   switch (stream->type)
   {
+  case STREAM_TYPE_FILE:
   case STREAM_TYPE_STRING:
   {
-    if (stream->position + offset >= stream->string.size)
-      return 0;
-
+    // Clamp in the case of FILE and STRING movement since they're already
+    // fully cached.
+    if (stream->position + offset >= stream_size(stream))
+      offset = stream_size(stream) - stream->position;
     stream->position += offset;
     return offset;
   }
   case STREAM_TYPE_PIPE:
-  case STREAM_TYPE_FILE:
   {
-    // Similar principle as stream_peek really...
-
-    // Cached already?  We are done.
-    if (stream->position + offset < stream->pipe.cache.size)
-    {
-      stream->position += offset;
-      return offset;
-    }
+    // Pipes may have data remaining that hasn't been cached - we need to chunk
+    // before we can be sure to stop.
 
     // Try to read chunks in till we've reached it or we're at the end of the
     // file.
@@ -279,18 +280,18 @@ u64 stream_seek_forward(stream_t *stream, u64 offset)
          read_chunk = stream_chunk(stream))
       continue;
 
-    // Same principle as the stream_eoc(stream) check.
-    if (stream->position + offset > stream->pipe.cache.size)
-    {
-      offset = stream->pipe.cache.size - stream->position;
-    }
+    // NOTE: We've read everything from the pipe, but the offset is greater.  We
+    // must clamp here.
+    if (stream->position + offset > stream_size(stream))
+      offset = stream_size(stream) - stream->position;
+
     stream->position += offset;
     return offset;
   }
   default:
     FAIL("Unreachable");
-    return 0;
   }
+  return 0;
 }
 
 u64 stream_seek_backward(stream_t *stream, u64 offset)
