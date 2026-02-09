@@ -100,6 +100,13 @@ stream_err_t stream_init_file(stream_t *stream, const char *name, FILE *pipe)
   return STREAM_ERR_OK;
 }
 
+void stream_reset(stream_t *stream)
+{
+  if (!stream)
+    return;
+  stream->position = 0;
+}
+
 void stream_stop(stream_t *stream)
 {
   if (!stream)
