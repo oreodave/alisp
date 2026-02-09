@@ -353,13 +353,25 @@ sv_t stream_substr(stream_t *stream, u64 size)
 
 sv_t stream_substr_abs(stream_t *stream, u64 index, u64 size)
 {
-  if (index + size > stream_size(stream))
+  switch (stream->type)
   {
-    // => try reading chunks till either we drop or we have enough space
-    for (bool read_chunk = stream_chunk(stream);
-         read_chunk && index + size >= stream->pipe.cache.size;
-         read_chunk = stream_chunk(stream))
-      continue;
+  case STREAM_TYPE_PIPE:
+  {
+    if (index + size > stream_size(stream))
+    {
+      // => try reading chunks till either we drop or we have enough space
+      for (bool read_chunk = stream_chunk(stream);
+           read_chunk && index + size >= stream->pipe.cache.size;
+           read_chunk = stream_chunk(stream))
+        continue;
+    }
+    break;
+  }
+  case STREAM_TYPE_STRING:
+  case STREAM_TYPE_FILE:
+    break;
+  default:
+    FAIL("Unreachable");
   }
 
   sv_t sv = stream_sv_abs(stream);
@@ -372,28 +384,74 @@ sv_t stream_till(stream_t *stream, const char *str)
 {
   if (stream_eoc(stream))
     return SV(NULL, 0);
-  u64 current_position = stream->position;
-  for (char c = stream_peek(stream); c != '\0' && strchr(str, c) == NULL;
-       c      = stream_next(stream))
-    continue;
-  u64 size = stream->position - current_position;
-  if (size == 0)
-    return SV(NULL, 0);
-  return stream_substr_abs(stream, current_position, size);
+
+  sv_t cur_sv = stream_sv(stream);
+  sv_t sv     = sv_till(cur_sv, str);
+  stream_seek_forward(stream, sv.size);
+  switch (stream->type)
+  {
+  case STREAM_TYPE_FILE:
+  case STREAM_TYPE_STRING:
+    return sv;
+  case STREAM_TYPE_PIPE:
+  {
+    if (cur_sv.size > sv.size)
+      return sv;
+
+    // Build a substring by hand while chunking data.
+    u64 index, size;
+    for (index = stream->position - sv.size, size = sv.size;
+         cur_sv.size == sv.size; size += sv.size)
+    {
+      cur_sv = stream_sv(stream);
+      sv     = sv_till(cur_sv, str);
+      stream_seek_forward(stream, sv.size);
+      if (sv.size == 0)
+        // Must stop if this has happened; nothing else to pick up.
+        break;
+    }
+    return stream_substr_abs(stream, index, size);
+  }
+  default:
+    FAIL("Unreachable");
+  }
 }
 
 sv_t stream_while(stream_t *stream, const char *str)
 {
   if (stream_eoc(stream))
     return SV(NULL, 0);
-  u64 current_position = stream->position;
-  for (char c = stream_peek(stream); c != '\0' && strchr(str, c);
-       c      = stream_next(stream))
-    continue;
-  u64 size = stream->position - current_position;
-  if (size == 0)
-    return SV(NULL, 0);
-  return stream_substr_abs(stream, current_position, size);
+
+  sv_t cur_sv = stream_sv(stream);
+  sv_t sv     = sv_while(cur_sv, str);
+  stream_seek_forward(stream, sv.size);
+  switch (stream->type)
+  {
+  case STREAM_TYPE_FILE:
+  case STREAM_TYPE_STRING:
+    return sv;
+  case STREAM_TYPE_PIPE:
+  {
+    if (cur_sv.size > sv.size)
+      return sv;
+
+    // Build a substring by hand while chunking data.
+    u64 index, size;
+    for (index = stream->position - sv.size, size = sv.size;
+         cur_sv.size == sv.size; size += sv.size)
+    {
+      cur_sv = stream_sv(stream);
+      sv     = sv_while(cur_sv, str);
+      stream_seek_forward(stream, sv.size);
+      if (sv.size == 0)
+        // Must stop if this has happened; nothing else to pick up.
+        break;
+    }
+    return stream_substr_abs(stream, index, size);
+  }
+  default:
+    FAIL("Unreachable");
+  }
 }
 
 void stream_line_col(stream_t *stream, u64 *line, u64 *col)
