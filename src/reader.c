@@ -8,7 +8,6 @@
 #include <ctype.h>
 #include <string.h>
 
-#include <alisp/base.h>
 #include <alisp/reader.h>
 
 const char *read_err_to_cstr(read_err_t err)
@@ -24,6 +23,84 @@ const char *read_err_to_cstr(read_err_t err)
   default:
     FAIL("Unreachable");
   }
+}
+
+// Accepted characters for symbols.
+static const char *SYMBOL_CHARS =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!$%&*+,-./"
+    ":<=>?@\\^_`{|}~0123456789";
+
+// Little predicate using SYMBOL_CHARS
+bool is_sym(char c)
+{
+  return strchr(SYMBOL_CHARS, c) != NULL;
+}
+
+void skip_comments_and_whitespace(stream_t *stream)
+{
+  for (char c = stream_peek(stream); c != '\0' && (isspace(c) || c == ';');
+       c      = stream_peek(stream))
+  {
+    stream_while(stream, " \t\n\0");
+    if (stream_peek(stream) == ';')
+    {
+      // Skip till newline
+      stream_till(stream, "\n");
+    }
+  }
+}
+
+read_err_t read_int(sys_t *, stream_t *, lisp_t **)
+{
+  TODO("read_int: not implemented");
+}
+
+read_err_t read_sym(sys_t *, stream_t *, lisp_t **)
+{
+  TODO("read_sym: not implemented");
+}
+
+read_err_t read_list(sys_t *, stream_t *, lisp_t **)
+{
+  TODO("read_list: not implemented");
+}
+
+read_err_t read_vec(sys_t *, stream_t *, lisp_t **)
+{
+  TODO("read_vec: not implemented");
+}
+
+read_err_t read_all(sys_t *sys, stream_t *stream, vec_t *out)
+{
+  while (!stream_eoc(stream))
+  {
+    lisp_t *item   = NIL;
+    read_err_t err = read(sys, stream, &item);
+    if (err)
+      return err;
+    else
+      vec_append(out, &item, sizeof(item));
+  }
+
+  return READ_ERR_OK;
+}
+
+read_err_t read(sys_t *sys, stream_t *stream, lisp_t **ret)
+{
+  skip_comments_and_whitespace(stream);
+  if (stream_eoc(stream))
+    return READ_ERR_EOF;
+  char c = stream_peek(stream);
+  if (isdigit(c))
+    return read_int(sys, stream, ret);
+  else if (is_sym(c))
+    return read_sym(sys, stream, ret);
+  else if (c == '(')
+    return read_list(sys, stream, ret);
+  else if (c == '[')
+    return read_vec(sys, stream, ret);
+  else
+    return READ_ERR_UNKNOWN_CHAR;
 }
 
 /* Copyright (C) 2026 Aryadev Chavali
