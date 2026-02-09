@@ -50,6 +50,7 @@ lisp_t *car(lisp_t *);
 lisp_t *cdr(lisp_t *);
 
 void lisp_free(lisp_t *);
+void lisp_free_rec(lisp_t *);
 
 #endif
 

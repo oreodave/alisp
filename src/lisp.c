@@ -115,6 +115,38 @@ void lisp_free(lisp_t *item)
   }
 }
 
+void lisp_free_rec(lisp_t *item)
+{
+  switch (get_tag(item))
+  {
+  case TAG_CONS:
+  {
+    lisp_free_rec(car(item));
+    lisp_free_rec(cdr(item));
+    free(as_cons(item));
+    break;
+  }
+  case TAG_VEC:
+  {
+    vec_t *vec = as_vec(item);
+    for (size_t i = 0; i < VEC_SIZE(vec, lisp_t **); ++i)
+    {
+      lisp_t *allocated = VEC_GET(vec, i, lisp_t *);
+      lisp_free_rec(allocated);
+    }
+    vec_free(vec);
+    free(vec);
+    break;
+  }
+  case TAG_NIL:
+  case TAG_INT:
+  case TAG_SYM:
+  case NUM_TAGS:
+    // shouldn't be dealt with (either constant or dealt with elsewhere)
+    break;
+  }
+}
+
 /* Copyright (C) 2025, 2026 Aryadev Chavali
 
  * This program is distributed in the hope that it will be useful, but WITHOUT
