@@ -55,14 +55,46 @@ read_err_t read_int(sys_t *, stream_t *, lisp_t **)
   TODO("read_int: not implemented");
 }
 
-read_err_t read_sym(sys_t *, stream_t *, lisp_t **)
+read_err_t read_sym(sys_t *sys, stream_t *stream, lisp_t **ret)
 {
-  TODO("read_sym: not implemented");
+  sv_t sym_sv = stream_while(stream, SYMBOL_CHARS);
+  *ret        = intern(sys, sym_sv);
+  return READ_ERR_OK;
 }
 
-read_err_t read_list(sys_t *, stream_t *, lisp_t **)
+read_err_t read_list(sys_t *sys, stream_t *stream, lisp_t **ret)
 {
-  TODO("read_list: not implemented");
+  // skip past the open parentheses '('
+  (void)stream_next(stream);
+
+  lisp_t *top = NIL;
+  lisp_t *cur = NIL;
+  while (stream_peek(stream) != ')')
+  {
+    lisp_t *item   = NIL;
+    read_err_t err = read(sys, stream, &item);
+    if (err)
+    {
+      return err;
+    }
+    else if (!top)
+    {
+      top = cons(sys, item, NIL);
+      cur = top;
+    }
+    else
+    {
+      as_cons(cur)->cdr = cons(sys, item, NIL);
+      cur               = cdr(cur);
+    }
+  }
+
+  if (stream_peek(stream) != ')')
+    return READ_ERR_EXPECTED_CLOSED_BRACE;
+
+  stream_next(stream);
+  *ret = top;
+  return READ_ERR_OK;
 }
 
 read_err_t read_vec(sys_t *, stream_t *, lisp_t **)
