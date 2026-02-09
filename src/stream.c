@@ -395,7 +395,7 @@ sv_t stream_till(stream_t *stream, const char *str)
   u64 size = stream->position - current_position;
   if (size == 0)
     return SV(NULL, 0);
-  return stream_substr_abs(stream, current_position, size - 1);
+  return stream_substr_abs(stream, current_position, size);
 }
 
 sv_t stream_while(stream_t *stream, const char *str)
@@ -409,7 +409,7 @@ sv_t stream_while(stream_t *stream, const char *str)
   u64 size = stream->position - current_position;
   if (size == 0)
     return SV(NULL, 0);
-  return stream_substr_abs(stream, current_position, size - 1);
+  return stream_substr_abs(stream, current_position, size);
 }
 
 void stream_line_col(stream_t *stream, u64 *line, u64 *col)
