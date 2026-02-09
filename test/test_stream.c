@@ -82,7 +82,7 @@ void stream_test_string(void)
          test_strings[i].size);
     TEST(!stream_eoc(&stream), "Not end of content already");
 
-    stream_stop(&stream);
+    stream_free(&stream);
     TEST(strncmp(copy.data, test_strings[i].data, copy.size) == 0,
          "Freeing a stream does not free the underlying memory it was derived "
          "from");
@@ -96,7 +96,7 @@ void stream_test_string(void)
        stream_err_to_cstr(err));
   TEST(stream_size(&stream) == 0, "NULL stream size is 0");
   TEST(stream_eoc(&stream), "NULL stream is always at end of content");
-  stream_stop(&stream);
+  stream_free(&stream);
 
   TEST_END();
 }
@@ -114,7 +114,7 @@ void stream_test_file(void)
            stream_err_to_cstr(err));
     }
     TEST(!stream_eoc(&stream), "Stream should not be at the EoC from init.");
-    stream_stop(&stream);
+    stream_free(&stream);
   }
 
   // try to initialise the stream again but against a nonexistent file - we're
@@ -163,7 +163,7 @@ void stream_test_peek_next(void)
          "(%c)",
          c3, c2);
 
-    stream_stop(&stream);
+    stream_free(&stream);
   }
 
   // Invalid streams
@@ -180,7 +180,7 @@ void stream_test_peek_next(void)
          "Next on an invalid stream should not affect position (%lu -> %lu)",
          old_position, stream.position);
 
-    stream_stop(&stream);
+    stream_free(&stream);
   }
   TEST_END();
 }
@@ -209,7 +209,7 @@ void stream_test_seek(void)
          "stream (%lu -> %lu)",
          old_position, stream.position);
 
-    stream_stop(&stream);
+    stream_free(&stream);
   }
 
   // Valid streams
@@ -267,7 +267,7 @@ void stream_test_seek(void)
         "above.",
         stream.position);
 
-    stream_stop(&stream);
+    stream_free(&stream);
   }
 
   TEST_END();
@@ -301,7 +301,7 @@ void stream_test_substr(void)
            position, size);
     }
 
-    stream_stop(&stream);
+    stream_free(&stream);
   }
 
   // Taking substrings of valid streams
@@ -376,7 +376,7 @@ void stream_test_substr(void)
       }
     }
 
-    stream_stop(&stream);
+    stream_free(&stream);
   }
   TEST_END();
 }

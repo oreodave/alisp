@@ -57,7 +57,7 @@ stream_err_t stream_init_pipe(stream_t *, const char *, FILE *);
 // descriptor.  Use with caution.
 stream_err_t stream_init_file(stream_t *, const char *, FILE *);
 void stream_reset(stream_t *);
-void stream_stop(stream_t *);
+void stream_free(stream_t *);
 
 // End of Content (i.e. we've consumed all cached content/file)
 bool stream_eoc(stream_t *);

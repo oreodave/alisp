@@ -107,7 +107,7 @@ void stream_reset(stream_t *stream)
   stream->position = 0;
 }
 
-void stream_stop(stream_t *stream)
+void stream_free(stream_t *stream)
 {
   if (!stream)
     return;
