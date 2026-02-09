@@ -126,22 +126,6 @@ u64 stream_size(stream_t *stream)
   }
 }
 
-bool stream_eos(stream_t *stream)
-{
-  assert(stream);
-  switch (stream->type)
-  {
-  case STREAM_TYPE_STRING:
-    return stream->position >= stream->string.size;
-  case STREAM_TYPE_PIPE:
-  case STREAM_TYPE_FILE:
-    return feof(stream->pipe.file);
-  default:
-    FAIL("Unreachable");
-    return 0;
-  }
-}
-
 bool stream_eoc(stream_t *stream)
 {
   assert(stream);
@@ -185,7 +169,9 @@ bool stream_chunk(stream_t *stream)
       return true;
     }
     else
+    {
       return false;
+    }
   }
   default:
     FAIL("Unreachable");
@@ -202,8 +188,7 @@ char stream_next(stream_t *stream)
 
 char stream_peek(stream_t *stream)
 {
-  // If we've reached end of stream, and end of content, there's really nothing
-  // to check here.
+  // End of the line?  We're done.
   if (stream_eoc(stream))
     return '\0';
 
@@ -216,9 +201,7 @@ char stream_peek(stream_t *stream)
   {
     // Cached already?  We are done.
     if (stream->position < stream->pipe.cache.size)
-    {
       return stream_sv(stream).data[0];
-    }
 
     // Try to read chunks in till we've reached it or we're at the end of the
     // file.
@@ -245,9 +228,7 @@ u64 stream_seek(stream_t *stream, i64 offset)
   else if (offset > 0)
     return stream_seek_forward(stream, offset);
   else
-  {
     return 0;
-  }
 }
 
 u64 stream_seek_forward(stream_t *stream, u64 offset)
@@ -300,11 +281,10 @@ u64 stream_seek_forward(stream_t *stream, u64 offset)
 
 u64 stream_seek_backward(stream_t *stream, u64 offset)
 {
-  assert(stream);
+  if (!stream)
+    return 0;
   if (stream->position < offset)
-  {
     offset = stream->position;
-  }
 
   stream->position -= offset;
   return offset;
@@ -312,7 +292,8 @@ u64 stream_seek_backward(stream_t *stream, u64 offset)
 
 sv_t stream_sv(stream_t *stream)
 {
-  return sv_chop_left(stream_sv_abs(stream), stream->position);
+  sv_t sv = stream_sv_abs(stream);
+  return sv_chop_left(sv, stream->position);
 }
 
 sv_t stream_sv_abs(stream_t *stream)
@@ -404,25 +385,18 @@ void stream_line_col(stream_t *stream, u64 *line, u64 *col)
 {
   if (!stream || !line || !col)
     return;
-  // Go through the cache, byte by byte.
-  char *cache = NULL;
-  u64 size    = 0;
-  if (stream->type == STREAM_TYPE_STRING)
-  {
-    cache = stream->string.data;
-    size  = stream->string.size;
-  }
-  else
-  {
-    cache = (char *)vec_data(&stream->pipe.cache);
-    size  = stream->pipe.cache.size;
-  }
+
+  // Generate a string view from the stream of exactly the content /upto/
+  // stream.postion.
+  sv_t sv = stream_sv_abs(stream);
+  sv      = sv_truncate(sv, stream->position);
 
   *line = 1;
   *col  = 0;
-  for (u64 i = 0; i < size; ++i)
+  // TODO: Could this be faster?  Does it matter?
+  for (u64 i = 0; i < sv.size; ++i)
   {
-    char c = cache[i];
+    char c = sv.data[i];
     if (c == '\n')
     {
       *line += 1;
