@@ -38,7 +38,7 @@ sv_t sv_chop_right(sv_t sv, u64 size)
 
 sv_t sv_substr(sv_t sv, u64 position, u64 size)
 {
-  return sv_chop_right(sv_chop_left(sv, position), size);
+  return sv_truncate(sv_chop_left(sv, position), size);
 }
 
 sv_t sv_truncate(sv_t sv, u64 newsize)
