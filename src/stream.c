@@ -107,7 +107,7 @@ void stream_free(stream_t *stream)
   switch (stream->type)
   {
   case STREAM_TYPE_STRING:
-    free(stream->string.data);
+    free((char *)stream->string.data);
     break;
   case STREAM_TYPE_FILE:
   case STREAM_TYPE_PIPE:

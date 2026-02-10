@@ -14,7 +14,7 @@
 typedef struct
 {
   u64 size;
-  char *data;
+  const char *data;
 } sv_t;
 
 // String view macro constructor
