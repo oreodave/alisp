@@ -84,10 +84,10 @@ void sym_unique_test(void)
   sys_init(&system);
 
   sv_t symbols[] = {
-      SV("hello", 5),
-      SV("goodbye", 7),
-      SV("display", 7),
-      SV("@xs'a_sh;d::a-h]", 16),
+      SV_AUTO("hello"),
+      SV_AUTO("goodbye"),
+      SV_AUTO("display"),
+      SV_AUTO("@xs'a_sh;d::a-h]"),
   };
 
   lisp_t *ptrs[ARRSIZE(symbols)];
@@ -159,7 +159,7 @@ void sys_test(void)
        "Making integers doesn't affect system memory size");
 
   // Creating symbols won't affect memory size, but does affect the symbol table
-  (void)intern(&sys, SV("hello world!", 12));
+  (void)intern(&sys, SV_AUTO("hello world!"));
   TEST(sys.memory.size == old_memory_size,
        "Interning doesn't affect system memory size");
   TEST(sys.symtable.count > 0, "Interning affects symbol table");
@@ -169,7 +169,7 @@ void sys_test(void)
   TEST(sys.memory.size > 0, "Creating conses affects memory size");
   old_memory_size = sys.memory.size;
 
-  (void)cons(&sys, intern(&sys, SV("test", 4)), NIL);
+  (void)cons(&sys, intern(&sys, SV_AUTO("test")), NIL);
   TEST(sys.memory.size > old_memory_size,
        "Creating conses back to back affects memory size");
   old_memory_size = sys.memory.size;
