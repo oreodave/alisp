@@ -19,6 +19,7 @@ typedef struct
 
 // String view macro constructor
 #define SV(DATA, SIZE) ((sv_t){.data = (DATA), .size = (SIZE)})
+#define SV_AUTO(DATA)  ((sv_t){.data = (void *)(DATA), .size = sizeof(DATA) - 1})
 // Pretty printers
 #define SV_FMT(SV) (int)(SV).size, (SV).data
 #define PR_SV      "%.*s"

@@ -64,8 +64,8 @@ void stream_test_string(void)
 {
   TEST_START();
   sv_t test_strings[] = {
-      SV("hello, world!", 13),
-      SV("another string", 14),
+      SV_AUTO("hello, world!"),
+      SV_AUTO("another string"),
       SV((char *)text, ARRSIZE(text) / 2),
   };
 
