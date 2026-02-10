@@ -24,8 +24,8 @@ void sv_copy_test(void)
     TEST(strncmp(word.data, copy.data, copy.size) == 0, "`%s` == `%s`",
          word.data, copy.data);
 
-    // Obviously we can't just have this lying around.
-    free(copy.data);
+    // NOTE: Okay to free since we own copy.
+    free((void *)copy.data);
   }
 }
 

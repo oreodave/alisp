@@ -66,7 +66,7 @@ void stream_test_string(void)
   sv_t test_strings[] = {
       SV_AUTO("hello, world!"),
       SV_AUTO("another string"),
-      SV((char *)text, ARRSIZE(text) / 2),
+      sv_truncate(SV_AUTO(text), ARRSIZE(text) / 2),
   };
 
   for (u64 i = 0; i < ARRSIZE(test_strings); ++i)
@@ -87,7 +87,8 @@ void stream_test_string(void)
          "Freeing a stream does not free the underlying memory it was derived "
          "from");
 
-    free(copy.data);
+    // NOTE: Okay to free since we own copy.
+    free((void *)copy.data);
   }
 
   stream_t stream  = {0};
@@ -319,7 +320,7 @@ void stream_test_substr(void)
 
       TEST(result.size == size, "Substring has right size (%lu)", result.size);
 
-      sv_t expected = SV((char *)words_text + position, size);
+      sv_t expected = sv_substr(SV_AUTO(words_text), position, size);
       TEST(strncmp(result.data, expected.data, result.size) == 0,
            "Expect the substring to be the same as the data we put in");
     }
@@ -332,7 +333,7 @@ void stream_test_substr(void)
 
       TEST(result.size == size, "Substring has right size (%lu)", result.size);
 
-      sv_t expected = SV((char *)words_text, size);
+      sv_t expected = sv_truncate(SV_AUTO(words_text), size);
       TEST(strncmp(result.data, expected.data, result.size) == 0,
            "Expect the substring to be the same as the data we put in");
     }
@@ -349,7 +350,7 @@ void stream_test_substr(void)
 
       TEST(result.size == size, "Substring has right size (%lu)", result.size);
 
-      sv_t expected = SV((char *)words_text + position, size);
+      sv_t expected = sv_substr(SV_AUTO(words_text), position, size);
       TEST(strncmp(result.data, expected.data, result.size) == 0,
            "Expect the substring to be the same as the data we put in");
 

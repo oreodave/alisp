@@ -58,8 +58,6 @@ sv_t sv_till(sv_t sv, const char *reject)
        ++offset)
     continue;
 
-  if (offset == sv.size)
-    return sv;
   return sv_truncate(sv, offset);
 }
 
@@ -73,8 +71,6 @@ sv_t sv_while(sv_t sv, const char *accept)
        ++offset)
     continue;
 
-  if (offset == sv.size)
-    return sv;
   return sv_truncate(sv, offset);
 }
 

@@ -50,13 +50,13 @@ void vec_test_gen_substr(void)
       {0, 16},
       {0, 32},
       {32, 64},
-      {0, ARRSIZE(text)},
+      {0, ARRSIZE(text) - 1},
   };
 
   for (u64 i = 0; i < ARRSIZE(tests); ++i)
   {
     struct Test test  = tests[i];
-    const sv_t substr = SV((char *)text + test.start, test.size);
+    const sv_t substr = sv_substr(SV_AUTO(text), test.start, test.size);
     const u64 size    = test.size / 2;
 
     lisp_t *lvec = make_vec(&system, size);
