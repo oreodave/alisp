@@ -72,6 +72,19 @@ void sym_table_free(sym_table_t *table)
   memset(table, 0, sizeof(*table));
 }
 
+u64 sym_table_cost(sym_table_t *table)
+{
+  if (!table || !table->count)
+    return 0;
+  else
+  {
+    u64 total_size = 0;
+    for (u64 i = 0; i < table->capacity; ++i)
+      total_size += ENTRY_GET(table, i).size;
+    return total_size;
+  }
+}
+
 /* Copyright (C) 2025, 2026 Aryadev Chavali
 
  * This program is distributed in the hope that it will be useful, but WITHOUT
