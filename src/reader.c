@@ -102,6 +102,18 @@ read_err_t read_vec(sys_t *, stream_t *, lisp_t **)
   TODO("read_vec: not implemented");
 }
 
+read_err_t read_quote(sys_t *sys, stream_t *stream, lisp_t **ret)
+{
+  lisp_t *to_quote = NIL;
+  stream_next(stream);
+  read_err_t err = read(sys, stream, &to_quote);
+  if (err)
+    return err;
+  *ret = cons(sys, to_quote, NIL);
+  *ret = cons(sys, intern(sys, SV_AUTO("quote")), *ret);
+  return READ_ERR_OK;
+}
+
 read_err_t read_all(sys_t *sys, stream_t *stream, vec_t *out)
 {
   while (!stream_eoc(stream))
@@ -128,6 +140,8 @@ read_err_t read(sys_t *sys, stream_t *stream, lisp_t **ret)
     return read_int(sys, stream, ret);
   else if (is_sym(c))
     return read_sym(sys, stream, ret);
+  else if (c == '\'')
+    return read_quote(sys, stream, ret);
   else if (c == '(')
     return read_list(sys, stream, ret);
   else if (c == '[')
