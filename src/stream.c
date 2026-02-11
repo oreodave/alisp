@@ -303,7 +303,8 @@ u64 stream_seek_backward(stream_t *stream, u64 offset)
 sv_t stream_sv(stream_t *stream)
 {
   sv_t sv = stream_sv_abs(stream);
-  return sv_chop_left(sv, stream->position);
+  sv      = sv_chop_left(sv, stream->position);
+  return sv;
 }
 
 sv_t stream_sv_abs(stream_t *stream)
