@@ -124,7 +124,7 @@ read_err_t read_list(sys_t *sys, stream_t *stream, lisp_t **ret)
 
   lisp_t *top = NIL;
   lisp_t *cur = NIL;
-  while (stream_peek(stream) != ')')
+  while (!stream_eoc(stream) && stream_peek(stream) != ')')
   {
     lisp_t *item   = NIL;
     read_err_t err = read(sys, stream, &item);
