@@ -21,19 +21,12 @@ void usage(FILE *fp)
               "\t--          Read and interpret from stdin using an EOF.\n");
 }
 
-int main(int argc, char *argv[])
+int init_stream_on_args(int argc, char *argv[], FILE **pipe, stream_t *stream)
 {
-  int ret         = 0;
-  FILE *pipe      = NULL;
-  stream_t stream = {0};
-  vec_t ast       = {0};
-  sys_t sys       = {0};
-
   if (argc == 1)
   {
     usage(stderr);
-    ret = 1;
-    goto end;
+    return 1;
   }
   else if (argc != 2)
   {
@@ -42,35 +35,47 @@ int main(int argc, char *argv[])
 
   if (strncmp(argv[1], "--", 2) == 0)
   {
-    stream_err_t err = stream_init_pipe(&stream, "stdin", stdin);
+    stream_err_t err = stream_init_pipe(stream, "stdin", stdin);
     if (err)
     {
       fprintf(stderr, "ERROR: %s from `%s`\n", stream_err_to_cstr(err),
               argv[1]);
-      ret = 1;
-      goto end;
+      return 1;
     }
   }
   else if (strncmp(argv[1], "--help", 6) == 0)
   {
     usage(stdout);
-    goto end;
+    return 0;
   }
   else
   {
-    pipe             = fopen(argv[1], "rb");
-    stream_err_t err = stream_init_file(&stream, argv[1], pipe);
+    *pipe            = fopen(argv[1], "rb");
+    stream_err_t err = stream_init_file(stream, argv[1], *pipe);
     if (err)
     {
       fprintf(stderr, "ERROR: %s from `%s`\n", stream_err_to_cstr(err),
               argv[1]);
-      ret = 1;
-      goto end;
+      return 1;
     }
   }
 
-  LOG("[INFO]: Initialised stream for `%s`\n", stream.name);
+  return 0;
+}
 
+int main(int argc, char *argv[])
+{
+  int ret         = 0;
+  FILE *pipe      = NULL;
+  stream_t stream = {0};
+  vec_t ast       = {0};
+  sys_t sys       = {0};
+
+  ret = init_stream_on_args(argc, argv, &pipe, &stream);
+  if (ret)
+    goto end;
+
+  LOG("[INFO]: Initialised stream for `%s`\n", stream.name);
   {
     read_err_t err = read_all(&sys, &stream, &ast);
     if (err)
