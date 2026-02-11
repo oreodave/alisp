@@ -88,6 +88,21 @@ int main(int argc, char *argv[])
       goto end;
     }
   }
+
+  LOG("[INFO]: Utilised %lu bytes in parsing\n", sys_cost(&sys));
+  LOG("[INFO]: Parsed %lu %s\n", VEC_SIZE(&ast, lisp_t *),
+      VEC_SIZE(&ast, lisp_t *) == 1 ? "expr" : "exprs");
+
+  {
+    for (u64 i = 0; i < VEC_SIZE(&ast, lisp_t *); ++i)
+    {
+      lisp_t *expr = VEC_GET(&ast, i, lisp_t *);
+      LOG("\t[%lu]: ", i);
+      lisp_print(stdout, expr);
+      printf("\n");
+    }
+  }
+
 end:
   sys_free(&sys);
   vec_free(&ast);
