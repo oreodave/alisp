@@ -147,6 +147,77 @@ void lisp_free_rec(lisp_t *item)
   }
 }
 
+void lisp_print(FILE *fp, lisp_t *lisp)
+{
+  if (!fp)
+    return;
+  switch (get_tag(lisp))
+  {
+  case TAG_NIL:
+    fprintf(fp, "NIL");
+    break;
+  case TAG_INT:
+#if VERBOSE_LOGS
+    fprintf(fp, "INT[");
+#endif
+    fprintf(fp, "%ld", as_int(lisp));
+#if VERBOSE_LOGS
+    fprintf(fp, "]");
+#endif
+    break;
+  case TAG_SYM:
+#if VERBOSE_LOGS
+    fprintf(fp, "SYM[");
+#endif
+    fprintf(fp, "%s", as_sym(lisp));
+#if VERBOSE_LOGS
+    fprintf(fp, "]");
+#endif
+    break;
+  case TAG_CONS:
+  {
+#if VERBOSE_LOGS
+    fprintf(fp, "LIST[");
+#else
+    fprintf(fp, "(");
+#endif
+    for (; lisp; lisp = CDR(lisp))
+    {
+      if (IS_TAG(lisp, CONS))
+      {
+        lisp_t *car = CAR(lisp);
+        lisp_t *cdr = CDR(lisp);
+
+        lisp_print(fp, car);
+        if (cdr && !IS_TAG(cdr, CONS))
+        {
+          fprintf(fp, " . ");
+        }
+        else if (cdr)
+        {
+          fprintf(fp, " ");
+        }
+      }
+      else
+      {
+        lisp_print(fp, lisp);
+        break;
+      }
+    }
+#if VERBOSE_LOGS
+    fprintf(fp, "]");
+#else
+    fprintf(fp, ")");
+#endif
+    break;
+  }
+  case TAG_VEC:
+    break;
+  case NUM_TAGS:
+    break;
+  }
+}
+
 /* Copyright (C) 2025, 2026 Aryadev Chavali
 
  * This program is distributed in the hope that it will be useful, but WITHOUT

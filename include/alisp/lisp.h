@@ -8,6 +8,8 @@
 #ifndef LISP_H
 #define LISP_H
 
+#include <stdio.h>
+
 #include <alisp/symtable.h>
 #include <alisp/vec.h>
 
@@ -51,6 +53,8 @@ lisp_t *cdr(lisp_t *);
 
 void lisp_free(lisp_t *);
 void lisp_free_rec(lisp_t *);
+
+void lisp_print(FILE *, lisp_t *);
 
 #endif
 
