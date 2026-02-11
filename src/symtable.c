@@ -29,7 +29,7 @@ void sym_table_init(sym_table_t *table)
   vec_init(&table->entries, table->capacity * sizeof(sv_t));
 }
 
-char *sym_table_find(sym_table_t *table, sv_t sv)
+const char *sym_table_find(sym_table_t *table, sv_t sv)
 {
   // Initialise the table if it's not done already
   if (table->entries.capacity == 0)
@@ -62,7 +62,10 @@ void sym_table_free(sym_table_t *table)
   {
     current = ENTRY_GET(table, i);
     if (current.data)
-      free(current.data);
+    {
+      // NOTE: We clone all data here, so it's okay to free by hand.
+      free((void *)current.data);
+    }
   }
   // Free the underlying container
   vec_free(&table->entries);
