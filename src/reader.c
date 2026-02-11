@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <alisp/reader.h>
+#include <alisp/tag.h>
 
 const char *read_err_to_cstr(read_err_t err)
 {
@@ -50,15 +51,47 @@ void skip_comments_and_whitespace(stream_t *stream)
   }
 }
 
-read_err_t read_int(sys_t *, stream_t *, lisp_t **)
-{
-  TODO("read_int: not implemented");
-}
-
 read_err_t read_sym(sys_t *sys, stream_t *stream, lisp_t **ret)
 {
   sv_t sym_sv = stream_while(stream, SYMBOL_CHARS);
   *ret        = intern(sys, sym_sv);
+  return READ_ERR_OK;
+}
+
+read_err_t read_int(sys_t *sys, stream_t *stream, lisp_t **ret)
+{
+  sv_t digits_sv = stream_while(stream, "0123456789");
+  if (is_sym(stream_peek(stream)))
+  {
+    // This is actually a symbol
+    stream_seek_backward(stream, digits_sv.size);
+    return read_sym(sys, stream, ret);
+  }
+
+  if (digits_sv.size > 19)
+  {
+    TODO("alisp doesn't support big integers (bigger than 63 bits) yet");
+  }
+
+  i64 n = 0;
+  for (u64 i = 0; i < digits_sv.size; ++i)
+  {
+    char c   = digits_sv.data[i];
+    u8 digit = c - '0';
+
+    // NOTE: 10i + digit > INT_MAX
+    // => 10i > INT_MAX - digit
+    // => i > (INT_MAX - digit) / 10
+    if (n > (INT_MAX - digit) / 10)
+    {
+      TODO("alisp doesn't support big integers (bigger than 63 bits) yet");
+    }
+
+    n *= 10;
+    n += digit;
+  }
+
+  *ret = make_int(n);
   return READ_ERR_OK;
 }
 
@@ -146,8 +179,8 @@ read_err_t read(sys_t *sys, stream_t *stream, lisp_t **ret)
     return read_list(sys, stream, ret);
   else if (c == '[')
     return read_vec(sys, stream, ret);
-  else
-    return READ_ERR_UNKNOWN_CHAR;
+
+  return READ_ERR_UNKNOWN_CHAR;
 }
 
 /* Copyright (C) 2026 Aryadev Chavali
