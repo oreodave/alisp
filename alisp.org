@@ -45,11 +45,13 @@ i.e. no parsing.
 *** DONE Design what a "parser function" would look like
 The general function is something like ~stream -> T | Err~.  What
 other state do we need to encode?
-*** TODO Write a parser for integers
-*** TODO Write a parser for symbols
-*** TODO Write a parser for lists
+*** WIP Write a parser for integers
+*** DONE Write a parser for symbols
+*** DONE Write a parser for lists
+*** TODO Write a parser for strings
+Requires [[*Design Strings for the Lisp]] to be complete first.
 *** TODO Write a parser for vectors
-*** TODO Write the general parser
+*** WIP Write the general parser
 ** Unit tests :tests:
 *** TODO Test streams
 **** DONE Test file init
@@ -109,12 +111,12 @@ Super obvious.
 *** TODO Design Strings for the Lisp :api:
 We have ~sv_t~ so our basic C API is done.  We just need pluggable
 functions to construct and deconstruct strings as lisps.
-** Backlog
+** Design :design:
 *** TODO Design Big Integers :api:
 We currently have 62 bit integers implemented via immediate values
 embedded in a pointer.  We need to be able to support even _bigger_
 integers.  How do we do this?
-*** TODO Design garbage collection scheme :design:gc:
+*** TODO Design garbage collection scheme :gc:
 Really, regardless of what I do, we need to have some kind of garbage
 collection header on whatever managed objects we allocate.
 
