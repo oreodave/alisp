@@ -51,7 +51,7 @@ other state do we need to encode?
 *** DONE Write a parser for vectors
 *** TODO Write a parser for strings
 Requires [[*Design Strings for the Lisp]] to be complete first.
-*** WIP Write the general parser
+*** TODO Write the general parser
 ** Unit tests :tests:
 *** TODO Test streams :streams:
 **** DONE Test file init
