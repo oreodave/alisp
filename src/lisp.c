@@ -217,8 +217,34 @@ void lisp_print(FILE *fp, lisp_t *lisp)
     break;
   }
   case TAG_VEC:
+  {
+#if VERBOSE_LOGS
+    fprintf(fp, "VEC[");
+#else
+    fprintf(fp, "[");
+#endif
+
+    vec_t *vec = as_vec(lisp);
+    for (u64 i = 1; i <= VEC_SIZE(vec, lisp_t *); ++i)
+    {
+      lisp_t *item = VEC_GET(vec, i - 1, lisp_t *);
+      lisp_print(fp, item);
+      if (i != VEC_SIZE(vec, lisp_t *))
+      {
+        fprintf(fp, " ");
+      }
+    }
+
+#if VERBOSE_LOGS
+    fprintf(fp, "]");
+#else
+    fprintf(fp, "]");
+#endif
     break;
+  }
   case NUM_TAGS:
+  default:
+    FAIL("Unreachable");
     break;
   }
 }
