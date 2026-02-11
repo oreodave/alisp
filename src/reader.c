@@ -21,6 +21,15 @@ const char *read_err_to_cstr(read_err_t err)
     return "EOF";
   case READ_ERR_UNKNOWN_CHAR:
     return "UNKNOWN_CHAR";
+    break;
+  case READ_ERR_EXPECTED_CLOSED_BRACE:
+    return "EXPECTED_CLOSED_BRACE";
+  case READ_ERR_EXPECTED_CLOSED_SQUARE_BRACKET:
+    return "EXPECTED_CLOSED_SQUARE_BRACKET";
+  case READ_ERR_UNEXPECTED_CLOSED_BRACE:
+    return "UNEXPECTED_CLOSED_BRACE";
+  case READ_ERR_UNEXPECTED_CLOSED_SQUARE_BRACKET:
+    return "UNEXPECTED_CLOSED_SQUARE_BRACKET";
   default:
     FAIL("Unreachable");
   }
@@ -128,7 +137,11 @@ read_err_t read_list(sys_t *sys, stream_t *stream, lisp_t **ret)
   {
     lisp_t *item   = NIL;
     read_err_t err = read(sys, stream, &item);
-    if (err)
+    if (err == READ_ERR_EOF)
+    {
+      return READ_ERR_EXPECTED_CLOSED_BRACE;
+    }
+    else if (err)
     {
       return err;
     }
@@ -152,9 +165,33 @@ read_err_t read_list(sys_t *sys, stream_t *stream, lisp_t **ret)
   return READ_ERR_OK;
 }
 
-read_err_t read_vec(sys_t *, stream_t *, lisp_t **)
+read_err_t read_vec(sys_t *sys, stream_t *stream, lisp_t **ret)
 {
-  TODO("read_vec: not implemented");
+  (void)stream_next(stream);
+  lisp_t *container = make_vec(sys, 0);
+  while (!stream_eoc(stream) && stream_peek(stream) != ']')
+  {
+    lisp_t *item   = NIL;
+    read_err_t err = read(sys, stream, &item);
+    if (err == READ_ERR_EOF)
+    {
+      return READ_ERR_EXPECTED_CLOSED_BRACE;
+    }
+    else if (err)
+    {
+      return err;
+    }
+    else
+    {
+      vec_append(as_vec(container), &item, sizeof(item));
+    }
+  }
+
+  if (stream_peek(stream) != ']')
+    return READ_ERR_EXPECTED_CLOSED_SQUARE_BRACKET;
+  stream_next(stream);
+  *ret = container;
+  return READ_ERR_OK;
 }
 
 read_err_t read_quote(sys_t *sys, stream_t *stream, lisp_t **ret)
@@ -201,8 +238,12 @@ read_err_t read(sys_t *sys, stream_t *stream, lisp_t **ret)
     return read_quote(sys, stream, ret);
   else if (c == '(')
     return read_list(sys, stream, ret);
+  else if (c == ')')
+    return READ_ERR_UNEXPECTED_CLOSED_BRACE;
   else if (c == '[')
     return read_vec(sys, stream, ret);
+  else if (c == ']')
+    return READ_ERR_UNEXPECTED_CLOSED_SQUARE_BRACKET;
 
   return READ_ERR_UNKNOWN_CHAR;
 }
