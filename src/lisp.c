@@ -22,6 +22,11 @@ void sys_register(sys_t *sys, lisp_t *ptr)
   vec_append(&sys->memory, &ptr, sizeof(&ptr));
 }
 
+u64 sys_cost(sys_t *sys)
+{
+  return sym_table_cost(&sys->symtable) + sys->memory.capacity;
+}
+
 void sys_free(sys_t *sys)
 {
   static_assert(NUM_TAGS == 5);

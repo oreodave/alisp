@@ -34,6 +34,9 @@ void sys_init(sys_t *);
 void sys_register(sys_t *, lisp_t *);
 void sys_free(sys_t *);
 
+// Debugging function: provides total memory usage from system.
+u64 sys_cost(sys_t *);
+
 /// Constructors and destructors
 lisp_t *make_int(i64);
 lisp_t *make_vec(sys_t *, u64);
