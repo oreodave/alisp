@@ -4,7 +4,7 @@
 #+filetags: :alisp:
 
 * Tasks
-** WIP Reader system
+** Reader system :reader:
 We need to design a reader system.  The big idea: given a "stream" of
 data, we can break out expressions from it.  An expression could be
 either an atomic value or a container.
@@ -48,12 +48,12 @@ other state do we need to encode?
 *** DONE Write a parser for integers
 *** DONE Write a parser for symbols
 *** DONE Write a parser for lists
+*** DONE Write a parser for vectors
 *** TODO Write a parser for strings
 Requires [[*Design Strings for the Lisp]] to be complete first.
-*** TODO Write a parser for vectors
 *** WIP Write the general parser
 ** Unit tests :tests:
-*** TODO Test streams
+*** TODO Test streams :streams:
 **** DONE Test file init
 [[file:test/test_stream.c::void stream_test_file(void)]]
 ***** DONE Test successful init from real files
@@ -99,10 +99,11 @@ Also ensure stream_eoc is false.
 - line_col on bad stream (no effect on args)
 - line_col on eoc stream (should go right to the end)
 - line_col on random points in a stream
+*** TODO Test reader :reader:
 *** DONE Test system registration of allocated units
 In particular, does clean up work as we expect?  Do we have situations
 where we may double free or not clean up something we should've?
-** String views :sv_t:
+** String views :strings:
 [[file:include/alisp/sv.h::/// String Views]]
 *** DONE sv_substr
 Takes an index and a size, returns a string view to that substring.
@@ -200,11 +201,11 @@ Latter approach time complexity:
 
 Former approach is better time complexity wise, but latter is way
 better in terms of simplicity of code.  Must deliberate.
-*** TODO Capitalise symbols (TBD) :optimisation:design:
+*** TODO Capitalise symbols (TBD) :optimisation:
 Should we capitalise symbols?  This way, we limit the symbol table's
 possible options a bit (potentially we could design a better hashing
 algorithm?) and it would be kinda like an actual Lisp.
-*** TODO Consider reader macros
+*** TODO Consider reader macros :reader:
 Common Lisp has so-called "reader macros" which allows users to write
 Lisp code that affects further Lisp code reading.  It's quite
 powerful.
