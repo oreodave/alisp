@@ -11,14 +11,58 @@
 
 #include <alisp/alisp.h>
 
-void usage(FILE *fp)
+void usage(FILE *fp);
+int init_stream_on_args(int argc, char *argv[], FILE **pipe, stream_t *stream);
+
+int main(int argc, char *argv[])
 {
-  fprintf(fp, "Usage: alisp [OPTIONS...] FILE\n"
-              "Options:\n"
-              "\t--help        Print this usage and exit.\n"
-              "File:\n"
-              "\t<filename>  Read and interpret this file from filesystem.\n"
-              "\t--          Read and interpret from stdin using an EOF.\n");
+  int ret         = 0;
+  FILE *pipe      = NULL;
+  stream_t stream = {0};
+  vec_t ast       = {0};
+  sys_t sys       = {0};
+
+  ret = init_stream_on_args(argc, argv, &pipe, &stream);
+  if (ret)
+    goto end;
+
+  LOG("[INFO]: Initialised stream for `%s`\n", stream.name);
+  {
+    read_err_t err = read_all(&sys, &stream, &ast);
+    if (err)
+    {
+      u64 line = 0, col = 0;
+      stream_line_col(&stream, &line, &col);
+      fprintf(stderr, "%s:%lu:%lu: ERROR: %s\n", stream.name, line, col,
+              read_err_to_cstr(err));
+      ret = 1;
+      goto end;
+    }
+  }
+
+  LOG("[INFO]: Utilised %lu bytes in parsing\n", sys_cost(&sys));
+  LOG("[INFO]: Parsed %lu %s\n", VEC_SIZE(&ast, lisp_t *),
+      VEC_SIZE(&ast, lisp_t *) == 1 ? "expr" : "exprs");
+
+  {
+    for (u64 i = 0; i < VEC_SIZE(&ast, lisp_t *); ++i)
+    {
+      lisp_t *expr = VEC_GET(&ast, i, lisp_t *);
+#if VERBOSE_LOGS
+      printf("\t[%lu]: ", i);
+      lisp_print(stdout, expr);
+      printf("\n");
+#endif
+    }
+  }
+
+end:
+  sys_free(&sys);
+  vec_free(&ast);
+  stream_free(&stream);
+  if (pipe)
+    fclose(pipe);
+  return ret;
 }
 
 int init_stream_on_args(int argc, char *argv[], FILE **pipe, stream_t *stream)
@@ -63,53 +107,14 @@ int init_stream_on_args(int argc, char *argv[], FILE **pipe, stream_t *stream)
   return 0;
 }
 
-int main(int argc, char *argv[])
+void usage(FILE *fp)
 {
-  int ret         = 0;
-  FILE *pipe      = NULL;
-  stream_t stream = {0};
-  vec_t ast       = {0};
-  sys_t sys       = {0};
-
-  ret = init_stream_on_args(argc, argv, &pipe, &stream);
-  if (ret)
-    goto end;
-
-  LOG("[INFO]: Initialised stream for `%s`\n", stream.name);
-  {
-    read_err_t err = read_all(&sys, &stream, &ast);
-    if (err)
-    {
-      u64 line = 0, col = 0;
-      stream_line_col(&stream, &line, &col);
-      fprintf(stderr, "%s:%lu:%lu: ERROR: %s\n", stream.name, line, col,
-              read_err_to_cstr(err));
-      ret = 1;
-      goto end;
-    }
-  }
-
-  LOG("[INFO]: Utilised %lu bytes in parsing\n", sys_cost(&sys));
-  LOG("[INFO]: Parsed %lu %s\n", VEC_SIZE(&ast, lisp_t *),
-      VEC_SIZE(&ast, lisp_t *) == 1 ? "expr" : "exprs");
-
-  {
-    for (u64 i = 0; i < VEC_SIZE(&ast, lisp_t *); ++i)
-    {
-      lisp_t *expr = VEC_GET(&ast, i, lisp_t *);
-      LOG("\t[%lu]: ", i);
-      lisp_print(stdout, expr);
-      printf("\n");
-    }
-  }
-
-end:
-  sys_free(&sys);
-  vec_free(&ast);
-  stream_free(&stream);
-  if (pipe)
-    fclose(pipe);
-  return ret;
+  fprintf(fp, "Usage: alisp [OPTIONS...] FILE\n"
+              "Options:\n"
+              "\t--help        Print this usage and exit.\n"
+              "File:\n"
+              "\t<filename>  Read and interpret this file from filesystem.\n"
+              "\t--          Read and interpret from stdin using an EOF.\n");
 }
 
 /* Copyright (C) 2025, 2026 Aryadev Chavali
