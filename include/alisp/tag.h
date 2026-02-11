@@ -46,11 +46,11 @@ enum Mask
 #define INT_MAX ((1L << 62) - 1)
 #define INT_MIN (-(1L << 62))
 
-tag_t get_tag(lisp_t *);
-lisp_t *tag_int(i64);
-lisp_t *tag_sym(char *);
-lisp_t *tag_cons(cons_t *);
-lisp_t *tag_vec(vec_t *);
+tag_t get_tag(const lisp_t *);
+lisp_t *tag_int(const i64);
+lisp_t *tag_sym(const char *);
+lisp_t *tag_cons(const cons_t *);
+lisp_t *tag_vec(const vec_t *);
 
 #endif
 
