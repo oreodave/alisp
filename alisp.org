@@ -204,6 +204,12 @@ better in terms of simplicity of code.  Must deliberate.
 Should we capitalise symbols?  This way, we limit the symbol table's
 possible options a bit (potentially we could design a better hashing
 algorithm?) and it would be kinda like an actual Lisp.
+*** TODO Consider reader macros
+Common Lisp has so-called "reader macros" which allows users to write
+Lisp code that affects further Lisp code reading.  It's quite
+powerful.
+
+Scheme doesn't have it.  Should we implement this?
 ** Completed
 *** DONE Test value constructors and destructors :test:
 Test if ~make_int~ works with ~as_int,~ ~intern~ with ~as_sym~.
