@@ -171,6 +171,25 @@ read_err_t read(sys_t *sys, stream_t *stream, lisp_t **ret)
   char c = stream_peek(stream);
   if (isdigit(c))
     return read_int(sys, stream, ret);
+  else if (c == '-')
+  {
+    char c1 = stream_next(stream);
+    if (isdigit(c1))
+    {
+      read_err_t err = read_int(sys, stream, ret);
+      if (err)
+        return err;
+      i64 n = as_int(*ret);
+      n *= -1;
+      *ret = make_int(n);
+      return READ_ERR_OK;
+    }
+    else if (is_sym(c1))
+    {
+      stream_seek_backward(stream, 1);
+      return read_sym(sys, stream, ret);
+    }
+  }
   else if (is_sym(c))
     return read_sym(sys, stream, ret);
   else if (c == '\'')
