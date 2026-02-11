@@ -24,6 +24,9 @@ void sym_table_init(sym_table_t *);
 const char *sym_table_find(sym_table_t *, sv_t);
 void sym_table_free(sym_table_t *);
 
+// Debugging function: total memory used by symbol table.
+u64 sym_table_cost(sym_table_t *);
+
 #endif
 
 /* Copyright (C) 2026 Aryadev Chavali
