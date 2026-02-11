@@ -43,8 +43,8 @@ enum Mask
 #define IS_TAG(PTR, TYPE) (((u64)(PTR) & MASK_##TYPE) == TAG_##TYPE)
 #define UNTAG(PTR, TYPE)  (((u64)PTR) >> SHIFT_##TYPE)
 
-#define INT_MAX ((1L << 62) - 1)
-#define INT_MIN (-(1L << 62))
+#define INT_MAX ((((i64)1) << 62) - 1)
+#define INT_MIN (-(((i64)1) << 62))
 
 tag_t get_tag(const lisp_t *);
 lisp_t *tag_int(const i64);
