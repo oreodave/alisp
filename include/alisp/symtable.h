@@ -21,7 +21,7 @@ typedef struct
 #define SYM_TABLE_INIT_SIZE (1 << 10)
 
 void sym_table_init(sym_table_t *);
-char *sym_table_find(sym_table_t *, sv_t);
+const char *sym_table_find(sym_table_t *, sv_t);
 void sym_table_free(sym_table_t *);
 
 #endif
