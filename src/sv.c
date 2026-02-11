@@ -36,16 +36,17 @@ sv_t sv_chop_right(sv_t sv, u64 size)
   return SV(sv.data, sv.size - size);
 }
 
-sv_t sv_substr(sv_t sv, u64 position, u64 size)
-{
-  return sv_truncate(sv_chop_left(sv, position), size);
-}
-
 sv_t sv_truncate(sv_t sv, u64 newsize)
 {
-  if (newsize >= sv.size)
-    return sv;
+  if (newsize > sv.size)
+    return SV(NULL, 0);
   return SV(sv.data, newsize);
+}
+
+sv_t sv_substr(sv_t sv, u64 position, u64 size)
+{
+  sv_t result = sv_truncate(sv_chop_left(sv, position), size);
+  return result;
 }
 
 sv_t sv_till(sv_t sv, const char *reject)
