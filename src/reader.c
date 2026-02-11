@@ -112,6 +112,7 @@ read_err_t read_all(sys_t *sys, stream_t *stream, vec_t *out)
       return err;
     else
       vec_append(out, &item, sizeof(item));
+    skip_comments_and_whitespace(stream);
   }
 
   return READ_ERR_OK;
