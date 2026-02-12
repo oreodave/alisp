@@ -66,33 +66,6 @@ lisp_t *tag_sym(const char *);
 lisp_t *tag_cons(const cons_t *);
 lisp_t *tag_vec(const vec_t *);
 
-/// System context
-typedef struct
-{
-  vec_t conses;
-  vec_t vectors;
-  u64 num_conses, num_vectors;
-} sys_mem_t;
-
-typedef struct
-{
-  sys_mem_t memory;
-  sym_table_t symtable;
-} sys_t;
-
-void sys_init(sys_t *);
-lisp_t *sys_alloc(sys_t *, tag_t type);
-void sys_free(sys_t *);
-
-// Debugging function: provides total memory usage from system.
-u64 sys_cost(sys_t *);
-
-/// Constructors and destructors
-lisp_t *make_int(i64);
-lisp_t *make_vec(sys_t *, u64);
-lisp_t *intern(sys_t *, sv_t);
-lisp_t *cons(sys_t *, lisp_t *, lisp_t *);
-
 i64 as_int(lisp_t *);
 char *as_sym(lisp_t *);
 cons_t *as_cons(lisp_t *);
@@ -100,12 +73,6 @@ vec_t *as_vec(lisp_t *);
 
 #define CAR(L) (as_cons(L)->car)
 #define CDR(L) (as_cons(L)->cdr)
-
-lisp_t *car(lisp_t *);
-lisp_t *cdr(lisp_t *);
-
-void lisp_free(lisp_t *);
-void lisp_free_rec(lisp_t *);
 
 void lisp_print(FILE *, lisp_t *);
 

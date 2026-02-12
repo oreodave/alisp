@@ -8,8 +8,8 @@
 #ifndef READER_H
 #define READER_H
 
-#include <alisp/lisp.h>
 #include <alisp/stream.h>
+#include <alisp/sys.h>
 
 typedef enum
 {

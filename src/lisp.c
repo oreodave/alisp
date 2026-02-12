@@ -10,175 +10,62 @@
 
 #include <alisp/lisp.h>
 
-void sys_init(sys_t *sys)
+lisp_t *tag_int(i64 i)
 {
-  memset(sys, 0, sizeof(*sys));
+  return TAG((u64)i, INT);
 }
 
-lisp_t *sys_alloc(sys_t *sys, tag_t type)
+lisp_t *tag_sym(const char *str)
 {
-  switch (type)
-  {
-  case TAG_CONS:
-  {
-    cons_t *cons = calloc(1, sizeof(*cons));
-    lisp_t *lisp = tag_cons(cons);
-    vec_append(&sys->memory.conses, &lisp, sizeof(&lisp));
-    sys->memory.num_conses++;
-    return lisp;
-  }
-  case TAG_VEC:
-  {
-    vec_t *vec   = calloc(1, sizeof(*vec));
-    lisp_t *lisp = tag_vec(vec);
-    vec_append(&sys->memory.vectors, &lisp, sizeof(&lisp));
-    sys->memory.num_vectors++;
-    return lisp;
-  }
-  // Shouldn't be registered
-  case TAG_NIL:
-  case TAG_INT:
-  case TAG_SYM:
-  default:
-    FAIL("Unreachable");
-  }
-  return NIL;
+  return TAG((u64)str, SYM);
 }
 
-u64 sys_cost(sys_t *sys)
+lisp_t *tag_vec(const vec_t *vec)
 {
-  u64 vec_capacity = 0;
-  for (u64 i = 0; i < sys->memory.num_vectors; ++i)
-  {
-    lisp_t *vec = VEC_GET(&sys->memory.vectors, i, lisp_t *);
-    vec_capacity += as_vec(vec)->capacity;
-  }
-  return sym_table_cost(&sys->symtable) +
-         (sys->memory.num_conses * sizeof(cons_t)) + vec_capacity;
+  return TAG((u64)vec, VEC);
 }
 
-void sys_free(sys_t *sys)
+lisp_t *tag_cons(const cons_t *cons)
 {
-  sym_table_free(&sys->symtable);
-
-  // Iterate through each cell of memory currently allocated and free them
-  for (size_t i = 0; i < VEC_SIZE(&sys->memory.conses, lisp_t **); ++i)
-  {
-    lisp_t *allocated = VEC_GET(&sys->memory.conses, i, lisp_t *);
-    lisp_free(allocated);
-  }
-
-  // Iterate through each cell of memory currently allocated and free them
-  for (size_t i = 0; i < VEC_SIZE(&sys->memory.vectors, lisp_t **); ++i)
-  {
-    lisp_t *allocated = VEC_GET(&sys->memory.vectors, i, lisp_t *);
-    lisp_free(allocated);
-  }
-
-  // Free the containers
-  vec_free(&sys->memory.conses);
-  vec_free(&sys->memory.vectors);
-
-  // Ensure no one treats this as active in any sense
-  memset(sys, 0, sizeof(*sys));
+  return TAG((u64)cons, CONS);
 }
 
-lisp_t *make_int(i64 i)
+tag_t get_tag(const lisp_t *lisp)
 {
-  return tag_int(i);
+  static_assert(NUM_TAGS == 5);
+  if (!lisp)
+    return TAG_NIL;
+  else if (IS_TAG(lisp, INT))
+    return TAG_INT;
+
+  return (u64)lisp & 0xFF;
 }
 
-lisp_t *cons(sys_t *sys, lisp_t *car, lisp_t *cdr)
+i64 as_int(lisp_t *obj)
 {
-  lisp_t *cons = sys_alloc(sys, TAG_CONS);
-  CAR(cons)    = car;
-  CDR(cons)    = cdr;
-  return cons;
+  assert(IS_TAG(obj, INT));
+  u64 p_obj = (u64)obj;
+  return UNTAG(p_obj, INT) |               // Delete the tag
+         (NTH_BYTE(p_obj, 7) & 0x80) << 56 // duplicate the MSB (preserve sign)
+      ;
 }
 
-lisp_t *make_vec(sys_t *sys, u64 capacity)
+char *as_sym(lisp_t *obj)
 {
-  lisp_t *vec = sys_alloc(sys, TAG_VEC);
-  vec_init(as_vec(vec), capacity);
-  return vec;
+  assert(IS_TAG(obj, SYM));
+  return (char *)UNTAG(obj, SYM);
 }
 
-lisp_t *intern(sys_t *sys, sv_t sv)
+cons_t *as_cons(lisp_t *obj)
 {
-  const char *str = sym_table_find(&sys->symtable, sv);
-  return tag_sym(str);
+  assert(IS_TAG(obj, CONS));
+  return (cons_t *)UNTAG(obj, CONS);
 }
 
-lisp_t *car(lisp_t *lsp)
+vec_t *as_vec(lisp_t *obj)
 {
-  if (!IS_TAG(lsp, CONS))
-    return NIL;
-  else
-    return CAR(lsp);
-}
-
-lisp_t *cdr(lisp_t *lsp)
-{
-  if (!IS_TAG(lsp, CONS))
-    return NIL;
-  else
-    return CDR(lsp);
-}
-
-void lisp_free(lisp_t *item)
-{
-  switch (get_tag(item))
-  {
-  case TAG_CONS:
-    // Delete the cons
-    free(as_cons(item));
-    break;
-  case TAG_VEC:
-  {
-    vec_t *vec = as_vec(item);
-    vec_free(vec);
-    free(vec);
-    break;
-  }
-  case TAG_NIL:
-  case TAG_INT:
-  case TAG_SYM:
-  case NUM_TAGS:
-    // shouldn't be dealt with (either constant or dealt with elsewhere)
-    break;
-  }
-}
-
-void lisp_free_rec(lisp_t *item)
-{
-  switch (get_tag(item))
-  {
-  case TAG_CONS:
-  {
-    lisp_free_rec(car(item));
-    lisp_free_rec(cdr(item));
-    free(as_cons(item));
-    break;
-  }
-  case TAG_VEC:
-  {
-    vec_t *vec = as_vec(item);
-    for (size_t i = 0; i < VEC_SIZE(vec, lisp_t **); ++i)
-    {
-      lisp_t *allocated = VEC_GET(vec, i, lisp_t *);
-      lisp_free_rec(allocated);
-    }
-    vec_free(vec);
-    free(vec);
-    break;
-  }
-  case TAG_NIL:
-  case TAG_INT:
-  case TAG_SYM:
-  case NUM_TAGS:
-    // shouldn't be dealt with (either constant or dealt with elsewhere)
-    break;
-  }
+  assert(IS_TAG(obj, VEC));
+  return (vec_t *)UNTAG(obj, VEC);
 }
 
 void lisp_print(FILE *fp, lisp_t *lisp)
