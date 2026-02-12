@@ -14,7 +14,6 @@
 #include <alisp/stream.h>
 #include <alisp/sv.h>
 #include <alisp/symtable.h>
-#include <alisp/tag.h>
 #include <alisp/vec.h>
 
 #endif

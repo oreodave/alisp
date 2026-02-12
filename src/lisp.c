@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include <alisp/lisp.h>
-#include <alisp/tag.h>
 
 void sys_init(sys_t *sys)
 {

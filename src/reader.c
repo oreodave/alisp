@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include <alisp/reader.h>
-#include <alisp/tag.h>
 
 const char *read_err_to_cstr(read_err_t err)
 {
