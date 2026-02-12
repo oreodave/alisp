@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include <alisp/tag.h>
+#include <alisp/lisp.h>
 
 lisp_t *tag_int(i64 i)
 {
