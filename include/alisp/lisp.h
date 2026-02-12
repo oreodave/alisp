@@ -71,6 +71,12 @@ typedef struct
 {
   vec_t conses;
   vec_t vectors;
+  u64 num_conses, num_vectors;
+} sys_mem_t;
+
+typedef struct
+{
+  sys_mem_t memory;
   sym_table_t symtable;
 } sys_t;
 
