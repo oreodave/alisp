@@ -15,26 +15,33 @@ void sys_init(sys_t *sys)
   memset(sys, 0, sizeof(*sys));
 }
 
-void sys_register(sys_t *sys, lisp_t *ptr)
+lisp_t *sys_alloc(sys_t *sys, tag_t type)
 {
-  // Simply append it to the list of currently active conses
-  switch (get_tag(ptr))
+  switch (type)
   {
   case TAG_CONS:
-    vec_append(&sys->conses, &ptr, sizeof(&ptr));
-    break;
+  {
+    cons_t *cons = calloc(1, sizeof(*cons));
+    lisp_t *lisp = tag_cons(cons);
+    vec_append(&sys->conses, &lisp, sizeof(&lisp));
+    return lisp;
+  }
   case TAG_VEC:
-    vec_append(&sys->vectors, &ptr, sizeof(&ptr));
-    break;
-    // Shouldn't be registered
+  {
+    vec_t *vec   = calloc(1, sizeof(*vec));
+    lisp_t *lisp = tag_vec(vec);
+    vec_append(&sys->vectors, &lisp, sizeof(&lisp));
+    return lisp;
+  }
+  // Shouldn't be registered
   case TAG_NIL:
   case TAG_INT:
   case TAG_SYM:
-    break;
   case NUM_TAGS:
   default:
     FAIL("Unreachable");
   }
+  return NIL;
 }
 
 u64 sys_cost(sys_t *sys)
@@ -81,22 +88,17 @@ lisp_t *make_int(i64 i)
 
 lisp_t *cons(sys_t *sys, lisp_t *car, lisp_t *cdr)
 {
-  cons_t *cons = calloc(1, sizeof(*cons));
-  cons->car    = car;
-  cons->cdr    = cdr;
-
-  lisp_t *lcons = tag_cons(cons);
-  sys_register(sys, lcons);
-  return lcons;
+  lisp_t *cons = sys_alloc(sys, TAG_CONS);
+  CAR(cons)    = car;
+  CDR(cons)    = cdr;
+  return cons;
 }
 
 lisp_t *make_vec(sys_t *sys, u64 capacity)
 {
-  vec_t *vec = calloc(1, sizeof(*vec));
-  vec_init(vec, capacity);
-  lisp_t *ptr = tag_vec(vec);
-  sys_register(sys, ptr);
-  return ptr;
+  lisp_t *vec = sys_alloc(sys, TAG_VEC);
+  vec_init(as_vec(vec), capacity);
+  return vec;
 }
 
 lisp_t *intern(sys_t *sys, sv_t sv)
