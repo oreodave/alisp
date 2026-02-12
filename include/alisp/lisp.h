@@ -26,7 +26,8 @@ typedef struct
 /// System context
 typedef struct
 {
-  vec_t memory;
+  vec_t conses;
+  vec_t vectors;
   sym_table_t symtable;
 } sys_t;
 
