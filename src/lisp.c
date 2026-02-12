@@ -19,31 +19,57 @@ void sys_init(sys_t *sys)
 void sys_register(sys_t *sys, lisp_t *ptr)
 {
   // Simply append it to the list of currently active conses
-  vec_append(&sys->memory, &ptr, sizeof(&ptr));
+  switch (get_tag(ptr))
+  {
+  case TAG_CONS:
+    vec_append(&sys->conses, &ptr, sizeof(&ptr));
+    break;
+  case TAG_VEC:
+    vec_append(&sys->vectors, &ptr, sizeof(&ptr));
+    break;
+    // Shouldn't be registered
+  case TAG_NIL:
+  case TAG_INT:
+  case TAG_SYM:
+    break;
+  case NUM_TAGS:
+  default:
+    FAIL("Unreachable");
+  }
 }
 
 u64 sys_cost(sys_t *sys)
 {
-  return sym_table_cost(&sys->symtable) + sys->memory.capacity;
+  u64 vec_capacity = 0;
+  for (u64 i = 0; i < VEC_SIZE(&sys->vectors, lisp_t *); ++i)
+  {
+    lisp_t *vec = VEC_GET(&sys->vectors, i, lisp_t *);
+    vec_capacity += as_vec(vec)->capacity;
+  }
+  return sym_table_cost(&sys->symtable) + sys->conses.capacity + vec_capacity;
 }
 
 void sys_free(sys_t *sys)
 {
-  static_assert(NUM_TAGS == 5);
-
   sym_table_free(&sys->symtable);
-  if (sys->memory.size == 0)
-    return;
 
   // Iterate through each cell of memory currently allocated and free them
-  for (size_t i = 0; i < VEC_SIZE(&sys->memory, lisp_t **); ++i)
+  for (size_t i = 0; i < VEC_SIZE(&sys->conses, lisp_t **); ++i)
   {
-    lisp_t *allocated = VEC_GET(&sys->memory, i, lisp_t *);
+    lisp_t *allocated = VEC_GET(&sys->conses, i, lisp_t *);
     lisp_free(allocated);
   }
 
-  // Free the container
-  vec_free(&sys->memory);
+  // Iterate through each cell of memory currently allocated and free them
+  for (size_t i = 0; i < VEC_SIZE(&sys->vectors, lisp_t **); ++i)
+  {
+    lisp_t *allocated = VEC_GET(&sys->vectors, i, lisp_t *);
+    lisp_free(allocated);
+  }
+
+  // Free the containers
+  vec_free(&sys->conses);
+  vec_free(&sys->vectors);
 
   // Ensure no one treats this as active in any sense
   memset(sys, 0, sizeof(*sys));

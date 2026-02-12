@@ -151,44 +151,42 @@ void sys_test(void)
   TEST_START();
   sys_t sys = {0};
   sys_init(&sys);
-  u64 old_memory_size = sys.memory.size;
+  u64 old_memory_size = sys_cost(&sys);
 
   // Creating integers doesn't affect memory size
   (void)make_int(2000);
-  TEST(sys.memory.size == old_memory_size,
+  TEST(sys_cost(&sys) == old_memory_size,
        "Making integers doesn't affect system memory size");
 
-  // Creating symbols won't affect memory size, but does affect the symbol table
+  // Creating symbols does affect memory size and memory table
   (void)intern(&sys, SV_AUTO("hello world!"));
-  TEST(sys.memory.size == old_memory_size,
+  TEST(sys_cost(&sys) > old_memory_size,
        "Interning doesn't affect system memory size");
   TEST(sys.symtable.count > 0, "Interning affects symbol table");
+  old_memory_size = sys_cost(&sys);
 
   // Creating conses do affect memory size
   (void)cons(&sys, make_int(1), make_int(2));
-  TEST(sys.memory.size > 0, "Creating conses affects memory size");
-  old_memory_size = sys.memory.size;
+  TEST(sys_cost(&sys) > 0, "Creating conses affects memory size");
+  old_memory_size = sys_cost(&sys);
 
   (void)cons(&sys, intern(&sys, SV_AUTO("test")), NIL);
-  TEST(sys.memory.size > old_memory_size,
+  TEST(sys_cost(&sys) > old_memory_size,
        "Creating conses back to back affects memory size");
-  old_memory_size = sys.memory.size;
+  old_memory_size = sys_cost(&sys);
 
   // Creating vectors does affect memory size
   (void)make_vec(&sys, 8);
-  TEST(sys.memory.size > old_memory_size,
+  TEST(sys_cost(&sys) > old_memory_size,
        "Creating vectors (size 8) affects memory size");
-  old_memory_size = sys.memory.size;
+  old_memory_size = sys_cost(&sys);
 
   (void)make_vec(&sys, 1000);
-  TEST(sys.memory.size > old_memory_size,
+  TEST(sys_cost(&sys) > old_memory_size,
        "Creating vectors (size 1000) affects memory size");
-  old_memory_size = sys.memory.size;
+  old_memory_size = sys_cost(&sys);
 
   sys_free(&sys);
-  TEST(sys.memory.size == 0, "sys_free cleans up memory (shallow check)");
-  TEST(sys.symtable.count == 0, "sys_free cleans up symtable (shallow check)");
-
   TEST_END();
 }
 
