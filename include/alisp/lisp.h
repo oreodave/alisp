@@ -65,6 +65,7 @@ lisp_t *tag_int(const i64);
 lisp_t *tag_sym(const char *);
 lisp_t *tag_cons(const cons_t *);
 lisp_t *tag_vec(const vec_t *);
+lisp_t *tag_generic(void *, tag_t);
 
 i64 as_int(lisp_t *);
 char *as_sym(lisp_t *);
@@ -75,6 +76,8 @@ vec_t *as_vec(lisp_t *);
 #define CDR(L) (as_cons(L)->cdr)
 
 void lisp_print(FILE *, lisp_t *);
+u64 tag_sizeof(tag_t);
+u64 lisp_sizeof(lisp_t *);
 
 #endif
 
