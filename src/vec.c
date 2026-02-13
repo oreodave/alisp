@@ -81,8 +81,22 @@ void vec_append(vec_t *vec, const void *const ptr, u64 size)
   if (!vec)
     return;
   vec_ensure_free(vec, size);
-  memcpy(vec_data(vec) + vec->size, ptr, size);
+  if (ptr)
+    memcpy(vec_data(vec) + vec->size, ptr, size);
   vec->size += size;
+}
+
+bool vec_try_append(vec_t *vec, const void *const ptr, u64 size)
+{
+  if (!vec || vec->capacity - vec->size < size)
+    return false;
+  if (ptr)
+  {
+    void *newptr = vec_data(vec) + vec->size;
+    memcpy(newptr, ptr, size);
+  }
+  vec->size += size;
+  return true;
 }
 
 void vec_clone(vec_t *dest, vec_t *src)
