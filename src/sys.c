@@ -21,7 +21,7 @@ lisp_t *sys_alloc(sys_t *sys, tag_t type)
   {
   case TAG_CONS:
   case TAG_VEC:
-    return arena_make(&sys->memory, type);
+    return alloc_make(&sys->memory, type);
   // Shouldn't be registered
   case TAG_NIL:
   case TAG_INT:
@@ -34,14 +34,13 @@ lisp_t *sys_alloc(sys_t *sys, tag_t type)
 
 u64 sys_cost(sys_t *sys)
 {
-  return arena_cost(&sys->memory) + sym_table_cost(&sys->symtable);
+  return alloc_cost(&sys->memory) + sym_table_cost(&sys->symtable);
 }
 
 void sys_free(sys_t *sys)
 {
   sym_table_free(&sys->symtable);
-  arena_free(&sys->memory);
-  // Ensure no one treats this as active in any sense
+  alloc_free(&sys->memory);
   memset(sys, 0, sizeof(*sys));
 }
 

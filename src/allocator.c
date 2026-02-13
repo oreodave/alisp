@@ -72,7 +72,7 @@ alloc_node_t *lisp_to_node(lisp_t *lisp)
   return (alloc_node_t *)(&data[-1]);
 }
 
-lisp_t *arena_make(arena_t *arena, tag_t type)
+lisp_t *alloc_make(alloc_t *alloc, tag_t type)
 {
   switch (type)
   {
@@ -91,23 +91,23 @@ lisp_t *arena_make(arena_t *arena, tag_t type)
   alloc_node_t *node = NULL;
 
   // Try to get something from the free_list.
-  u64 free_list_size = VEC_SIZE(&arena->free_list, alloc_node_t *);
+  u64 free_list_size = VEC_SIZE(&alloc->free_list, alloc_node_t *);
   for (u64 i = 0; i < free_list_size; ++i)
   {
-    alloc_node_t **nodeptr = &VEC_GET(&arena->free_list, i, alloc_node_t *);
+    alloc_node_t **nodeptr = &VEC_GET(&alloc->free_list, i, alloc_node_t *);
     if (nodeptr[0]->metadata.tag != type)
       continue;
 
     // Swap this node with the last item of the free_list
     alloc_node_t **lastptr =
-        &VEC_GET(&arena->free_list, free_list_size - 1, alloc_node_t *);
+        &VEC_GET(&alloc->free_list, free_list_size - 1, alloc_node_t *);
 
     alloc_node_t *val = *lastptr;
     *nodeptr          = *lastptr;
     *lastptr          = val;
 
     // Decrement the size of the free list
-    arena->free_list.size -= sizeof(val);
+    alloc->free_list.size -= sizeof(val);
 
     // Get the valid node and goto the end.
     node = *lastptr;
@@ -117,9 +117,9 @@ lisp_t *arena_make(arena_t *arena, tag_t type)
 
   // We couldn't get anything from the free list, so try to allocate a fresh one
   // against one of the pages.
-  for (u64 i = 0; i < VEC_SIZE(&arena->pages, page_t *); ++i)
+  for (u64 i = 0; i < VEC_SIZE(&alloc->pages, page_t *); ++i)
   {
-    page_t *page = VEC_GET(&arena->pages, i, page_t *);
+    page_t *page = VEC_GET(&alloc->pages, i, page_t *);
     node         = make_node(page, type);
     if (node)
       goto end;
@@ -128,7 +128,7 @@ lisp_t *arena_make(arena_t *arena, tag_t type)
   // There aren't any pages we can allocate against, so we need to make a new
   // page.
   page_t *page = make_page(0);
-  vec_append(&arena->pages, &page, sizeof(page));
+  vec_append(&alloc->pages, &page, sizeof(page));
   node = make_node(page, type);
 
 end:
@@ -138,29 +138,29 @@ end:
   return tag_generic(node->data, type);
 }
 
-void arena_delete(arena_t *arena, lisp_t *lisp)
+void alloc_delete(alloc_t *alloc, lisp_t *lisp)
 {
   alloc_node_t *node = lisp_to_node(lisp);
   assert(node && node->metadata.references == 0);
-  vec_append(&arena->free_list, &node, sizeof(node));
+  vec_append(&alloc->free_list, &node, sizeof(node));
 }
 
-u64 arena_cost(arena_t *arena)
+u64 alloc_cost(alloc_t *alloc)
 {
-  u64 total_size = arena->pages.size;
-  for (u64 i = 0; i < VEC_SIZE(&arena->pages, page_t *); ++i)
+  u64 total_size = alloc->pages.size;
+  for (u64 i = 0; i < VEC_SIZE(&alloc->pages, page_t *); ++i)
   {
-    page_t *page = VEC_GET(&arena->pages, i, page_t *);
+    page_t *page = VEC_GET(&alloc->pages, i, page_t *);
     total_size += page->data.size;
   }
   return total_size;
 }
 
-void arena_free(arena_t *arena)
+void alloc_free(alloc_t *alloc)
 {
-  for (u64 i = 0; i < VEC_SIZE(&arena->pages, page_t *); ++i)
+  for (u64 i = 0; i < VEC_SIZE(&alloc->pages, page_t *); ++i)
   {
-    page_t *page = VEC_GET(&arena->pages, i, page_t *);
+    page_t *page = VEC_GET(&alloc->pages, i, page_t *);
     // Iterate through every alloc_node in this page
     for (u64 j = 0; j < VEC_SIZE(&page->data, u8);)
     {
@@ -187,9 +187,9 @@ void arena_free(arena_t *arena)
     vec_free(&page->data);
     free(page);
   }
-  vec_free(&arena->pages);
-  vec_free(&arena->free_list);
-  memset(arena, 0, sizeof(*arena));
+  vec_free(&alloc->pages);
+  vec_free(&alloc->free_list);
+  memset(alloc, 0, sizeof(*alloc));
 }
 
 /* Copyright (C) 2026 Aryadev Chavali
