@@ -20,21 +20,8 @@ lisp_t *sys_alloc(sys_t *sys, tag_t type)
   switch (type)
   {
   case TAG_CONS:
-  {
-    cons_t *cons = calloc(1, sizeof(*cons));
-    lisp_t *lisp = tag_cons(cons);
-    vec_append(&sys->memory.conses, &lisp, sizeof(&lisp));
-    sys->memory.num_conses++;
-    return lisp;
-  }
   case TAG_VEC:
-  {
-    vec_t *vec   = calloc(1, sizeof(*vec));
-    lisp_t *lisp = tag_vec(vec);
-    vec_append(&sys->memory.vectors, &lisp, sizeof(&lisp));
-    sys->memory.num_vectors++;
-    return lisp;
-  }
+    return arena_make(&sys->memory, type);
   // Shouldn't be registered
   case TAG_NIL:
   case TAG_INT:
@@ -47,38 +34,13 @@ lisp_t *sys_alloc(sys_t *sys, tag_t type)
 
 u64 sys_cost(sys_t *sys)
 {
-  u64 vec_capacity = 0;
-  for (u64 i = 0; i < sys->memory.num_vectors; ++i)
-  {
-    lisp_t *vec = VEC_GET(&sys->memory.vectors, i, lisp_t *);
-    vec_capacity += as_vec(vec)->capacity;
-  }
-  return sym_table_cost(&sys->symtable) +
-         (sys->memory.num_conses * sizeof(cons_t)) + vec_capacity;
+  return arena_cost(&sys->memory) + sym_table_cost(&sys->symtable);
 }
 
 void sys_free(sys_t *sys)
 {
   sym_table_free(&sys->symtable);
-
-  // Iterate through each cell of memory currently allocated and free them
-  for (size_t i = 0; i < VEC_SIZE(&sys->memory.conses, lisp_t **); ++i)
-  {
-    lisp_t *allocated = VEC_GET(&sys->memory.conses, i, lisp_t *);
-    lisp_free(allocated);
-  }
-
-  // Iterate through each cell of memory currently allocated and free them
-  for (size_t i = 0; i < VEC_SIZE(&sys->memory.vectors, lisp_t **); ++i)
-  {
-    lisp_t *allocated = VEC_GET(&sys->memory.vectors, i, lisp_t *);
-    lisp_free(allocated);
-  }
-
-  // Free the containers
-  vec_free(&sys->memory.conses);
-  vec_free(&sys->memory.vectors);
-
+  arena_free(&sys->memory);
   // Ensure no one treats this as active in any sense
   memset(sys, 0, sizeof(*sys));
 }

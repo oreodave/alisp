@@ -8,19 +8,13 @@
 #ifndef SYS_H
 #define SYS_H
 
+#include <alisp/allocator.h>
 #include <alisp/lisp.h>
 
 /// System context
 typedef struct
 {
-  vec_t conses;
-  vec_t vectors;
-  u64 num_conses, num_vectors;
-} sys_mem_t;
-
-typedef struct
-{
-  sys_mem_t memory;
+  arena_t memory;
   sym_table_t symtable;
 } sys_t;
 
