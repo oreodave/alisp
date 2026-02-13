@@ -87,25 +87,54 @@ lisp_t *arena_make(arena_t *arena, tag_t type)
     return NIL;
   }
 
+  // We want to try to fill this node with an allocation of this type.
+  alloc_node_t *node = NULL;
+
+  // Try to get something from the free_list.
+  u64 free_list_size = VEC_SIZE(&arena->free_list, alloc_node_t *);
+  for (u64 i = 0; i < free_list_size; ++i)
+  {
+    alloc_node_t **nodeptr = &VEC_GET(&arena->free_list, i, alloc_node_t *);
+    if (nodeptr[0]->metadata.tag != type)
+      continue;
+
+    // Swap this node with the last item of the free_list
+    alloc_node_t **lastptr =
+        &VEC_GET(&arena->free_list, free_list_size - 1, alloc_node_t *);
+
+    alloc_node_t *val = *lastptr;
+    *nodeptr          = *lastptr;
+    *lastptr          = val;
+
+    // Decrement the size of the free list
+    arena->free_list.size -= sizeof(val);
+
+    // Get the valid node and goto the end.
+    node = *lastptr;
+
+    goto end;
+  }
+
+  // We couldn't get anything from the free list, so try to allocate a fresh one
+  // against one of the pages.
   for (u64 i = 0; i < VEC_SIZE(&arena->pages, page_t *); ++i)
   {
-    page_t *page       = VEC_GET(&arena->pages, i, page_t *);
-    alloc_node_t *node = make_node(page, type);
+    page_t *page = VEC_GET(&arena->pages, i, page_t *);
+    node         = make_node(page, type);
     if (node)
-    {
-      return tag_generic(node->data, type);
-    }
+      goto end;
   }
 
-  // We'll have to make a new page to satisfy the size requirements.
+  // There aren't any pages we can allocate against, so we need to make a new
+  // page.
   page_t *page = make_page(0);
   vec_append(&arena->pages, &page, sizeof(page));
-  alloc_node_t *node = make_node(page, type);
+  node = make_node(page, type);
 
+end:
   if (!node)
-  {
     FAIL("Unexpected issue with allocating to a verifiably good page");
-  }
+
   return tag_generic(node->data, type);
 }
 
@@ -153,6 +182,8 @@ void arena_free(arena_t *arena)
       }
       j += next;
     }
+
+    // Each page was allocated on the heap.
     vec_free(&page->data);
     free(page);
   }
