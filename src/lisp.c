@@ -30,6 +30,26 @@ lisp_t *tag_cons(const cons_t *cons)
   return TAG((u64)cons, CONS);
 }
 
+lisp_t *tag_generic(void *ptr, tag_t type)
+{
+  switch (type)
+  {
+  case TAG_NIL:
+    return NIL;
+  case TAG_INT:
+    return tag_int((i64)ptr);
+  case TAG_SYM:
+    return tag_sym(ptr);
+  case TAG_CONS:
+    return tag_cons(ptr);
+  case TAG_VEC:
+    return tag_vec(ptr);
+  default:
+    FAIL("Unreachable");
+    return NIL;
+  }
+}
+
 tag_t get_tag(const lisp_t *lisp)
 {
   static_assert(NUM_TAGS == 5);
@@ -163,6 +183,31 @@ void lisp_print(FILE *fp, lisp_t *lisp)
     FAIL("Unreachable");
     break;
   }
+}
+
+u64 tag_sizeof(tag_t tag)
+{
+  switch (tag)
+  {
+  case TAG_NIL:
+    return 0;
+  case TAG_INT:
+  case TAG_SYM:
+    return sizeof(lisp_t *);
+  case TAG_CONS:
+    return sizeof(cons_t);
+  case TAG_VEC:
+    return sizeof(vec_t);
+  case NUM_TAGS:
+  default:
+    FAIL("Unreachable");
+    return 0;
+  }
+}
+
+u64 lisp_sizeof(lisp_t *lisp)
+{
+  return tag_sizeof(get_tag(lisp));
 }
 
 /* Copyright (C) 2025, 2026 Aryadev Chavali
