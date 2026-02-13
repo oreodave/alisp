@@ -14,7 +14,7 @@
 /// System context
 typedef struct
 {
-  arena_t memory;
+  alloc_t memory;
   sym_table_t symtable;
 } sys_t;
 

@@ -34,12 +34,12 @@ typedef struct
 {
   vec_t pages;
   vec_t free_list;
-} arena_t;
+} alloc_t;
 
-lisp_t *arena_make(arena_t *, tag_t type);
-void arena_delete(arena_t *, lisp_t *);
-u64 arena_cost(arena_t *);
-void arena_free(arena_t *);
+lisp_t *alloc_make(alloc_t *, tag_t type);
+void alloc_delete(alloc_t *, lisp_t *);
+u64 alloc_cost(alloc_t *);
+void alloc_free(alloc_t *);
 
 #endif
 
