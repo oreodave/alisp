@@ -54,7 +54,7 @@ void stream_test_prologue(void)
 
 void stream_test_epilogue(void)
 {
-  TEST_INFO("Freeing resources and deleting file `%s`\n", valid_filename);
+  TEST_INFO("Deleting file `%s`\n", valid_filename);
   assert(valid_fp);
   fclose(valid_fp);
   remove(valid_filename);
