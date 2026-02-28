@@ -92,14 +92,15 @@ We'll need an allocator for all our managed objects.  Requirements:
 - Able to tag allocations as unused (i.e. "free") and able to reuse
   these allocations
   - This will link into the garbage collector, which should yield a
-    sequence of objects that should be "freed".
+    sequence of objects that were previously tagged as unfree and
+    should be "freed".
 - Able to allocate all the managed types we have
 **** TODO Design allocation data structures
 **** TODO Design allocation methods for different lisp types
-- Conses
-- Vectors
 - Strings (when implemented)
-**** TODO Design allocation freeing methods
+***** TODO Conses
+***** TODO Vectors
+**** TODO Design allocation freeing method
 *** TODO Design garbage collection scheme :gc:
 Really, regardless of what I do, we need to have some kind of garbage
 collection header on whatever managed objects we allocate.  We need to

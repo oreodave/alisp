@@ -68,8 +68,8 @@ alloc_node_t *lisp_to_node(lisp_t *lisp)
     return NIL;
   }
 
-  alloc_metadata_t *data = raw_ptr;
-  return (alloc_node_t *)(&data[-1]);
+  alloc_node_t *node = raw_ptr;
+  return &node[-1];
 }
 
 lisp_t *alloc_make(alloc_t *alloc, tag_t type)
@@ -95,27 +95,33 @@ lisp_t *alloc_make(alloc_t *alloc, tag_t type)
   for (u64 i = 0; i < free_list_size; ++i)
   {
     alloc_node_t **nodeptr = &VEC_GET(&alloc->free_list, i, alloc_node_t *);
+
+    // Skip any nodes that don't have the right type.
     if (nodeptr[0]->metadata.tag != type)
       continue;
 
-    // Swap this node with the last item of the free_list
+    assert("Expected free node to have no references" &&
+           nodeptr[0]->metadata.references == 0);
+
+    // Pop this node off the free_list by swapping it with the last item and
+    // decrementing the size of the free_list.
+
     alloc_node_t **lastptr =
         &VEC_GET(&alloc->free_list, free_list_size - 1, alloc_node_t *);
-
-    alloc_node_t *val = *lastptr;
+    alloc_node_t *val = *nodeptr;
     *nodeptr          = *lastptr;
     *lastptr          = val;
 
     // Decrement the size of the free list
     alloc->free_list.size -= sizeof(val);
 
-    // Get the valid node and goto the end.
+    // Then use that valid (and now unused) node as our return.
     node = *lastptr;
 
     goto end;
   }
 
-  // We couldn't get anything from the free list, so try to allocate a fresh one
+  // We couldn't get anything from the free_list, so try to allocate a fresh one
   // against one of the pages.
   for (u64 i = 0; i < VEC_SIZE(&alloc->pages, page_t *); ++i)
   {
