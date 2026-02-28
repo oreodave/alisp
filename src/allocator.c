@@ -90,11 +90,11 @@ lisp_t *alloc_make(alloc_t *alloc, tag_t type)
   // We want to try to fill this node with an allocation of this type.
   alloc_node_t *node = NULL;
 
-  // Try to get something from the free_list.
-  u64 free_list_size = VEC_SIZE(&alloc->free_list, alloc_node_t *);
-  for (u64 i = 0; i < free_list_size; ++i)
+  // Try to get something from the free vector
+  u64 free_vec_size = VEC_SIZE(&alloc->free_vec, alloc_node_t *);
+  for (u64 i = 0; i < free_vec_size; ++i)
   {
-    alloc_node_t **nodeptr = &VEC_GET(&alloc->free_list, i, alloc_node_t *);
+    alloc_node_t **nodeptr = &VEC_GET(&alloc->free_vec, i, alloc_node_t *);
 
     // Skip any nodes that don't have the right type.
     if (nodeptr[0]->metadata.tag != type)
@@ -103,17 +103,17 @@ lisp_t *alloc_make(alloc_t *alloc, tag_t type)
     assert("Expected free node to have no references" &&
            nodeptr[0]->metadata.references == 0);
 
-    // Pop this node off the free_list by swapping it with the last item and
-    // decrementing the size of the free_list.
+    // Pop this node off the free vector by swapping it with the last item and
+    // decrementing the size of the vector.
 
     alloc_node_t **lastptr =
-        &VEC_GET(&alloc->free_list, free_list_size - 1, alloc_node_t *);
+        &VEC_GET(&alloc->free_vec, free_vec_size - 1, alloc_node_t *);
     alloc_node_t *val = *nodeptr;
     *nodeptr          = *lastptr;
     *lastptr          = val;
 
-    // Decrement the size of the free list
-    alloc->free_list.size -= sizeof(val);
+    // Decrement the size of the free vector
+    alloc->free_vec.size -= sizeof(val);
 
     // Then use that valid (and now unused) node as our return.
     node = *lastptr;
@@ -121,8 +121,8 @@ lisp_t *alloc_make(alloc_t *alloc, tag_t type)
     goto end;
   }
 
-  // We couldn't get anything from the free_list, so try to allocate a fresh one
-  // against one of the pages.
+  // We couldn't get anything from the free vector, so try to allocate a fresh
+  // one against one of the pages.
   for (u64 i = 0; i < VEC_SIZE(&alloc->pages, page_t *); ++i)
   {
     page_t *page = VEC_GET(&alloc->pages, i, page_t *);
@@ -148,7 +148,7 @@ void alloc_delete(alloc_t *alloc, lisp_t *lisp)
 {
   alloc_node_t *node = lisp_to_node(lisp);
   assert(node && node->metadata.references == 0);
-  vec_append(&alloc->free_list, &node, sizeof(node));
+  vec_append(&alloc->free_vec, &node, sizeof(node));
 }
 
 u64 alloc_cost(alloc_t *alloc)
@@ -194,7 +194,7 @@ void alloc_free(alloc_t *alloc)
     free(page);
   }
   vec_free(&alloc->pages);
-  vec_free(&alloc->free_list);
+  vec_free(&alloc->free_vec);
   memset(alloc, 0, sizeof(*alloc));
 }
 

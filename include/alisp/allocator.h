@@ -33,7 +33,7 @@ typedef struct
 typedef struct
 {
   vec_t pages;
-  vec_t free_list;
+  vec_t free_vec;
 } alloc_t;
 
 lisp_t *alloc_make(alloc_t *, tag_t type);
