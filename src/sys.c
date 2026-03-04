@@ -22,7 +22,7 @@ lisp_t *sys_alloc(sys_t *sys, tag_t type)
   case TAG_CONS:
   case TAG_VEC:
     return alloc_make(&sys->memory, type);
-  // Shouldn't be registered
+  // Shouldn't be allocated
   case TAG_NIL:
   case TAG_INT:
   case TAG_SYM:

@@ -6,16 +6,16 @@ TEST=$(DIST)/test.out
 
 LDFLAGS=
 GFLAGS=-Wall -Wextra -Wpedantic -Werror -std=c23 -I./include/
-DFLAGS=-ggdb -fsanitize=address -fsanitize=undefined -DVERBOSE_LOGS=1
+DFLAGS=-ggdb -fsanitize=address -fsanitize=undefined
 RFLAGS=-O3
 
 MODE=release
 ifeq ($(MODE), release)
 CFLAGS=$(GFLAGS) $(RFLAGS)
 else ifeq ($(MODE), debug)
-CFLAGS=$(GFLAGS) $(DFLAGS)
+CFLAGS=$(GFLAGS) $(DFLAGS) -DVERBOSE_LOGS=1
 else ifeq ($(MODE), full)
-CFLAGS=$(GFLAGS) $(DFLAGS) -DTEST_VERBOSE=1
+CFLAGS=$(GFLAGS) $(DFLAGS) -DVERBOSE_LOGS=2 -DTEST_VERBOSE=1
 endif
 
 # Units to compile

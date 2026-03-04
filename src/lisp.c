@@ -98,26 +98,26 @@ void lisp_print(FILE *fp, lisp_t *lisp)
     fprintf(fp, "NIL");
     break;
   case TAG_INT:
-#if VERBOSE_LOGS
+#if VERBOSE_LOGS == 2
     fprintf(fp, "INT[");
 #endif
     fprintf(fp, "%ld", as_int(lisp));
-#if VERBOSE_LOGS
+#if VERBOSE_LOGS == 2
     fprintf(fp, "]");
 #endif
     break;
   case TAG_SYM:
-#if VERBOSE_LOGS
+#if VERBOSE_LOGS == 2
     fprintf(fp, "SYM[");
 #endif
     fprintf(fp, "%s", as_sym(lisp));
-#if VERBOSE_LOGS
+#if VERBOSE_LOGS == 2
     fprintf(fp, "]");
 #endif
     break;
   case TAG_CONS:
   {
-#if VERBOSE_LOGS
+#if VERBOSE_LOGS == 2
     fprintf(fp, "LIST[");
 #else
     fprintf(fp, "(");
@@ -145,7 +145,7 @@ void lisp_print(FILE *fp, lisp_t *lisp)
         break;
       }
     }
-#if VERBOSE_LOGS
+#if VERBOSE_LOGS == 2
     fprintf(fp, "]");
 #else
     fprintf(fp, ")");
@@ -154,7 +154,7 @@ void lisp_print(FILE *fp, lisp_t *lisp)
   }
   case TAG_VEC:
   {
-#if VERBOSE_LOGS
+#if VERBOSE_LOGS == 2
     fprintf(fp, "VEC[");
 #else
     fprintf(fp, "[");
@@ -171,7 +171,7 @@ void lisp_print(FILE *fp, lisp_t *lisp)
       }
     }
 
-#if VERBOSE_LOGS
+#if VERBOSE_LOGS == 2
     fprintf(fp, "]");
 #else
     fprintf(fp, "]");
