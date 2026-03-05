@@ -24,8 +24,8 @@ const char *read_err_to_cstr(read_err_t err)
     return "EXPECTED_CLOSED_BRACE";
   case READ_ERR_EXPECTED_CLOSED_SQUARE_BRACKET:
     return "EXPECTED_CLOSED_SQUARE_BRACKET";
-  case READ_ERR_EXPECTED_SPEECHMARKS:
-    return "EXPECTED_SPEECHMARKS";
+  case READ_ERR_EXPECTED_CLOSING_SPEECHMARKS:
+    return "EXPECTED_CLOSING_SPEECHMARKS";
   case READ_ERR_UNEXPECTED_CLOSED_BRACE:
     return "UNEXPECTED_CLOSED_BRACE";
   case READ_ERR_UNEXPECTED_CLOSED_SQUARE_BRACKET:
@@ -196,11 +196,14 @@ read_err_t read_vec(sys_t *sys, stream_t *stream, lisp_t **ret)
 
 read_err_t read_str(sys_t *sys, stream_t *stream, lisp_t **ret)
 {
+  u64 old_pos = stream->position;
+
   (void)stream_next(stream);
   sv_t contents = stream_till(stream, "\"");
-  if (stream_peek(stream) != '\"')
+  if (stream_eoc(stream) || stream_peek(stream) != '\"')
   {
-    return READ_ERR_EXPECTED_SPEECHMARKS;
+    stream->position = old_pos;
+    return READ_ERR_EXPECTED_CLOSING_SPEECHMARKS;
   }
 
   stream_next(stream);
