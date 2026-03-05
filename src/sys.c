@@ -46,7 +46,7 @@ void sys_free(sys_t *sys)
 
 lisp_t *make_int(i64 i)
 {
-  return tag_int(i);
+  return tag_smi(i);
 }
 
 lisp_t *cons(sys_t *sys, lisp_t *car, lisp_t *cdr)
@@ -102,7 +102,7 @@ void lisp_free(lisp_t *item)
     break;
   }
   case TAG_NIL:
-  case TAG_INT:
+  case TAG_SMI:
   case TAG_SYM:
   case NUM_TAGS:
     // shouldn't be dealt with (either constant or dealt with elsewhere)
@@ -134,7 +134,7 @@ void lisp_free_rec(lisp_t *item)
     break;
   }
   case TAG_NIL:
-  case TAG_INT:
+  case TAG_SMI:
   case TAG_SYM:
   case NUM_TAGS:
     // shouldn't be dealt with (either constant or dealt with elsewhere)

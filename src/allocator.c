@@ -32,7 +32,7 @@ alloc_node_t *make_node(page_t *page, tag_t type)
     size += sizeof(vec_t);
     break;
   case TAG_NIL:
-  case TAG_INT:
+  case TAG_SMI:
   case TAG_SYM:
   default:
     FAIL("Unreachable");
@@ -61,7 +61,7 @@ alloc_node_t *lisp_to_node(lisp_t *lisp)
     raw_ptr = as_vec(lisp);
     break;
   case TAG_NIL: // These shouldn't be allocated
-  case TAG_INT:
+  case TAG_SMI:
   case TAG_SYM:
   default:
     FAIL("Unreachable");
@@ -80,7 +80,7 @@ lisp_t *alloc_make(alloc_t *alloc, tag_t type)
   case TAG_VEC:
     break;
   case TAG_NIL: // These shouldn't be allocated
-  case TAG_INT:
+  case TAG_SMI:
   case TAG_SYM:
   default:
     FAIL("Unreachable");
@@ -181,7 +181,7 @@ void alloc_free(alloc_t *alloc)
         vec_free((vec_t *)node->data);
         break;
       case TAG_NIL:
-      case TAG_INT:
+      case TAG_SMI:
       case TAG_SYM:
       default:
         FAIL("Unreachable");

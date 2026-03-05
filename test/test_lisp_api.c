@@ -23,7 +23,7 @@ void smi_test(void)
   {
     i64 in       = ints[i];
     lisp_t *lisp = make_int(in);
-    i64 out      = as_int(lisp);
+    i64 out      = as_smi(lisp);
 
     TEST(in == out, "%ld == %ld", in, out);
   }
@@ -47,7 +47,7 @@ void smi_oob_test(void)
   {
     i64 in       = ints[i];
     lisp_t *lisp = make_int(in);
-    i64 out      = as_int(lisp);
+    i64 out      = as_smi(lisp);
 
     TEST(in != out, "%ld != %ld", in, out);
   }

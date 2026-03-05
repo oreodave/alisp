@@ -111,7 +111,7 @@ read_err_t read_negative(sys_t *sys, stream_t *stream, lisp_t **ret)
     read_err_t err = read_int(sys, stream, ret);
     if (err)
       return err;
-    i64 n = as_int(*ret);
+    i64 n = as_smi(*ret);
     n *= -1;
     *ret = make_int(n);
     return READ_ERR_OK;

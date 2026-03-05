@@ -26,7 +26,7 @@ typedef struct
 /// Tagging system
 typedef enum Tag
 {
-  TAG_INT  = 0b00000001, // Atomic types
+  TAG_SMI  = 0b00000001, // Atomic types
   TAG_SYM  = 0b00000011,
   TAG_NIL  = 0b00000000, // Container types (0 LSB)
   TAG_CONS = 0b00000010,
@@ -48,13 +48,13 @@ typedef enum Tag
 #define INT_MIN  (-(INT_MAX + 1))
 
 tag_t get_tag(const lisp_t *);
-lisp_t *tag_int(const i64);
+lisp_t *tag_smi(const i64);
 lisp_t *tag_sym(const char *);
 lisp_t *tag_cons(const cons_t *);
 lisp_t *tag_vec(const vec_t *);
 lisp_t *tag_generic(void *, tag_t);
 
-i64 as_int(lisp_t *);
+i64 as_smi(lisp_t *);
 char *as_sym(lisp_t *);
 cons_t *as_cons(lisp_t *);
 vec_t *as_vec(lisp_t *);

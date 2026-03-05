@@ -10,9 +10,9 @@
 
 #include <alisp/lisp.h>
 
-lisp_t *tag_int(i64 i)
+lisp_t *tag_smi(i64 i)
 {
-  return TAG(i, INT);
+  return TAG(i, SMI);
 }
 
 lisp_t *tag_sym(const char *str)
@@ -36,8 +36,8 @@ lisp_t *tag_generic(void *ptr, tag_t type)
   {
   case TAG_NIL:
     return TAG(ptr, NIL);
-  case TAG_INT:
-    return tag_int((i64)ptr);
+  case TAG_SMI:
+    return tag_smi((i64)ptr);
   case TAG_SYM:
     return tag_sym(ptr);
   case TAG_CONS:
@@ -56,9 +56,9 @@ tag_t get_tag(const lisp_t *lisp)
   return GET_TAG(lisp);
 }
 
-i64 as_int(lisp_t *obj)
+i64 as_smi(lisp_t *obj)
 {
-  assert(IS_TAG(obj, INT));
+  assert(IS_TAG(obj, SMI));
   u64 raw_obj = UNTAG(obj);
   u64 msb     = (NTH_BYTE(raw_obj, 6) & 0x80) >> 7;
   msb         = ((1LU << 8) - msb) << 56;
@@ -92,11 +92,11 @@ void lisp_print(FILE *fp, lisp_t *lisp)
   case TAG_NIL:
     fprintf(fp, "NIL");
     break;
-  case TAG_INT:
+  case TAG_SMI:
 #if VERBOSE_LOGS == 2
     fprintf(fp, "INT[");
 #endif
-    fprintf(fp, "%ld", as_int(lisp));
+    fprintf(fp, "%ld", as_smi(lisp));
 #if VERBOSE_LOGS == 2
     fprintf(fp, "]");
 #endif
@@ -186,7 +186,7 @@ u64 tag_sizeof(tag_t tag)
   {
   case TAG_NIL:
     return 0;
-  case TAG_INT:
+  case TAG_SMI:
   case TAG_SYM:
     return sizeof(lisp_t *);
   case TAG_CONS:
