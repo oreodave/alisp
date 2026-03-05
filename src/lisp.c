@@ -174,7 +174,7 @@ void lisp_print(FILE *fp, lisp_t *lisp)
     {
       lisp_t *item = VEC_GET(vec, i, lisp_t *);
       lisp_print(fp, item);
-      if (i < VEC_SIZE(vec, lisp_t *))
+      if (i < VEC_SIZE(vec, lisp_t *) - 1)
       {
         fprintf(fp, " ");
       }
