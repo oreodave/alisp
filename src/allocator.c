@@ -158,8 +158,35 @@ end:
 
 void alloc_delete(alloc_t *alloc, lisp_t *lisp)
 {
+  switch (tag_get(lisp))
+  {
+  case TAG_CONS:
+  case TAG_VEC:
+  case TAG_STR:
+    break;
+  case TAG_NIL: // These can't be deleted (not allocated)
+  case TAG_SMI:
+  case TAG_SYM:
+  default:
+    FAIL("Unreachable");
+    return;
+  }
+
   alloc_node_t *node = lisp_to_node(lisp);
   assert(node && node->metadata.references == 0);
+
+  // If already present in the free vector, stop.
+  FOR_VEC(i, &alloc->free_vec, alloc_node_t *)
+  {
+    alloc_node_t *other = VEC_GET(&alloc->pages, i, alloc_node_t *);
+    if (other == node)
+    {
+      return;
+    }
+  }
+
+  // Otherwise, add to the free vector.
+  lisp_reset(lisp);
   vec_append(&alloc->free_vec, &node, sizeof(node));
 }
 
@@ -179,7 +206,7 @@ void alloc_free(alloc_t *alloc)
   FOR_VEC(i, &alloc->pages, page_t *)
   {
     page_t *page = VEC_GET(&alloc->pages, i, page_t *);
-    // Iterate through every alloc_node in this page
+    // Iterate through every alloc_node in this page (dynamic walk)
     for (u64 j = 0; j < VEC_SIZE(&page->data, u8);)
     {
       alloc_node_t *node = (alloc_node_t *)(vec_data(&page->data) + j);
