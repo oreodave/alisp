@@ -19,8 +19,8 @@ CFLAGS=$(GFLAGS) $(DFLAGS) -DVERBOSE_LOGS=2 -DTEST_VERBOSE=1
 endif
 
 # Units to compile
-UNITS=src/sv.c src/vec.c src/stream.c src/symtable.c src/lisp.c src/allocator.c \
-		src/sys.c src/reader.c
+UNITS=src/sv.c src/vec.c src/string.c src/stream.c src/symtable.c src/lisp.c \
+		src/allocator.c src/sys.c src/reader.c
 OBJECTS:=$(patsubst src/%.c, $(DIST)/%.o, $(UNITS))
 
 TEST_UNITS=test/main.c
