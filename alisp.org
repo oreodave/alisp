@@ -84,7 +84,7 @@ Scheme doesn't have it.  Should we implement this?
 - Unmanaged objects are allocations we do as part of the runtime.
   These are things that we expect to have near infinite lifetimes
   (such as the symbol table, vector of allocated objects, etc).
-*** TODO Design an allocator
+*** DONE Design an allocator
 We'll need an allocator for all our managed objects.  Requirements:
 - Stable pointers (memory that has already been allocated should be
   free to utilise via the same pointer for the lifetime of the
@@ -95,12 +95,12 @@ We'll need an allocator for all our managed objects.  Requirements:
     sequence of objects that were previously tagged as unfree and
     should be "freed".
 - Able to allocate all the managed types we have
-**** TODO Design allocation data structures
-**** TODO Design allocation methods for different lisp types
+**** DONE Design allocation data structures
+**** DONE Design allocation methods for different lisp types
 - Strings (when implemented)
-***** TODO Conses
-***** TODO Vectors
-**** TODO Design allocation freeing method
+***** DONE Conses
+***** DONE Vectors
+**** DONE Design allocation freeing method
 *** TODO Design garbage collection scheme :gc:
 Really, regardless of what I do, we need to have some kind of garbage
 collection header on whatever managed objects we allocate.  We need to
