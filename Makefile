@@ -5,7 +5,7 @@ OUT=$(DIST)/alisp.out
 TEST=$(DIST)/test.out
 
 LDFLAGS=
-GFLAGS=-Wall -Wextra -Wpedantic -Werror -std=c23 -I./include/
+GFLAGS=-Wall -Wextra -Wswitch-enum -Wpedantic -Werror -std=c23 -I./include/
 DFLAGS=-ggdb -fsanitize=address -fsanitize=undefined
 RFLAGS=-O3
 
