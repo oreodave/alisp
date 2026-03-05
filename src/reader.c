@@ -20,7 +20,6 @@ const char *read_err_to_cstr(read_err_t err)
     return "EOF";
   case READ_ERR_UNKNOWN_CHAR:
     return "UNKNOWN_CHAR";
-    break;
   case READ_ERR_EXPECTED_CLOSED_BRACE:
     return "EXPECTED_CLOSED_BRACE";
   case READ_ERR_EXPECTED_CLOSED_SQUARE_BRACKET:
@@ -37,7 +36,7 @@ const char *read_err_to_cstr(read_err_t err)
 // Accepted characters for symbols.
 static const char *SYMBOL_CHARS =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!$%&*+,-./"
-    ":<=>?@\\^_`{|}~0123456789";
+    ":<=>?@\\^_{|}~0123456789";
 
 // Little predicate using SYMBOL_CHARS
 bool is_sym(char c)
@@ -76,9 +75,9 @@ read_err_t read_int(sys_t *sys, stream_t *stream, lisp_t **ret)
     return read_sym(sys, stream, ret);
   }
 
-  if (digits_sv.size > 19)
+  if (digits_sv.size >= 18)
   {
-    TODO("alisp doesn't support big integers (bigger than 63 bits) yet");
+    TODO("alisp doesn't support big integers (bigger than 56 bits) yet");
   }
 
   i64 n = 0;
@@ -92,7 +91,7 @@ read_err_t read_int(sys_t *sys, stream_t *stream, lisp_t **ret)
     // => i > (INT_MAX - digit) / 10
     if (n > (INT_MAX - digit) / 10)
     {
-      TODO("alisp doesn't support big integers (bigger than 63 bits) yet");
+      TODO("alisp doesn't support big integers (bigger than 56 bits) yet");
     }
 
     n *= 10;
@@ -111,9 +110,7 @@ read_err_t read_negative(sys_t *sys, stream_t *stream, lisp_t **ret)
     read_err_t err = read_int(sys, stream, ret);
     if (err)
       return err;
-    i64 n = as_smi(*ret);
-    n *= -1;
-    *ret = make_int(n);
+    *ret = make_int(as_smi(*ret) * -1);
     return READ_ERR_OK;
   }
   else if (is_sym(c) || isspace(c))
@@ -122,7 +119,9 @@ read_err_t read_negative(sys_t *sys, stream_t *stream, lisp_t **ret)
     return read_sym(sys, stream, ret);
   }
   else
+  {
     return READ_ERR_UNKNOWN_CHAR;
+  }
 }
 
 read_err_t read_list(sys_t *sys, stream_t *stream, lisp_t **ret)
