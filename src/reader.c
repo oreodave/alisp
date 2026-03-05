@@ -128,6 +128,7 @@ read_err_t read_negative(sys_t *sys, stream_t *stream, lisp_t **ret)
 
 read_err_t read_list(sys_t *sys, stream_t *stream, lisp_t **ret)
 {
+  u64 old_pos = stream->position;
   // skip past the open parentheses '('
   (void)stream_next(stream);
 
@@ -139,7 +140,7 @@ read_err_t read_list(sys_t *sys, stream_t *stream, lisp_t **ret)
     read_err_t err = read(sys, stream, &item);
     if (err == READ_ERR_EOF)
     {
-      return READ_ERR_EXPECTED_CLOSED_BRACE;
+      goto no_close_brace;
     }
     else if (err)
     {
@@ -158,16 +159,23 @@ read_err_t read_list(sys_t *sys, stream_t *stream, lisp_t **ret)
   }
 
   if (stream_peek(stream) != ')')
-    return READ_ERR_EXPECTED_CLOSED_BRACE;
+  {
+    goto no_close_brace;
+  }
 
   stream_next(stream);
   *ret = top;
   return READ_ERR_OK;
+no_close_brace:
+  stream->position = old_pos;
+  return READ_ERR_EXPECTED_CLOSED_BRACE;
 }
 
 read_err_t read_vec(sys_t *sys, stream_t *stream, lisp_t **ret)
 {
+  u64 old_pos = stream->position;
   (void)stream_next(stream);
+
   lisp_t *container = make_vec(sys, 0);
   while (!stream_eoc(stream) && stream_peek(stream) != ']')
   {
@@ -175,7 +183,7 @@ read_err_t read_vec(sys_t *sys, stream_t *stream, lisp_t **ret)
     read_err_t err = read(sys, stream, &item);
     if (err == READ_ERR_EOF)
     {
-      return READ_ERR_EXPECTED_CLOSED_BRACE;
+      goto no_close_square_bracket;
     }
     else if (err)
     {
@@ -188,10 +196,14 @@ read_err_t read_vec(sys_t *sys, stream_t *stream, lisp_t **ret)
   }
 
   if (stream_peek(stream) != ']')
-    return READ_ERR_EXPECTED_CLOSED_SQUARE_BRACKET;
+    goto no_close_square_bracket;
+
   stream_next(stream);
   *ret = container;
   return READ_ERR_OK;
+no_close_square_bracket:
+  stream->position = old_pos;
+  return READ_ERR_EXPECTED_CLOSED_SQUARE_BRACKET;
 }
 
 read_err_t read_str(sys_t *sys, stream_t *stream, lisp_t **ret)
