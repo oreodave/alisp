@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
   {
     FOR_VEC(i, &ast, lisp_t *)
     {
-      lisp_t *expr = VEC_GET(&ast, i, lisp_t *);
 #if VERBOSE_LOGS
+      lisp_t *expr = VEC_GET(&ast, i, lisp_t *);
       printf("\t[%lu]: ", i);
       lisp_print(stdout, expr);
       printf("\n");
