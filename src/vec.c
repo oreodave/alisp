@@ -38,6 +38,14 @@ void vec_free(vec_t *vec)
   memset(vec, 0, sizeof(*vec));
 }
 
+void vec_reset(vec_t *vec)
+{
+  if (!vec)
+    return;
+  memset(vec_data(vec), 0, vec->capacity);
+  vec->size = 0;
+}
+
 u8 *vec_data(vec_t *vec)
 {
   return vec->not_inlined ? vec->ptr : vec->inlined;

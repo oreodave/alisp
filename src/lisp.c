@@ -238,6 +238,40 @@ u64 lisp_sizeof(lisp_t *lisp)
   return tag_sizeof(tag_get(lisp));
 }
 
+lisp_t *lisp_reset(lisp_t *lisp)
+{
+  switch (tag_get(lisp))
+  {
+  case TAG_NIL:
+  case TAG_SMI:
+  case TAG_SYM:
+    // Nothing to "reset" here.
+    return lisp;
+  case TAG_CONS:
+  {
+    // Make `car` and `cons` NIL
+    CAR(lisp) = NIL;
+    CDR(lisp) = NIL;
+    return lisp;
+  }
+  case TAG_VEC:
+  {
+    vec_reset(as_vec(lisp));
+    return lisp;
+  }
+  case TAG_STR:
+  {
+    vec_reset(&as_str(lisp)->data);
+    return lisp;
+  }
+  default:
+  {
+    FAIL("Unreachable");
+    return lisp;
+  }
+  }
+}
+
 /* Copyright (C) 2025, 2026 Aryadev Chavali
 
  * This program is distributed in the hope that it will be useful, but WITHOUT

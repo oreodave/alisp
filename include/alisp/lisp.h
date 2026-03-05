@@ -49,6 +49,11 @@ typedef enum Tag
 #define INT_MIN  (-(INT_MAX + 1))
 
 tag_t tag_get(const lisp_t *);
+u64 tag_sizeof(tag_t);
+u64 lisp_sizeof(lisp_t *);
+lisp_t *lisp_reset(lisp_t *);
+void lisp_print(FILE *, lisp_t *);
+
 lisp_t *tag_smi(const i64);
 lisp_t *tag_sym(const char *);
 lisp_t *tag_cons(const cons_t *);
@@ -64,10 +69,6 @@ str_t *as_str(lisp_t *);
 
 #define CAR(L) (as_cons(L)->car)
 #define CDR(L) (as_cons(L)->cdr)
-
-void lisp_print(FILE *, lisp_t *);
-u64 tag_sizeof(tag_t);
-u64 lisp_sizeof(lisp_t *);
 
 #endif
 

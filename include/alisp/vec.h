@@ -36,6 +36,7 @@ static_assert(sizeof(vec_t) == 64, "vec_t has to be 64 bytes as part of SBO");
 
 void vec_init(vec_t *, u64);
 void vec_free(vec_t *);
+void vec_reset(vec_t *);
 u8 *vec_data(vec_t *);
 
 // Append, possibly reallocating memory
