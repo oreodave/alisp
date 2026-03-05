@@ -27,15 +27,16 @@ u64 sys_cost(sys_t *);
 
 /// Constructors and general Lisp API
 lisp_t *make_int(i64);
-lisp_t *make_vec(sys_t *, u64);
 lisp_t *intern(sys_t *, sv_t);
 lisp_t *cons(sys_t *, lisp_t *, lisp_t *);
+lisp_t *make_vec(sys_t *, u64);
+lisp_t *make_str(sys_t *, u64);
 
 lisp_t *car(lisp_t *);
 lisp_t *cdr(lisp_t *);
 
-void lisp_free(lisp_t *);
-void lisp_free_rec(lisp_t *);
+void lisp_free(sys_t *, lisp_t *);
+void lisp_free_rec(sys_t *, lisp_t *);
 
 #endif
 

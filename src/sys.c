@@ -17,14 +17,16 @@ void sys_init(sys_t *sys)
 
 lisp_t *sys_alloc(sys_t *sys, tag_t type)
 {
+  static_assert(NUM_TAGS == 6);
   switch (type)
   {
   case TAG_CONS:
   case TAG_VEC:
+  case TAG_STR:
     return alloc_make(&sys->memory, type);
   // Shouldn't be allocated
   case TAG_NIL:
-  case TAG_INT:
+  case TAG_SMI:
   case TAG_SYM:
   default:
     FAIL("Unreachable");
@@ -64,6 +66,13 @@ lisp_t *make_vec(sys_t *sys, u64 capacity)
   return vec;
 }
 
+lisp_t *make_str(sys_t *sys, u64 capacity)
+{
+  lisp_t *str = sys_alloc(sys, TAG_STR);
+  vec_init(&as_str(str)->data, capacity);
+  return str;
+}
+
 lisp_t *intern(sys_t *sys, sv_t sv)
 {
   const char *str = sym_table_find(&sys->symtable, sv);
@@ -86,39 +95,35 @@ lisp_t *cdr(lisp_t *lsp)
     return CDR(lsp);
 }
 
-void lisp_free(lisp_t *item)
+void lisp_free(sys_t *sys, lisp_t *lisp)
 {
-  switch (get_tag(item))
+  static_assert(NUM_TAGS == 6);
+  switch (tag_get(lisp))
   {
-  case TAG_CONS:
-    // Delete the cons
-    free(as_cons(item));
-    break;
+  case TAG_STR:
   case TAG_VEC:
-  {
-    vec_t *vec = as_vec(item);
-    vec_free(vec);
-    free(vec);
+  case TAG_CONS:
+    // Delete the underlying data
+    alloc_delete(&sys->memory, lisp);
     break;
-  }
   case TAG_NIL:
   case TAG_SMI:
   case TAG_SYM:
-  case NUM_TAGS:
     // shouldn't be dealt with (either constant or dealt with elsewhere)
     break;
   }
 }
 
-void lisp_free_rec(lisp_t *item)
+void lisp_free_rec(sys_t *sys, lisp_t *item)
 {
-  switch (get_tag(item))
+  static_assert(NUM_TAGS == 6);
+  switch (tag_get(item))
   {
   case TAG_CONS:
   {
-    lisp_free_rec(car(item));
-    lisp_free_rec(cdr(item));
-    free(as_cons(item));
+    lisp_free_rec(sys, car(item));
+    lisp_free_rec(sys, cdr(item));
+    lisp_free(sys, item);
     break;
   }
   case TAG_VEC:
@@ -127,16 +132,19 @@ void lisp_free_rec(lisp_t *item)
     for (size_t i = 0; i < VEC_SIZE(vec, lisp_t **); ++i)
     {
       lisp_t *allocated = VEC_GET(vec, i, lisp_t *);
-      lisp_free_rec(allocated);
+      lisp_free_rec(sys, allocated);
     }
-    vec_free(vec);
-    free(vec);
+    lisp_free(sys, item);
+    break;
+  }
+  case TAG_STR:
+  {
+    lisp_free(sys, item);
     break;
   }
   case TAG_NIL:
   case TAG_SMI:
   case TAG_SYM:
-  case NUM_TAGS:
     // shouldn't be dealt with (either constant or dealt with elsewhere)
     break;
   }

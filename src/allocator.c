@@ -23,6 +23,8 @@ alloc_node_t *make_node(page_t *page, tag_t type)
 {
   alloc_node_t *node = NULL;
   u64 size           = sizeof(*node);
+
+  static_assert(NUM_TAGS == 6);
   switch (type)
   {
   case TAG_CONS:
@@ -30,6 +32,9 @@ alloc_node_t *make_node(page_t *page, tag_t type)
     break;
   case TAG_VEC:
     size += sizeof(vec_t);
+    break;
+  case TAG_STR:
+    size += sizeof(str_t);
     break;
   case TAG_NIL:
   case TAG_SMI:
@@ -52,13 +57,18 @@ alloc_node_t *make_node(page_t *page, tag_t type)
 alloc_node_t *lisp_to_node(lisp_t *lisp)
 {
   void *raw_ptr = NULL;
-  switch (get_tag(lisp))
+
+  static_assert(NUM_TAGS == 6);
+  switch (tag_get(lisp))
   {
   case TAG_CONS:
     raw_ptr = as_cons(lisp);
     break;
   case TAG_VEC:
     raw_ptr = as_vec(lisp);
+    break;
+  case TAG_STR:
+    raw_ptr = as_str(lisp);
     break;
   case TAG_NIL: // These shouldn't be allocated
   case TAG_SMI:
@@ -74,10 +84,12 @@ alloc_node_t *lisp_to_node(lisp_t *lisp)
 
 lisp_t *alloc_make(alloc_t *alloc, tag_t type)
 {
+  static_assert(NUM_TAGS == 6);
   switch (type)
   {
   case TAG_CONS:
   case TAG_VEC:
+  case TAG_STR:
     break;
   case TAG_NIL: // These shouldn't be allocated
   case TAG_SMI:
@@ -172,6 +184,8 @@ void alloc_free(alloc_t *alloc)
     {
       alloc_node_t *node = (alloc_node_t *)(vec_data(&page->data) + j);
       u64 next           = sizeof(*node) + tag_sizeof(node->metadata.tag);
+
+      static_assert(NUM_TAGS == 6);
       switch (node->metadata.tag)
       {
       case TAG_CONS:
@@ -179,6 +193,9 @@ void alloc_free(alloc_t *alloc)
         break;
       case TAG_VEC:
         vec_free((vec_t *)node->data);
+        break;
+      case TAG_STR:
+        vec_free(&((str_t *)node->data)->data);
         break;
       case TAG_NIL:
       case TAG_SMI:

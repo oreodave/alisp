@@ -25,6 +25,11 @@ lisp_t *tag_vec(const vec_t *vec)
   return TAG(vec, VEC);
 }
 
+lisp_t *tag_str(const str_t *str)
+{
+  return TAG(str, STR);
+}
+
 lisp_t *tag_cons(const cons_t *cons)
 {
   return TAG(cons, CONS);
@@ -32,6 +37,7 @@ lisp_t *tag_cons(const cons_t *cons)
 
 lisp_t *tag_generic(void *ptr, tag_t type)
 {
+  static_assert(NUM_TAGS == 6);
   switch (type)
   {
   case TAG_NIL:
@@ -44,15 +50,16 @@ lisp_t *tag_generic(void *ptr, tag_t type)
     return tag_cons(ptr);
   case TAG_VEC:
     return tag_vec(ptr);
+  case TAG_STR:
+    return tag_str(ptr);
   default:
     FAIL("Unreachable");
     return NIL;
   }
 }
 
-tag_t get_tag(const lisp_t *lisp)
+tag_t tag_get(const lisp_t *lisp)
 {
-  static_assert(NUM_TAGS == 5);
   return GET_TAG(lisp);
 }
 
@@ -77,6 +84,12 @@ cons_t *as_cons(lisp_t *obj)
   return (cons_t *)UNTAG(obj);
 }
 
+str_t *as_str(lisp_t *obj)
+{
+  assert(IS_TAG(obj, STR));
+  return (str_t *)UNTAG(obj);
+}
+
 vec_t *as_vec(lisp_t *obj)
 {
   assert(IS_TAG(obj, VEC));
@@ -87,7 +100,8 @@ void lisp_print(FILE *fp, lisp_t *lisp)
 {
   if (!fp)
     return;
-  switch (get_tag(lisp))
+  static_assert(NUM_TAGS == 6);
+  switch (tag_get(lisp))
   {
   case TAG_NIL:
     fprintf(fp, "NIL");
@@ -173,7 +187,9 @@ void lisp_print(FILE *fp, lisp_t *lisp)
 #endif
     break;
   }
-  case NUM_TAGS:
+  case TAG_STR:
+    TODO("Implement lisp_print for strings");
+    break;
   default:
     FAIL("Unreachable");
     break;
@@ -182,6 +198,7 @@ void lisp_print(FILE *fp, lisp_t *lisp)
 
 u64 tag_sizeof(tag_t tag)
 {
+  static_assert(NUM_TAGS == 6);
   switch (tag)
   {
   case TAG_NIL:
@@ -193,7 +210,8 @@ u64 tag_sizeof(tag_t tag)
     return sizeof(cons_t);
   case TAG_VEC:
     return sizeof(vec_t);
-  case NUM_TAGS:
+  case TAG_STR:
+    return sizeof(str_t);
   default:
     FAIL("Unreachable");
     return 0;
@@ -202,7 +220,7 @@ u64 tag_sizeof(tag_t tag)
 
 u64 lisp_sizeof(lisp_t *lisp)
 {
-  return tag_sizeof(get_tag(lisp));
+  return tag_sizeof(tag_get(lisp));
 }
 
 /* Copyright (C) 2025, 2026 Aryadev Chavali

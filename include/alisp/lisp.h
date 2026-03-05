@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-#include <alisp/symtable.h>
+#include <alisp/string.h>
 #include <alisp/vec.h>
 
 #define NIL 0
@@ -31,7 +31,8 @@ typedef enum Tag
   TAG_NIL  = 0b00000000, // Container types (0 LSB)
   TAG_CONS = 0b00000010,
   TAG_VEC  = 0b00000100,
-  NUM_TAGS = 5,
+  TAG_STR  = 0b00000110,
+  NUM_TAGS = 6,
 } tag_t;
 
 // Some helper macros for tagging
@@ -47,17 +48,19 @@ typedef enum Tag
 #define INT_MAX  ((((i64)1) << (INT_BITS - 1)) - 1)
 #define INT_MIN  (-(INT_MAX + 1))
 
-tag_t get_tag(const lisp_t *);
+tag_t tag_get(const lisp_t *);
 lisp_t *tag_smi(const i64);
 lisp_t *tag_sym(const char *);
 lisp_t *tag_cons(const cons_t *);
 lisp_t *tag_vec(const vec_t *);
+lisp_t *tag_str(const str_t *);
 lisp_t *tag_generic(void *, tag_t);
 
 i64 as_smi(lisp_t *);
 char *as_sym(lisp_t *);
 cons_t *as_cons(lisp_t *);
 vec_t *as_vec(lisp_t *);
+str_t *as_str(lisp_t *);
 
 #define CAR(L) (as_cons(L)->car)
 #define CDR(L) (as_cons(L)->cdr)
