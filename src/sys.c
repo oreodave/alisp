@@ -34,6 +34,11 @@ lisp_t *sys_alloc(sys_t *sys, tag_t type)
   return NIL;
 }
 
+void sys_delete(sys_t *sys, lisp_t *lisp)
+{
+  alloc_delete(&sys->memory, lisp);
+}
+
 u64 sys_cost(sys_t *sys)
 {
   return alloc_cost(&sys->memory) + sym_table_cost(&sys->symtable);

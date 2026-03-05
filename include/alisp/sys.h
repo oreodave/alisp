@@ -21,6 +21,7 @@ typedef struct
 
 void sys_init(sys_t *);
 lisp_t *sys_alloc(sys_t *, tag_t type);
+void sys_delete(sys_t *, lisp_t *);
 void sys_free(sys_t *);
 
 // Debugging function: provides total memory usage from system.
