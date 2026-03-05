@@ -26,39 +26,26 @@ typedef struct
 /// Tagging system
 typedef enum Tag
 {
-  TAG_NIL  = 0b00000000, // Start of atomic types
-  TAG_INT  = 0b00000001, // Special tag so we can encode 63 bit integers
-  TAG_SYM  = 0b00000100,
-  TAG_CONS = 0b00000010, // Start of container types
-  TAG_VEC  = 0b00000110,
+  TAG_INT  = 0b00000001, // Atomic types
+  TAG_SYM  = 0b00000011,
+  TAG_NIL  = 0b00000000, // Container types (0 LSB)
+  TAG_CONS = 0b00000010,
+  TAG_VEC  = 0b00000100,
   NUM_TAGS = 5,
 } tag_t;
 
-static_assert(NUM_TAGS == 5, "Expected NUM_TAGS == 5 for enum SHIFT");
-enum Shift
-{
-  SHIFT_INT  = 1,
-  SHIFT_SYM  = 8,
-  SHIFT_CONS = 8,
-  SHIFT_VEC  = 8,
-};
-
-static_assert(NUM_TAGS == 5, "Expected NUM_TAGS == 5 for enum MASK");
-enum Mask
-{
-  MASK_INT  = 0b00000001,
-  MASK_SYM  = 0b11111111,
-  MASK_CONS = 0b11111111,
-  MASK_VEC  = 0b11111111,
-};
-
 // Some helper macros for tagging
-#define TAG(PTR, TYPE)    ((lisp_t *)(((PTR) << SHIFT_##TYPE) | TAG_##TYPE))
-#define IS_TAG(PTR, TYPE) (((u64)(PTR) & MASK_##TYPE) == TAG_##TYPE)
-#define UNTAG(PTR, TYPE)  (((u64)PTR) >> SHIFT_##TYPE)
+#define SHIFT_TAG (8)
+#define MASK_TAG  ((1 << SHIFT_TAG) - 1)
 
-#define INT_MAX ((((i64)1) << 62) - 1)
-#define INT_MIN (-(((i64)1) << 62))
+#define TAG(PTR, TYPE)    ((lisp_t *)((((u64)(PTR)) << SHIFT_TAG) | TAG_##TYPE))
+#define UNTAG(PTR)        (((u64)PTR) >> SHIFT_TAG)
+#define GET_TAG(PTR)      ((tag_t)(((u64)(PTR)) & MASK_TAG))
+#define IS_TAG(PTR, TYPE) (GET_TAG(PTR) == TAG_##TYPE)
+
+#define INT_BITS ((sizeof(i64) * 8) - SHIFT_TAG)
+#define INT_MAX  ((((i64)1) << (INT_BITS - 1)) - 1)
+#define INT_MIN  (-(INT_MAX + 1))
 
 tag_t get_tag(const lisp_t *);
 lisp_t *tag_int(const i64);
