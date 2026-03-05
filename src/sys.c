@@ -129,7 +129,7 @@ void lisp_free_rec(sys_t *sys, lisp_t *item)
   case TAG_VEC:
   {
     vec_t *vec = as_vec(item);
-    for (size_t i = 0; i < VEC_SIZE(vec, lisp_t **); ++i)
+    FOR_VEC(i, vec, lisp_t *)
     {
       lisp_t *allocated = VEC_GET(vec, i, lisp_t *);
       lisp_free_rec(sys, allocated);

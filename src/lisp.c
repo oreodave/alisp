@@ -170,11 +170,11 @@ void lisp_print(FILE *fp, lisp_t *lisp)
 #endif
 
     vec_t *vec = as_vec(lisp);
-    for (u64 i = 1; i <= VEC_SIZE(vec, lisp_t *); ++i)
+    FOR_VEC(i, vec, lisp_t *)
     {
-      lisp_t *item = VEC_GET(vec, i - 1, lisp_t *);
+      lisp_t *item = VEC_GET(vec, i, lisp_t *);
       lisp_print(fp, item);
-      if (i != VEC_SIZE(vec, lisp_t *))
+      if (i < VEC_SIZE(vec, lisp_t *))
       {
         fprintf(fp, " ");
       }

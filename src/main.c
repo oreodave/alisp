@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
       VEC_SIZE(&ast, lisp_t *) == 1 ? "expr" : "exprs");
 
   {
-    for (u64 i = 0; i < VEC_SIZE(&ast, lisp_t *); ++i)
+    FOR_VEC(i, &ast, lisp_t *)
     {
       lisp_t *expr = VEC_GET(&ast, i, lisp_t *);
 #if VERBOSE_LOGS

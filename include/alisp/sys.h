@@ -10,6 +10,7 @@
 
 #include <alisp/allocator.h>
 #include <alisp/lisp.h>
+#include <alisp/symtable.h>
 
 /// System context
 typedef struct

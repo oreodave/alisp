@@ -31,6 +31,8 @@ static_assert(sizeof(vec_t) == 64, "vec_t has to be 64 bytes as part of SBO");
 
 #define VEC_GET(V, I, T) (((T *)vec_data(V))[I])
 #define VEC_SIZE(V, T)   ((V)->size / (sizeof(T)))
+#define FOR_VEC(INDEX, V, T) \
+  for (size_t INDEX = 0; INDEX < VEC_SIZE(V, T); ++INDEX)
 
 void vec_init(vec_t *, u64);
 void vec_free(vec_t *);

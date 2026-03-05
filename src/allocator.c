@@ -135,7 +135,7 @@ lisp_t *alloc_make(alloc_t *alloc, tag_t type)
 
   // We couldn't get anything from the free vector, so try to allocate a fresh
   // one against one of the pages.
-  for (u64 i = 0; i < VEC_SIZE(&alloc->pages, page_t *); ++i)
+  FOR_VEC(i, &alloc->pages, page_t *)
   {
     page_t *page = VEC_GET(&alloc->pages, i, page_t *);
     node         = make_node(page, type);
@@ -166,7 +166,7 @@ void alloc_delete(alloc_t *alloc, lisp_t *lisp)
 u64 alloc_cost(alloc_t *alloc)
 {
   u64 total_size = alloc->pages.size;
-  for (u64 i = 0; i < VEC_SIZE(&alloc->pages, page_t *); ++i)
+  FOR_VEC(i, &alloc->pages, page_t *)
   {
     page_t *page = VEC_GET(&alloc->pages, i, page_t *);
     total_size += page->data.size;
@@ -176,7 +176,7 @@ u64 alloc_cost(alloc_t *alloc)
 
 void alloc_free(alloc_t *alloc)
 {
-  for (u64 i = 0; i < VEC_SIZE(&alloc->pages, page_t *); ++i)
+  FOR_VEC(i, &alloc->pages, page_t *)
   {
     page_t *page = VEC_GET(&alloc->pages, i, page_t *);
     // Iterate through every alloc_node in this page
