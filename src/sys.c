@@ -59,6 +59,17 @@ lisp_t *cons(sys_t *sys, lisp_t *car, lisp_t *cdr)
   return cons;
 }
 
+lisp_t *make_list(sys_t *sys, lisp_t **lisps, u64 size)
+{
+  lisp_t *root = NIL;
+  for (u64 i = size; i > 0; --i)
+  {
+    lisp_t *node = lisps[i - 1];
+    root         = cons(sys, node, root);
+  }
+  return root;
+}
+
 lisp_t *make_vec(sys_t *sys, u64 capacity)
 {
   lisp_t *vec = sys_alloc(sys, TAG_VEC);

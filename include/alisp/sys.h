@@ -30,6 +30,7 @@ u64 sys_cost(sys_t *);
 lisp_t *make_int(i64);
 lisp_t *intern(sys_t *, sv_t);
 lisp_t *cons(sys_t *, lisp_t *, lisp_t *);
+lisp_t *make_list(sys_t *, lisp_t **, u64);
 lisp_t *make_vec(sys_t *, u64);
 lisp_t *make_str(sys_t *, u64);
 
