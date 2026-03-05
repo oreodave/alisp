@@ -15,9 +15,13 @@
 
 typedef struct
 {
+  u64 padding : 56;
+  tag_t tag   : 8;
   u64 references;
-  tag_t tag : 8;
 } alloc_metadata_t;
+
+static_assert(sizeof(alloc_metadata_t) == 16,
+              "16 byte metadata required for alignment purposes");
 
 typedef struct
 {
