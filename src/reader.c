@@ -24,6 +24,8 @@ const char *read_err_to_cstr(read_err_t err)
     return "EXPECTED_CLOSED_BRACE";
   case READ_ERR_EXPECTED_CLOSED_SQUARE_BRACKET:
     return "EXPECTED_CLOSED_SQUARE_BRACKET";
+  case READ_ERR_EXPECTED_SPEECHMARKS:
+    return "EXPECTED_SPEECHMARKS";
   case READ_ERR_UNEXPECTED_CLOSED_BRACE:
     return "UNEXPECTED_CLOSED_BRACE";
   case READ_ERR_UNEXPECTED_CLOSED_SQUARE_BRACKET:
@@ -192,6 +194,22 @@ read_err_t read_vec(sys_t *sys, stream_t *stream, lisp_t **ret)
   return READ_ERR_OK;
 }
 
+read_err_t read_str(sys_t *sys, stream_t *stream, lisp_t **ret)
+{
+  (void)stream_next(stream);
+  sv_t contents = stream_till(stream, "\"");
+  if (stream_peek(stream) != '\"')
+  {
+    return READ_ERR_EXPECTED_SPEECHMARKS;
+  }
+
+  stream_next(stream);
+  lisp_t *lisp = make_str(sys, contents.size);
+  vec_append(&as_str(lisp)->data, contents.data, contents.size);
+  *ret = lisp;
+  return READ_ERR_OK;
+}
+
 read_err_t read_quote(sys_t *sys, stream_t *stream, lisp_t **ret)
 {
   lisp_t *to_quote = NIL;
@@ -242,6 +260,8 @@ read_err_t read(sys_t *sys, stream_t *stream, lisp_t **ret)
     return read_vec(sys, stream, ret);
   else if (c == ']')
     return READ_ERR_UNEXPECTED_CLOSED_SQUARE_BRACKET;
+  else if (c == '\"')
+    return read_str(sys, stream, ret);
 
   return READ_ERR_UNKNOWN_CHAR;
 }
