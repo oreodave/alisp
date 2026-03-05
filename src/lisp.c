@@ -188,8 +188,23 @@ void lisp_print(FILE *fp, lisp_t *lisp)
     break;
   }
   case TAG_STR:
-    TODO("Implement lisp_print for strings");
+  {
+#if VERBOSE_LOGS == 2
+    fprintf(fp, "STR[");
+#else
+    fprintf(fp, "\"");
+#endif
+
+    sv_t sv = string_sv(as_str(lisp));
+    fprintf(fp, PR_SV, SV_FMT(sv));
+
+#if VERBOSE_LOGS == 2
+    fprintf(fp, "]");
+#else
+    fprintf(fp, "\"");
+#endif
     break;
+  }
   default:
     FAIL("Unreachable");
     break;
