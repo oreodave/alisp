@@ -200,8 +200,8 @@ read_err_t read_quote(sys_t *sys, stream_t *stream, lisp_t **ret)
   read_err_t err = read(sys, stream, &to_quote);
   if (err)
     return err;
-  *ret = cons(sys, to_quote, NIL);
-  *ret = cons(sys, intern(sys, SV_AUTO("quote")), *ret);
+  lisp_t *items[] = {intern(sys, SV_AUTO("quote")), to_quote};
+  *ret            = make_list(sys, items, ARRSIZE(items));
   return READ_ERR_OK;
 }
 
